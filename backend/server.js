@@ -9,7 +9,15 @@ const scanRoutes = require("./routes/scanRoutes");
 
 const app = express();
 app.use(express.json());
-app.use(cors());
+
+const corsOptions = {
+  origin: "https://mvp-event.vercel.app",  
+  methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+  credentials: true,    
+  allowedHeaders: ["Content-Type", "Authorization"]
+};
+
+app.use(cors(corsOptions));
 
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log("Connected to MongoDB"))
