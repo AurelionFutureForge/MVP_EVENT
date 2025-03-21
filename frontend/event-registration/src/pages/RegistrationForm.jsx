@@ -9,7 +9,8 @@ function RegistrationForm() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const BASE_URL = process.env.REACT_APP_BACKEND_URL;
+  const BASE_URL = import.meta.env.VITE_BACKEND_URL;
+  console.log(BASE_URL);
 
   const validate = (isPayment = false) => {
     let tempErrors = {};

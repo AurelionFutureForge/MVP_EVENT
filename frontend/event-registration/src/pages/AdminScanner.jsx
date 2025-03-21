@@ -10,7 +10,7 @@ function AdminScanner() {
   const [scanResult, setScanResult] = useState(null);
   const [verifiedUser, setVerifiedUser] = useState(null);
 
-  const BASE_URL = process.env.REACT_APP_BACKEND_URL;
+  const BASE_URL = import.meta.env.VITE_BACKEND_URL;
 
   useEffect(() => {
     if (location.pathname !== "/admin/scanner") return;

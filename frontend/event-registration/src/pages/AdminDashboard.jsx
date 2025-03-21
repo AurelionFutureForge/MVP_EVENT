@@ -7,7 +7,7 @@ function AdminDashboard() {
   const [users, setUsers] = useState([]);
   const navigate = useNavigate();
 
-  const BASE_URL = process.env.REACT_APP_BACKEND_URL;
+  const BASE_URL = import.meta.env.VITE_BACKEND_URL;
 
   useEffect(() => {
     const fetchUsers = async () => {
