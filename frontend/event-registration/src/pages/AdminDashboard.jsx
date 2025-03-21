@@ -7,11 +7,13 @@ function AdminDashboard() {
   const [users, setUsers] = useState([]);
   const navigate = useNavigate();
 
+  const BASE_URL = process.env.REACT_APP_BACKEND_URL;
+
   useEffect(() => {
     const fetchUsers = async () => {
       try {
         const token = localStorage.getItem("adminToken");
-        const response = await axios.get("http://localhost:5000/admin/users", {
+        const response = await axios.get(`${BASE_URL}/admin/users`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setUsers(response.data);

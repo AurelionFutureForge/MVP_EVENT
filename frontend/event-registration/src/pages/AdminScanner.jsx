@@ -10,6 +10,8 @@ function AdminScanner() {
   const [scanResult, setScanResult] = useState(null);
   const [verifiedUser, setVerifiedUser] = useState(null);
 
+  const BASE_URL = process.env.REACT_APP_BACKEND_URL;
+
   useEffect(() => {
     if (location.pathname !== "/admin/scanner") return;
 
@@ -44,7 +46,7 @@ function AdminScanner() {
     try {
       const token = localStorage.getItem("adminToken");
       const response = await axios.post(
-        "http://localhost:5000/scan/verify",
+        `${BASE_URL}/scan/verify`,
         { qrCode },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -66,7 +68,7 @@ function AdminScanner() {
     try {
       const token = localStorage.getItem("adminToken");
       const response = await axios.post(
-        `http://localhost:5000/scan/claim-${type}`,
+        `${BASE_URL}/scan/claim-${type}`,
         { qrCode: scanResult },
         { headers: { Authorization: `Bearer ${token}` } }
       );

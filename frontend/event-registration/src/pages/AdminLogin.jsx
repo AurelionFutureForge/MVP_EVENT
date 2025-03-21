@@ -8,10 +8,12 @@ function AdminLogin() {
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
+  const BASE_URL = process.env.REACT_APP_BACKEND_URL;
+
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post("http://localhost:5000/admin/login", { email, password });
+      const response = await axios.post(`${BASE_URL}/admin/login`, { email, password });
       localStorage.setItem("adminToken", response.data.token);
       toast.success("Login Successful!");
       navigate("/admin/dashboard");

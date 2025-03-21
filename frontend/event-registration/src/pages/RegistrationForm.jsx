@@ -9,6 +9,8 @@ function RegistrationForm() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
+  const BASE_URL = process.env.REACT_APP_BACKEND_URL;
+
   const validate = (isPayment = false) => {
     let tempErrors = {};
     if (!formData.name) tempErrors.name = "Name is required";
@@ -44,7 +46,7 @@ function RegistrationForm() {
     if (!validate()) return;  // Normal validation, includes payment check
     setLoading(true);
     try {
-      const response = await axios.post("http://localhost:5000/users/register", formData);
+      const response = await axios.post(`${BASE_URL}/users/register`, formData);
       
       if (!response.data || !response.data.qrCode) {
         throw new Error("QR Code not received");
