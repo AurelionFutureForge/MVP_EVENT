@@ -23,7 +23,7 @@ function SuccessPage() {
       )}
       <div className="bg-white shadow-2xl rounded-xl p-8 text-center max-w-lg w-full">
         <h2 className="text-4xl font-extrabold text-green-700 mb-4">
-          `Registration Successfull for the Event ${eventName}`
+          Registration Successfull for the Event,<span>{eventName}</span>
         </h2>
         <p className="text-gray-700 text-lg">
           Thank you for registering, <span className="font-semibold">{name || "Guest"}</span>.
