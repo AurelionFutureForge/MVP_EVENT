@@ -1,41 +1,41 @@
 const nodemailer = require("nodemailer");
+const PDFDocument = require("pdfkit");
+const fs = require("fs");
 const User = require("../models/User");
 const QRCode = require("qrcode");
+const path = require("path");
 
 exports.registerUser = async (req, res) => {
   const { name, email, eventName, contact, role } = req.body;
   try {
-    // Check if user already exists
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.status(400).json({ message: "User with this email already exists!" });
     }
 
-    // Create a new user and save it first to get the MongoDB _id
     const newUser = new User({ name, email, eventName, contact, role });
-    await newUser.save(); 
+    await newUser.save();
 
-    // Generate a QR code using the unique _id
-    const qrCodeData = `${email}-${newUser._id}`; 
-
-    // Generate QR Code Image (For Email Only)
+    const qrCodeData = `${email}-${newUser._id}`;
     const qrCodeImage = await QRCode.toDataURL(qrCodeData);
 
-    // Update user with the QR code data
     newUser.qrCode = qrCodeData;
     await newUser.save();
 
     const ticketID = newUser._id.toString();
 
-    // Send confirmation email with QR code image
-    await sendSuccessEmail(name, email, eventName, qrCodeImage, role, ticketID);
+    // Generate PDF file with event details and QR code
+    const pdfFilePath = await generateTicketPDF(name, email, eventName, ticketID, role, qrCodeImage);
+
+    // Send email with PDF attachment
+    await sendSuccessEmail(name, email, eventName, role, ticketID, pdfFilePath);
 
     res.status(201).json({ 
       message: "Registration successful!", 
       name: newUser.name,
       email: newUser.email,
       eventName: newUser.eventName,
-      qrCode: qrCodeData // Now it stores a consistent QR code
+      qrCode: qrCodeData
     });
 
   } catch (error) {
@@ -44,52 +44,96 @@ exports.registerUser = async (req, res) => {
   }
 };
 
-// Function to send success email with PDF-style QR code
-const sendSuccessEmail = async (name, email, eventName, qrCodeImage, role, ticketID) => {
-  try {
-    const transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        user: "amthemithun@gmail.com",
-        pass: "ptfk ykpn uygd yodb",
-      },
+// Function to generate PDF ticket
+const generateTicketPDF = async (name, email, eventName, ticketID, role, qrCodeImage) => {
+  return new Promise((resolve, reject) => {
+    const doc = new PDFDocument({ size: 'A4' });
+    const pdfFilePath = path.join(__dirname, `../tickets/ticket_${ticketID}.pdf`);
+    const stream = fs.createWriteStream(pdfFilePath);
+
+    doc.pipe(stream);
+
+    // Header
+    doc.fontSize(24).fillColor('#4CAF50').text(eventName, { align: 'center' });
+    doc.moveDown(0.5);
+    doc.fontSize(16).fillColor('black').text("Mar 15 - 16, 2025, 08:00 AM (IST)", { align: 'center' });
+    doc.moveDown(0.5);
+    doc.text("M Weddings & Conventions, Chennai - India", { align: 'center' });
+
+    // Attendee details
+    doc.moveDown(1);
+    doc.fontSize(14).text(`Attendee: ${name}`, { align: 'left' });
+    doc.text(`Email: ${email}`);
+    doc.text(`Order ID: ${ticketID}`);
+    doc.text(`Ticket Class: ${role === "Visitor" ? "Visitors Registration (PAID ENTRY)" : "Speaker Registration (FREE ENTRY)"}`);
+    doc.text(`Payment Status: ${role === "Visitor" ? "✅ Payment Received" : "✅ No Payment Required"}`);
+
+    // QR code image
+    const base64Data = qrCodeImage.replace(/^data:image\/png;base64,/, "");
+    const qrCodeBuffer = Buffer.from(base64Data, "base64");
+    const qrCodeFilePath = path.join(__dirname, `../tickets/qrcode_${ticketID}.png`);
+    
+    fs.writeFileSync(qrCodeFilePath, qrCodeBuffer);
+    
+    doc.image(qrCodeFilePath, {
+      fit: [150, 150],
+      align: 'center',
+      valign: 'center'
     });
 
-    let ticketClass = "";
-    let paymentStatus = "";
+    // Footer
+    doc.moveDown(1);
+    doc.fontSize(12).fillColor('#4CAF50').text("Powered by Zoho Backstage", { align: 'center' });
 
-    if (role === "Visitor") {
-      ticketClass = "VISITORS REGISTRATION (PAID ENTRY)";
-      paymentStatus = "✅ Payment Received";
-    } else if (role === "Speaker") {
-      ticketClass = "SPEAKER REGISTRATION (FREE ENTRY)";
-      paymentStatus = "✅ No Payment Required";
-    } else {
-      ticketClass = "UNKNOWN ROLE";
-      paymentStatus = "❓ Payment Status Unknown";
-    }
+    doc.end();
 
-    // Convert base64 to buffer for attachment
-    const base64Data = qrCodeImage.replace(/^data:image\/png;base64,/, ""); 
-    const qrCodeBuffer = Buffer.from(base64Data, "base64");
+    stream.on("finish", () => {
+      console.log(`PDF generated: ${pdfFilePath}`);
+      resolve(pdfFilePath);
+    });
 
-    const mailOptions = {
-      from: "amthemithun@gmail.com",
-      to: email,
-      subject: `🎉 ${eventName} - Your Ticket Confirmation`,
-      html: `
+    stream.on("error", (error) => {
+      console.error("Error generating PDF:", error);
+      reject(error);
+    });
+  });
+};
+
+// Function to send success email
+const sendSuccessEmail = async (name, email, eventName, role, ticketID, pdfFilePath) => {
+  const transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+      user: "amthemithun@gmail.com",
+      pass: "ptfk ykpn uygd yodb",
+    },
+  });
+
+  let ticketClass = role === "Visitor" 
+    ? "Visitors Registration (PAID ENTRY)" 
+    : "Speaker Registration (FREE ENTRY)";
+  
+  let paymentStatus = role === "Visitor" 
+    ? "✅ Payment Received" 
+    : "✅ No Payment Required";
+
+  const mailOptions = {
+    from: "amthemithun@gmail.com",
+    to: email,
+    subject: `🎉 ${eventName} - Your Ticket & Event Details`,
+    html: `
       <div style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: 0 auto; border: 1px solid #ddd; border-radius: 10px; box-shadow: 0 8px 16px rgba(0,0,0,0.1); overflow: hidden;">
         
         <!-- Header -->
         <div style="background: #4CAF50; color: white; text-align: center; padding: 20px;">
-          <h1 style="margin: 0;">🎫 Your E-Ticket</h1>
-          <p>You're officially registered for <strong>${eventName}</strong></p>
+          <h1 style="margin: 0;">🎉 ${eventName}</h1>
+          <p>You're officially registered!</p>
         </div>
 
         <!-- Event Details -->
         <div style="padding: 30px;">
           <p style="font-size: 18px;">Hello <strong>${name}</strong>,</p>
-          <p>Thank you for registering for <strong>${eventName}</strong>. Here are your event details:</p>
+          <p>Thank you for registering for the <strong>${eventName}</strong>. Here are your event details:</p>
 
           <div style="border: 1px solid #eee; padding: 20px; border-radius: 8px; margin: 20px 0;">
             <p><strong>📅 Date:</strong> March 15 - 16, 2025</p>
@@ -107,32 +151,20 @@ const sendSuccessEmail = async (name, email, eventName, qrCodeImage, role, ticke
           <p><strong>Payment Status:</strong> ${paymentStatus}</p>
         </div>
 
-        <!-- QR Code Section (PDF-style) -->
-        <div style="text-align: center; padding: 30px; border-top: 1px solid #ddd;">
-          <h3>📲 Scan this QR Code at Entry</h3>
-          <img src="cid:qrcode" alt="QR Code" style="width: 250px; height: 250px; border: 4px solid #4CAF50; border-radius: 12px;"/>
-          <p style="margin-top: 10px; color: #888;">Use this QR code for fast check-in at the event.</p>
-        </div>
-
         <!-- Footer -->
         <div style="background: #4CAF50; color: white; text-align: center; padding: 15px;">
           <p>Thank you for joining us. We look forward to seeing you at the event! 🎊</p>
         </div>
       </div>
-      `,
-      attachments: [
-        {
-          filename: "QRCode.png",
-          content: qrCodeBuffer,
-          encoding: "base64",
-          cid: "qrcode" // Inline QR Code display
-        },
-      ],
-    };
+    `,
+    attachments: [
+      {
+        filename: `Ticket_${ticketID}.pdf`,
+        path: pdfFilePath,
+      }
+    ],
+  };
 
-    await transporter.sendMail(mailOptions);
-    console.log("Success email sent to:", email);
-  } catch (error) {
-    console.error("Error sending email:", error);
-  }
+  await transporter.sendMail(mailOptions);
+  console.log(`Email sent to ${email} with PDF attachment`);
 };
