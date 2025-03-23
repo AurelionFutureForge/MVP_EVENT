@@ -45,18 +45,18 @@ function AdminDashboard() {
       user.contact,
     ]);
 
-    //  Apply autoTable correctly
+    
     autoTable(pdf, {
       startY: 30,
       head: headers,
       body: data,
       theme: "grid",
-      headStyles: { fillColor: [41, 128, 185] },  // Blue header
+      headStyles: { fillColor: [41, 128, 185] },  
       styles: { fontSize: 10, cellPadding: 5 },
-      alternateRowStyles: { fillColor: [240, 240, 240] },  // Light grey alternating rows
+      alternateRowStyles: { fillColor: [240, 240, 240] },  
     });
 
-    pdf.save("admin_dashboard.pdf");
+    pdf.save("registered_users.pdf");
     toast.success("PDF downloaded successfully!");
   };
 
