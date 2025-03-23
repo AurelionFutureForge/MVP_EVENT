@@ -54,7 +54,7 @@ function RegistrationForm() {
         throw new Error("QR Code not received");
       }
 
-      const { name, email, qrCode } = response.data;
+      const { name, email, eventName, qrCode } = response.data;
       toast.success("Registration successful!");
 
       navigate("/success", { state: { name, email, eventName, qrCodeUrl: qrCode } });
