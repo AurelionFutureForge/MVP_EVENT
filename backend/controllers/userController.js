@@ -14,6 +14,7 @@ exports.registerUser = async (req, res) => {
     const newUser = new User({ name, email, eventName, contact, role });
     await newUser.save();
 
+    // ✅ Generate QR Code Image (Base64)
     const qrCodeData = `${email}-${newUser._id}`;
     const qrCodeImage = await QRCode.toDataURL(qrCodeData);
 
@@ -22,15 +23,16 @@ exports.registerUser = async (req, res) => {
 
     const ticketID = newUser._id.toString();
 
-    // Send email with QR code
+    // ✅ Send success email with QR code
     await sendSuccessEmail(name, email, eventName, qrCodeImage, role, ticketID);
 
+    // ✅ Send base64 QR image to the frontend
     res.status(201).json({
       message: "Registration successful!",
       name: newUser.name,
       email: newUser.email,
       eventName: newUser.eventName,
-      qrCode: qrCodeData
+      qrCode: qrCodeImage    // ✅ Send base64 QR image
     });
 
   } catch (error) {
@@ -39,14 +41,14 @@ exports.registerUser = async (req, res) => {
   }
 };
 
-// ✅ Fixed Email Sending Function
 const sendSuccessEmail = async (name, email, eventName, qrCodeImage, role, ticketID) => {
   try {
+    // ✅ Hardcoded Gmail credentials
     const transporter = nodemailer.createTransport({
       service: "gmail",
       auth: {
-        user: "amthemithun@gmail.com",
-        pass: "ptfk ykpn uygd yodb",
+        user: "amthemithun@gmail.com",         // ✅ Hardcoded email
+        pass: "ptfk ykpn uygd yodb",           // ✅ Hardcoded password
       },
     });
 
@@ -64,7 +66,7 @@ const sendSuccessEmail = async (name, email, eventName, qrCodeImage, role, ticke
       paymentStatus = "❓ Payment Status Unknown";
     }
 
-    // Convert base64 to buffer (no re-encoding)
+    // ✅ Convert base64 image to buffer for email attachment
     const base64Data = qrCodeImage.split(",")[1];
     const qrCodeBuffer = Buffer.from(base64Data, "base64");
 
@@ -119,7 +121,7 @@ const sendSuccessEmail = async (name, email, eventName, qrCodeImage, role, ticke
         {
           filename: "QRCode.png",
           content: qrCodeBuffer,
-          cid: "qrcode123"  // Fixed CID reference
+          cid: "qrcode123"  // ✅ Attach QR code image
         },
       ],
     };
