@@ -4,38 +4,33 @@ const QRCode = require("qrcode");
 
 exports.registerUser = async (req, res) => {
   const { name, email, eventName, contact, role } = req.body;
+
   try {
-    // Check if user already exists
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.status(400).json({ message: "User with this email already exists!" });
     }
 
-    // Create a new user and save it first to get the MongoDB _id
     const newUser = new User({ name, email, eventName, contact, role });
-    await newUser.save(); 
+    await newUser.save();
 
-    // Generate a QR code using the unique _id
-    const qrCodeData = `${email}-${newUser._id}`; 
-
-    // Generate QR Code Image (For Email Only)
+    const qrCodeData = `${email}-${newUser._id}`;
     const qrCodeImage = await QRCode.toDataURL(qrCodeData);
 
-    // Update user with the QR code data
     newUser.qrCode = qrCodeData;
     await newUser.save();
 
     const ticketID = newUser._id.toString();
 
-    // Send confirmation email with QR code image
+    // Send email with QR code
     await sendSuccessEmail(name, email, eventName, qrCodeImage, role, ticketID);
 
-    res.status(201).json({ 
-      message: "Registration successful!", 
+    res.status(201).json({
+      message: "Registration successful!",
       name: newUser.name,
       email: newUser.email,
       eventName: newUser.eventName,
-      qrCode: qrCodeData // Now it stores a consistent QR code
+      qrCode: qrCodeData
     });
 
   } catch (error) {
@@ -44,7 +39,7 @@ exports.registerUser = async (req, res) => {
   }
 };
 
-// Function to send success email with PDF-style QR code
+// ✅ Fixed Email Sending Function
 const sendSuccessEmail = async (name, email, eventName, qrCodeImage, role, ticketID) => {
   try {
     const transporter = nodemailer.createTransport({
@@ -69,8 +64,8 @@ const sendSuccessEmail = async (name, email, eventName, qrCodeImage, role, ticke
       paymentStatus = "❓ Payment Status Unknown";
     }
 
-    // Convert base64 to buffer for attachment
-    const base64Data = qrCodeImage.replace(/^data:image\/png;base64,/, ""); 
+    // Convert base64 to buffer (no re-encoding)
+    const base64Data = qrCodeImage.split(",")[1];
     const qrCodeBuffer = Buffer.from(base64Data, "base64");
 
     const mailOptions = {
@@ -107,10 +102,10 @@ const sendSuccessEmail = async (name, email, eventName, qrCodeImage, role, ticke
           <p><strong>Payment Status:</strong> ${paymentStatus}</p>
         </div>
 
-        <!-- QR Code Section (PDF-style) -->
+        <!-- QR Code Section -->
         <div style="text-align: center; padding: 30px; border-top: 1px solid #ddd;">
           <h3>📲 Scan this QR Code at Entry</h3>
-          <img src="cid:qrcode" alt="QR Code" style="width: 250px; height: 250px; border: 4px solid #4CAF50; border-radius: 12px;"/>
+          <img src="cid:qrcode123" alt="QR Code" style="width: 250px; height: 250px; border: 4px solid #4CAF50; border-radius: 12px;"/>
           <p style="margin-top: 10px; color: #888;">Use this QR code for fast check-in at the event.</p>
         </div>
 
@@ -124,8 +119,7 @@ const sendSuccessEmail = async (name, email, eventName, qrCodeImage, role, ticke
         {
           filename: "QRCode.png",
           content: qrCodeBuffer,
-          encoding: "base64",
-          cid: "qrcode" // Inline QR Code display
+          cid: "qrcode123"  // Fixed CID reference
         },
       ],
     };
