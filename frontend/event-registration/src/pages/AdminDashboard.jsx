@@ -3,7 +3,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";
 import jsPDF from "jspdf";
-import "jspdf-autotable";
+import autoTable from "jspdf-autotable";  
 
 function AdminDashboard() {
   const [users, setUsers] = useState([]);
@@ -26,7 +26,7 @@ function AdminDashboard() {
     fetchUsers();
   }, [navigate]);
 
-  // ✅ Function to Download PDF
+  //  Function to Download PDF
   const downloadPDF = () => {
     if (users.length === 0) {
       toast.error("No data available to download!");
@@ -45,7 +45,8 @@ function AdminDashboard() {
       user.contact,
     ]);
 
-    pdf.autoTable({
+    //  Apply autoTable correctly
+    autoTable(pdf, {
       startY: 30,
       head: headers,
       body: data,
