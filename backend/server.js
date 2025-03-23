@@ -11,7 +11,7 @@ const app = express();
 app.use(express.json());
 
 const corsOptions = {
-  origin: "https://mvp-event.vercel.app",  
+  origin: ["https://mvp-event.vercel.app","http://localhost:5173"],  
   methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
   credentials: true,    
   allowedHeaders: ["Content-Type", "Authorization"]

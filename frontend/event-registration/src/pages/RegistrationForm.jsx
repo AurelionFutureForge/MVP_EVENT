@@ -48,6 +48,7 @@ function RegistrationForm() {
     if (!validate()) return;  // Normal validation, includes payment check
     setLoading(true);
     try {
+      console.log("register enetered");
       const response = await axios.post(`${BASE_URL}/users/register`, {name,email,eventName,contact,role});
       console.log("completed");
       
