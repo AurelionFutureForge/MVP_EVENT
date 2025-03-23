@@ -62,53 +62,28 @@ const sendSuccessEmail = async (name, email, eventName, qrCodeImage) => {
       to: email,
       subject: `🎉${eventName} - Your invited! `,
       html: `
-      <div style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: 0 auto; border: 1px solid #ddd; border-radius: 10px; box-shadow: 0 8px 16px rgba(0,0,0,0.1); overflow: hidden;">
-        
-      <!-- Header -->
-      <div style="background: #4CAF50; color: white; text-align: center; padding: 20px;">
-        <h1 style="margin: 0;">🎉 ${eventName}</h1>
-        <p>You're officially registered!</p>
-      </div>
 
-      <!-- Event Details -->
-      <div style="padding: 30px;">
-        <p style="font-size: 18px;">Hello <strong>${name}</strong>,</p>
-        <p>Thank you for registering for the <strong>${eventName}</strong>. Here are your event details:</p>
+        <div style="max-width: 600px; margin: 0 auto; font-family: Arial, sans-serif;
+        color: #333; border: 2px solid #ddd; border-radius: 12px; overflow: hidden; box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);">
 
-        <div style="border: 1px solid #eee; padding: 20px; border-radius: 8px; margin: 20px 0;">
-          <p><strong>📅 Date:</strong> March 15 - 16, 2025</p>
-          <p><strong>⏰ Time:</strong> 08:00 AM - 5:00 PM (IST)</p>
-          <p><strong>📍 Location:</strong> M Weddings & Conventions, Chennai, India</p>
+        <div style="background: #4CAF50; color: white; text-align: center; padding: 20px;">
+          <h1>🎉${eventName}</h1>
+          <p>Exclusive Invitation</p>
         </div>
 
-        <p>Get important information about the event from the website:</p>
-        <p style="text-align: center;">
-          <a href="https://bni-connect-fest.com" style="display: inline-block; padding: 12px 30px; color: white; background: #4CAF50; text-decoration: none; border-radius: 5px; font-weight: bold;">🌐 Visit Event Website</a>
-        </p>
-      </div>
 
-      <!-- Ticket Details -->
-      <div style="background: #f9f9f9; padding: 30px; border-top: 1px solid #ddd;">
-        <h3 style="margin: 0 0 10px;">🎟️ Ticket Details</h3>
-        <p><strong>Order ID:</strong> 10379000004103300</p>
-        <p><strong>Ticket Class:</strong> ${ticketClass}</p>
-        <p><strong>Attendee Name:</strong> ${name}</p>
-        <p><strong>Payment Status:</strong> ${paymentStatus}</p>
-      </div>
+        <div style="padding: 30px;">
+          <h2 style="text-align: center;">Hello, ${name}!</h2>
+          <p>You are officially registered for <strong>${eventName}</strong>.</p>
 
-      <!-- QR Code -->
-      <div style="text-align: center; padding: 20px;">
-        <h3>🎫 Your QR Code</h3>
-        <p>Show this QR code at the entry gate:</p>
-        <img src="cid:qrcode" alt="QR Code" style="width: 150px; height: 150px; border: 2px solid #ddd; border-radius: 8px;"/>
-      </div>
+          <div style="border: 1px solid #eee; padding: 20px; border-radius: 8px; margin-top: 20px;">
+            <p><strong>📅 Date:</strong>March 15 - 16, 2025</p>
+            <p><strong>⏰ Time:</strong>08:00 AM - 5:00 PM (IST)</p>
+            <p><strong>📍 Location:</strong>M Weddings & Conventions, Chennai, India</p>
+          </div>
 
-      <!-- Footer -->
-      <div style="background: #4CAF50; color: white; text-align: center; padding: 15px;">
-        <p>Thank you for joining us. We look forward to seeing you at the event! 🎊</p>
-      </div>
-    </div>
-    `,
+        </div>
+      `,
       attachments: [
         {
           filename: "QRCode.png",
