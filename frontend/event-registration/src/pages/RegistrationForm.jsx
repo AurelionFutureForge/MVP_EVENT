@@ -49,16 +49,13 @@ function RegistrationForm() {
     setLoading(true);
     try {
       const response = await axios.post(`${BASE_URL}/users/register`, {name,email,eventName,contact,role});
+      console.log("completed");
       
       if (!response.data || !response.data.qrCode) {
         throw new Error("QR Code not received");
       }
 
       const { name, email, eventName, qrCode } = response.data;
-      console.log(name);
-      console.log(email);
-      console.log(eventName);
-      console.log(qrCode);
       toast.success("Registration successful!");
 
       navigate("/success", { state: { name, email, eventName, qrCodeUrl: qrCode } });
