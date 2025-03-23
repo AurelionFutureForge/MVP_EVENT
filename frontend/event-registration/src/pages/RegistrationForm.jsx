@@ -55,6 +55,10 @@ function RegistrationForm() {
       }
 
       const { name, email, eventName, qrCode } = response.data;
+      console.log(name);
+      console.log(email);
+      console.log(eventName);
+      console.log(qrCode);
       toast.success("Registration successful!");
 
       navigate("/success", { state: { name, email, eventName, qrCodeUrl: qrCode } });
