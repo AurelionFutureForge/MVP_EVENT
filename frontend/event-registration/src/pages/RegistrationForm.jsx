@@ -48,7 +48,7 @@ function RegistrationForm() {
     if (!validate()) return;  // Normal validation, includes payment check
     setLoading(true);
     try {
-      const response = await axios.post(`${BASE_URL}/users/register`, formData);
+      const response = await axios.post(`${BASE_URL}/users/register`, {name,email,eventName,contact,role});
       
       if (!response.data || !response.data.qrCode) {
         throw new Error("QR Code not received");
