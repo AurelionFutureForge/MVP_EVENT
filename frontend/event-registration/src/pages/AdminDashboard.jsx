@@ -35,7 +35,7 @@ function AdminDashboard() {
 
     const pdf = new jsPDF();
     pdf.setFontSize(18);
-    pdf.text("Admin Dashboard Report", 14, 20);
+    pdf.text("Registered Users", 14, 20);
 
     const headers = [["Name", "Email", "Role", "Contact"]];
     const data = users.map((user) => [
