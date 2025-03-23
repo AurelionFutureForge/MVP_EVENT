@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 function SuccessPage() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { name, email, qrCode } = location.state || {}; // Updated to use 'qrCode' from backend
+  const { name, email, eventName, qrCode } = location.state || {}; // Updated to use 'qrCode' from backend
   const [showConfetti, setShowConfetti] = useState(false);
 
   useEffect(() => {
@@ -23,7 +23,7 @@ function SuccessPage() {
       )}
       <div className="bg-white shadow-2xl rounded-xl p-8 text-center max-w-lg w-full">
         <h2 className="text-4xl font-extrabold text-green-700 mb-4">
-          Registration Successful! 🎉
+          `Registration Successfull for the Event ${eventName}`
         </h2>
         <p className="text-gray-700 text-lg">
           Thank you for registering, <span className="font-semibold">{name || "Guest"}</span>.

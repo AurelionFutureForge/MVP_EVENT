@@ -4,7 +4,7 @@ import axios from "axios";
 import { toast } from "react-hot-toast";
 
 function RegistrationForm() {
-  const [formData, setFormData] = useState({ name: "", email: "", contact: "", role: "Visitor", paymentCompleted: false });
+  const [formData, setFormData] = useState({ name: "", email: "", eventName:"", contact: "", role: "Visitor", paymentCompleted: false });
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -19,6 +19,7 @@ function RegistrationForm() {
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) tempErrors.email = "Invalid email format";
     if (!formData.contact) tempErrors.contact = "Contact number is required";
     else if (!/^\d{10}$/.test(formData.contact)) tempErrors.contact = "Invalid contact number";
+    if(!formData.eventName) tempErrors.eventName = "Event Name is required";
 
     // Only validate payment when submitting the form, not when making a payment
     if (!isPayment && !formData.paymentCompleted) {
@@ -56,7 +57,7 @@ function RegistrationForm() {
       const { name, email, qrCode } = response.data;
       toast.success("Registration successful!");
 
-      navigate("/success", { state: { name, email, qrCodeUrl: qrCode } });
+      navigate("/success", { state: { name, email, eventName, qrCodeUrl: qrCode } });
     } catch (error) {
       toast.error("Registration failed. Try again.");
       console.error("Error:", error);
@@ -91,6 +92,18 @@ function RegistrationForm() {
             className="w-full border border-gray-300 px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400" 
           />
           {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
+        </div>
+
+        <div className="mb-4">
+          <label className="block text-gray-700 font-medium mb-1">Event Name</label>
+          <input 
+            type="text" 
+            name="name" 
+            value={formData.eventName} 
+            onChange={handleChange} 
+            className="w-full border border-gray-300 px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400" 
+          />
+          {errors.eventName && <p className="text-red-500 text-sm mt-1">{errors.eventName}</p>}
         </div>
 
         <div className="mb-4">
