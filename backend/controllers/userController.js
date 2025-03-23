@@ -43,7 +43,6 @@ exports.registerUser = async (req, res) => {
 
 const sendSuccessEmail = async (name, email, eventName, qrCodeImage, role, ticketID) => {
   try {
-    // ✅ Hardcoded Gmail credentials
     const transporter = nodemailer.createTransport({
       service: "gmail",
       auth: {
@@ -65,6 +64,10 @@ const sendSuccessEmail = async (name, email, eventName, qrCodeImage, role, ticke
       ticketClass = "UNKNOWN ROLE";
       paymentStatus = "❓ Payment Status Unknown";
     }
+
+    // ✅ Convert base64 QR code image to buffer for attachment
+    const base64Data = qrCodeImage.replace(/^data:image\/png;base64,/, "");
+    const qrCodeBuffer = Buffer.from(base64Data, "base64");
 
     const mailOptions = {
       from: "amthemithun@gmail.com",
@@ -102,9 +105,8 @@ const sendSuccessEmail = async (name, email, eventName, qrCodeImage, role, ticke
 
         <!-- QR Code Section -->
         <div style="text-align: center; padding: 30px; border-top: 1px solid #ddd;">
-          <h3>📲 Scan this QR Code at Entry</h3>
-          <img src="${qrCodeImage}" alt="QR Code" style="width: 250px; height: 250px; border: 4px solid #4CAF50; border-radius: 12px;"/>
-          <p style="margin-top: 10px; color: #888;">Use this QR code for fast check-in at the event.</p>
+          <h3>📲 Your QR Code is attached to this email</h3>
+          <p style="margin-top: 10px; color: #888;">Download the QR code from the attachment for fast check-in at the event.</p>
         </div>
 
         <!-- Footer -->
@@ -112,7 +114,14 @@ const sendSuccessEmail = async (name, email, eventName, qrCodeImage, role, ticke
           <p>Thank you for joining us. We look forward to seeing you at the event! 🎊</p>
         </div>
       </div>
-      `
+      `,
+      attachments: [
+        {
+          filename: "QRCode.png",               // ✅ QR code attached as image
+          content: qrCodeBuffer,                // ✅ Attach buffer
+          encoding: "base64",                   // ✅ Base64 encoding
+        },
+      ],
     };
 
     await transporter.sendMail(mailOptions);
