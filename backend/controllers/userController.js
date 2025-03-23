@@ -26,7 +26,7 @@ exports.registerUser = async (req, res) => {
     await newUser.save();
 
     // Send confirmation email with QR code image
-    await sendSuccessEmail(name, email, eventName, qrCodeImage);
+    await sendSuccessEmail(name, email, eventName, qrCodeImage, role);
 
     res.status(201).json({ 
       message: "Registration successful!", 
@@ -43,7 +43,7 @@ exports.registerUser = async (req, res) => {
 };
 
 // Function to send success email
-const sendSuccessEmail = async (name, email, eventName, qrCodeImage) => {
+const sendSuccessEmail = async (name, email, eventName, qrCodeImage, role) => {
   try {
     const transporter = nodemailer.createTransport({
       service: "gmail",
@@ -94,11 +94,6 @@ const sendSuccessEmail = async (name, email, eventName, qrCodeImage) => {
             <p><strong>⏰ Time:</strong> 08:00 AM - 5:00 PM (IST)</p>
             <p><strong>📍 Location:</strong> M Weddings & Conventions, Chennai, India</p>
           </div>
-
-          <p>Get important information about the event from the website:</p>
-          <p style="text-align: center;">
-            <a href="https://bni-connect-fest.com" style="display: inline-block; padding: 12px 30px; color: white; background: #4CAF50; text-decoration: none; border-radius: 5px; font-weight: bold;">🌐 Visit Event Website</a>
-          </p>
         </div>
 
         <!-- Ticket Details -->
