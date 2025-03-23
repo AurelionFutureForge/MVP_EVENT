@@ -1,138 +1,58 @@
-const nodemailer = require("nodemailer");
-const User = require("../models/User");
-const QRCode = require("qrcode");
+import { useLocation, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
 
-exports.registerUser = async (req, res) => {
-  const { name, email, eventName, contact, role } = req.body;
-  try {
-    // Check if user already exists
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
-      return res.status(400).json({ message: "User with this email already exists!" });
-    }
+function SuccessPage() {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { name, email, eventName, qrCode } = location.state || {}; // Updated to use 'qrCode' from backend
+  const [showConfetti, setShowConfetti] = useState(false);
 
-    // Create a new user and save it first to get the MongoDB _id
-    const newUser = new User({ name, email, eventName, contact, role });
-    await newUser.save(); 
+  useEffect(() => {
+    console.log("Received Data in SuccessPage:", location.state); // Debugging
+    setShowConfetti(true);
+    const timer = setTimeout(() => setShowConfetti(false), 4000);
+    return () => clearTimeout(timer);
+  }, []);
 
-    // Generate a QR code using the unique _id
-    const qrCodeData = `${email}-${newUser._id}`; 
+  return (
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-green-100 to-green-300 p-6">
+      {showConfetti && (
+        <div className="fixed inset-0 flex items-center justify-center">
+          <span className="text-6xl animate-bounce">🎉</span>
+        </div>
+      )}
+      <div className="bg-white shadow-2xl rounded-xl p-8 text-center max-w-lg w-full">
+        <h2 className="text-4xl font-extrabold text-green-700 mb-4">
+          Registration Successfull for the Event,<span>{eventName}</span>
+        </h2>
+        <p className="text-gray-700 text-lg">
+          Thank you for registering, <span className="font-semibold">{name || "Guest"}</span>.
+        </p>
+        <p className="text-gray-600 mt-2">
+          A confirmation email with a QR code has been sent to <span className="font-semibold">{email || "your email"}</span>.
+        </p>
 
-    // Generate QR Code Image (For Email Only)
-    const qrCodeImage = await QRCode.toDataURL(qrCodeData);
-
-    // Update user with the QR code data
-    newUser.qrCode = qrCodeData;
-    await newUser.save();
-
-    const ticketID = newUser._id.toString();
-
-    // Send confirmation email with QR code image
-    await sendSuccessEmail(name, email, eventName, qrCodeImage, role, ticketID);
-
-    res.status(201).json({ 
-      message: "Registration successful!", 
-      name: newUser.name,
-      email: newUser.email,
-      eventName: newUser.eventName,
-      qrCode: qrCodeData // Now it stores a consistent QR code
-    });
-
-  } catch (error) {
-    console.error("Error Registering User:", error);
-    res.status(500).json({ message: "Error registering user", error: error.message });
-  }
-};
-
-// Function to send success email with PDF-style QR code
-const sendSuccessEmail = async (name, email, eventName, qrCodeImage, role, ticketID) => {
-  try {
-    const transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        user: "amthemithun@gmail.com",
-        pass: "ptfk ykpn uygd yodb",
-      },
-    });
-
-    let ticketClass = "";
-    let paymentStatus = "";
-
-    if (role === "Visitor") {
-      ticketClass = "VISITORS REGISTRATION (PAID ENTRY)";
-      paymentStatus = "✅ Payment Received";
-    } else if (role === "Speaker") {
-      ticketClass = "SPEAKER REGISTRATION (FREE ENTRY)";
-      paymentStatus = "✅ No Payment Required";
-    } else {
-      ticketClass = "UNKNOWN ROLE";
-      paymentStatus = "❓ Payment Status Unknown";
-    }
-
-    // Convert base64 to buffer for attachment
-    const base64Data = qrCodeImage.replace(/^data:image\/png;base64,/, ""); 
-    const qrCodeBuffer = Buffer.from(base64Data, "base64");
-
-    const mailOptions = {
-      from: "amthemithun@gmail.com",
-      to: email,
-      subject: `🎉 ${eventName} - Your Ticket Confirmation`,
-      html: `
-      <div style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: 0 auto; border: 1px solid #ddd; border-radius: 10px; box-shadow: 0 8px 16px rgba(0,0,0,0.1); overflow: hidden;">
-        
-        <!-- Header -->
-        <div style="background: #4CAF50; color: white; text-align: center; padding: 20px;">
-          <h1 style="margin: 0;">🎫 Your E-Ticket</h1>
-          <p>You're officially registered for <strong>${eventName}</strong></p>
+        <div className="mt-6 flex justify-center">
+          {qrCode ? (
+            <img
+              src={`https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(qrCode)}&size=200x200`}
+              alt="QR Code"
+              className="w-40 h-40 border rounded-lg shadow-lg"
+            />
+          ) : (
+            <p className="text-red-500 font-bold">QR SENT TO YOUR MAIL</p>
+          )}
         </div>
 
-        <!-- Event Details -->
-        <div style="padding: 30px;">
-          <p style="font-size: 18px;">Hello <strong>${name}</strong>,</p>
-          <p>Thank you for registering for <strong>${eventName}</strong>. Here are your event details:</p>
-
-          <div style="border: 1px solid #eee; padding: 20px; border-radius: 8px; margin: 20px 0;">
-            <p><strong>📅 Date:</strong> March 15 - 16, 2025</p>
-            <p><strong>⏰ Time:</strong> 08:00 AM - 5:00 PM (IST)</p>
-            <p><strong>📍 Location:</strong> M Weddings & Conventions, Chennai, India</p>
-          </div>
-        </div>
-
-        <!-- Ticket Details -->
-        <div style="background: #f9f9f9; padding: 30px; border-top: 1px solid #ddd;">
-          <h3 style="margin: 0 0 10px;">🎟️ Ticket Details</h3>
-          <p><strong>Order ID:</strong> ${ticketID}</p>
-          <p><strong>Ticket Class:</strong> ${ticketClass}</p>
-          <p><strong>Attendee Name:</strong> ${name}</p>
-          <p><strong>Payment Status:</strong> ${paymentStatus}</p>
-        </div>
-
-        <!-- QR Code Section (PDF-style) -->
-        <div style="text-align: center; padding: 30px; border-top: 1px solid #ddd;">
-          <h3>📲 Scan this QR Code at Entry</h3>
-          <img src="cid:qrcode" alt="QR Code" style="width: 250px; height: 250px; border: 4px solid #4CAF50; border-radius: 12px;"/>
-          <p style="margin-top: 10px; color: #888;">Use this QR code for fast check-in at the event.</p>
-        </div>
-
-        <!-- Footer -->
-        <div style="background: #4CAF50; color: white; text-align: center; padding: 15px;">
-          <p>Thank you for joining us. We look forward to seeing you at the event! 🎊</p>
-        </div>
+        <button
+          onClick={() => navigate("/")}
+          className="mt-6 bg-blue-600 text-white px-6 py-3 rounded-lg text-lg font-semibold shadow-md hover:bg-blue-700 transition-all duration-300 hover:cursor-pointer"
+        >
+          Go to Home
+        </button>
       </div>
-      `,
-      attachments: [
-        {
-          filename: "QRCode.png",
-          content: qrCodeBuffer,
-          encoding: "base64",
-          cid: "qrcode" // Inline QR Code display
-        },
-      ],
-    };
+    </div>
+  );
+}
 
-    await transporter.sendMail(mailOptions);
-    console.log("Success email sent to:", email);
-  } catch (error) {
-    console.error("Error sending email:", error);
-  }
-};
+export default SuccessPage; 
