@@ -8,8 +8,9 @@ function RegistrationForm() {
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  {/*import.meta.env.VITE_BACKEND_URL ? import.meta.env.VITE_BACKEND_URL :**/} 
 
-  const BASE_URL = import.meta.env.VITE_BACKEND_URL;
+  const BASE_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
   console.log(BASE_URL);
 
   const validate = (isPayment = false) => {
@@ -49,7 +50,8 @@ function RegistrationForm() {
     setLoading(true);
     try {
       console.log("register enetered");
-      const response = await axios.post(`${BASE_URL}/users/register`, {name,email,eventName,contact,role});
+      const { paymentCompleted, ...dataToSend } = formData;
+      const response = await axios.post(`${BASE_URL}/users/register`,dataToSend);
       console.log("completed");
       
       if (!response.data || !response.data.qrCode) {

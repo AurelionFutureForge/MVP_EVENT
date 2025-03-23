@@ -4,7 +4,6 @@ const QRCode = require("qrcode");
 
 exports.registerUser = async (req, res) => {
   const { name, email, eventName, contact, role } = req.body;
-  console.log(req);
   try {
     // Check if user already exists
     const existingUser = await User.findOne({ email });
