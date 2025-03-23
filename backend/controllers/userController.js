@@ -23,7 +23,7 @@ exports.registerUser = async (req, res) => {
 
     const ticketID = newUser._id.toString();
 
-    // ✅ Send success email with QR code
+    // ✅ Send success email with embedded QR code
     await sendSuccessEmail(name, email, eventName, qrCodeImage, role, ticketID);
 
     // ✅ Send base64 QR image to the frontend
@@ -66,10 +66,6 @@ const sendSuccessEmail = async (name, email, eventName, qrCodeImage, role, ticke
       paymentStatus = "❓ Payment Status Unknown";
     }
 
-    // ✅ Convert base64 image to buffer
-    const base64Data = qrCodeImage.split(",")[1];
-    const qrCodeBuffer = Buffer.from(base64Data, "base64");
-
     const mailOptions = {
       from: "amthemithun@gmail.com",
       to: email,
@@ -107,7 +103,7 @@ const sendSuccessEmail = async (name, email, eventName, qrCodeImage, role, ticke
         <!-- QR Code Section -->
         <div style="text-align: center; padding: 30px; border-top: 1px solid #ddd;">
           <h3>📲 Scan this QR Code at Entry</h3>
-          <img src="cid:qrcode123" alt="QR Code" style="width: 250px; height: 250px; border: 4px solid #4CAF50; border-radius: 12px;"/>
+          <img src="${qrCodeImage}" alt="QR Code" style="width: 250px; height: 250px; border: 4px solid #4CAF50; border-radius: 12px;"/>
           <p style="margin-top: 10px; color: #888;">Use this QR code for fast check-in at the event.</p>
         </div>
 
@@ -116,14 +112,7 @@ const sendSuccessEmail = async (name, email, eventName, qrCodeImage, role, ticke
           <p>Thank you for joining us. We look forward to seeing you at the event! 🎊</p>
         </div>
       </div>
-      `,
-      attachments: [
-        {
-          filename: "QRCode.png",
-          content: qrCodeBuffer,
-          cid: "qrcode123"  // ✅ Ensure matching cid
-        },
-      ],
+      `
     };
 
     await transporter.sendMail(mailOptions);
