@@ -66,7 +66,7 @@ const sendSuccessEmail = async (name, email, eventName, qrCodeImage, role, ticke
       paymentStatus = "❓ Payment Status Unknown";
     }
 
-    // ✅ Convert base64 image to buffer for email attachment
+    // ✅ Convert base64 image to buffer
     const base64Data = qrCodeImage.split(",")[1];
     const qrCodeBuffer = Buffer.from(base64Data, "base64");
 
@@ -121,7 +121,7 @@ const sendSuccessEmail = async (name, email, eventName, qrCodeImage, role, ticke
         {
           filename: "QRCode.png",
           content: qrCodeBuffer,
-          cid: "qrcode123"  // ✅ Attach QR code image
+          cid: "qrcode123"  // ✅ Ensure matching cid
         },
       ],
     };
