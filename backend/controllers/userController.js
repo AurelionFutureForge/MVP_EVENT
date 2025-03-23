@@ -1,49 +1,4 @@
-const nodemailer = require("nodemailer");
-const User = require("../models/User");
-const QRCode = require("qrcode");
-
-exports.registerUser = async (req, res) => {
-  const { name, email, eventName, contact, role } = req.body;
-  try {
-    // Check if user already exists
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
-      return res.status(400).json({ message: "User with this email already exists!" });
-    }
-
-    // Create a new user and save it first to get the MongoDB _id
-    const newUser = new User({ name, email, eventName, contact, role });
-    await newUser.save(); 
-
-    // Generate a QR code using the unique _id
-    const qrCodeData = `${email}-${newUser._id}`; 
-
-    // Generate QR Code Image (For Email Only)
-    const qrCodeImage = await QRCode.toDataURL(qrCodeData);
-
-    // Update user with the QR code data
-    newUser.qrCode = qrCodeData;
-    await newUser.save();
-
-    // Send confirmation email with QR code image
-    await sendSuccessEmail(name, email, eventName, qrCodeImage, role);
-
-    res.status(201).json({ 
-      message: "Registration successful!", 
-      name: newUser.name,
-      email: newUser.email,
-      eventName: newUser.eventName,
-      qrCode: qrCodeData // Now it stores a consistent QR code
-    });
-
-  } catch (error) {
-    console.error("Error Registering User:", error);
-    res.status(500).json({ message: "Error registering user", error: error.message });
-  }
-};
-
-// Function to send success email
-const sendSuccessEmail = async (name, email, eventName, qrCodeImage, role) => {
+const sendSuccessEmail = async (name, email, eventName, qrCodeImage, role, ticketID) => {
   try {
     const transporter = nodemailer.createTransport({
       service: "gmail",
@@ -53,6 +8,7 @@ const sendSuccessEmail = async (name, email, eventName, qrCodeImage, role) => {
       },
     });
 
+    // ✅ Define Ticket Class & Payment Status Based on Role
     let ticketClass = "";
     let paymentStatus = "";
 
@@ -67,14 +23,14 @@ const sendSuccessEmail = async (name, email, eventName, qrCodeImage, role) => {
       paymentStatus = "❓ Payment Status Unknown";
     }
 
-    // Convert base64 to buffer for attachment
-    const base64Data = qrCodeImage.replace(/^data:image\/png;base64,/, ""); // Remove metadata prefix
+    // ✅ Convert base64 image to buffer for attachment
+    const base64Data = qrCodeImage.replace(/^data:image\/png;base64,/, "");
     const qrCodeBuffer = Buffer.from(base64Data, "base64");
 
     const mailOptions = {
       from: "amthemithun@gmail.com",
       to: email,
-      subject: `🎉${eventName} - Your invited! `,
+      subject: `🎉 ${eventName} - You're Invited!`, 
       html: `
       <div style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: 0 auto; border: 1px solid #ddd; border-radius: 10px; box-shadow: 0 8px 16px rgba(0,0,0,0.1); overflow: hidden;">
         
@@ -99,7 +55,7 @@ const sendSuccessEmail = async (name, email, eventName, qrCodeImage, role) => {
         <!-- Ticket Details -->
         <div style="background: #f9f9f9; padding: 30px; border-top: 1px solid #ddd;">
           <h3 style="margin: 0 0 10px;">🎟️ Ticket Details</h3>
-          <p><strong>Order ID:</strong> 10379000004103300</p>
+          <p><strong>Order ID:</strong> ${ticketID}</p>
           <p><strong>Ticket Class:</strong> ${ticketClass}</p>
           <p><strong>Attendee Name:</strong> ${name}</p>
           <p><strong>Payment Status:</strong> ${paymentStatus}</p>
@@ -123,13 +79,14 @@ const sendSuccessEmail = async (name, email, eventName, qrCodeImage, role) => {
           filename: "QRCode.png",
           content: qrCodeBuffer,
           encoding: "base64",
+          cid: "qrcode"    //  Added 'cid' reference for inline display
         },
       ],
     };
 
     await transporter.sendMail(mailOptions);
-    console.log("Success email sent to:", email);
+    console.log(`✅ Email sent to: ${email}`);
   } catch (error) {
-    console.error("Error sending email:", error);
+    console.error("❌ Error sending email:", error);
   }
 };
