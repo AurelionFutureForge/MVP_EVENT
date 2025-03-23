@@ -4,14 +4,22 @@ import axios from "axios";
 import { toast } from "react-hot-toast";
 
 function RegistrationForm() {
-  const [formData, setFormData] = useState({ name: "", email: "", eventName:"", contact: "", role: "Visitor", paymentCompleted: false });
+  const [formData, setFormData] = useState({ 
+    name: "", 
+    email: "", 
+    eventName: "", 
+    contact: "", 
+    role: "Visitor", 
+    paymentCompleted: false 
+  });
+
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  {/*import.meta.env.VITE_BACKEND_URL ? import.meta.env.VITE_BACKEND_URL :**/} 
 
+  // Backend URL with a fallback
   const BASE_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
-  console.log(BASE_URL);
+  console.log(`Backend URL: ${BASE_URL}`);
 
   const validate = (isPayment = false) => {
     let tempErrors = {};
@@ -20,9 +28,8 @@ function RegistrationForm() {
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) tempErrors.email = "Invalid email format";
     if (!formData.contact) tempErrors.contact = "Contact number is required";
     else if (!/^\d{10}$/.test(formData.contact)) tempErrors.contact = "Invalid contact number";
-    if(!formData.eventName) tempErrors.eventName = "Event Name is required";
+    if (!formData.eventName) tempErrors.eventName = "Event Name is required";
 
-    // Only validate payment when submitting the form, not when making a payment
     if (!isPayment && !formData.paymentCompleted) {
       tempErrors.payment = "Payment is required";
     }
@@ -36,7 +43,7 @@ function RegistrationForm() {
   };
 
   const handlePayment = () => {
-    if (!validate(true)) {  // Pass true to skip payment validation
+    if (!validate(true)) {  
       toast.error("Please correct the highlighted errors before proceeding.");
       return;
     }
@@ -46,26 +53,39 @@ function RegistrationForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!validate()) return;  // Normal validation, includes payment check
+    if (!validate()) return;
+
     setLoading(true);
+
     try {
-      console.log("register enetered");
+      console.log("Attempting registration...");
       const { paymentCompleted, ...dataToSend } = formData;
-      const response = await axios.post(`${BASE_URL}/users/register`,dataToSend);
-      console.log("completed");
-      
-      if (!response.data || !response.data.qrCode) {
-        throw new Error("QR Code not received");
+      const response = await axios.post(`${BASE_URL}/users/register`, dataToSend);
+
+      console.log("Response:", response.data);
+
+      if (!response.data || !response.data.pdfUrl) {
+        throw new Error("PDF URL not received");
       }
 
-      const { name, email, eventName, qrCode } = response.data;
+      const { name, email, eventName, pdfUrl } = response.data;
       toast.success("Registration successful!");
 
-      navigate("/success", { state: { name, email, eventName, qrCodeUrl: qrCode } });
+      // Navigate with the PDF URL
+      navigate("/success", { 
+        state: { 
+          name, 
+          email, 
+          eventName, 
+          pdfUrl 
+        } 
+      });
+
     } catch (error) {
+      console.error("Error during registration:", error);
       toast.error("Registration failed. Try again.");
-      console.error("Error:", error);
     }
+
     setLoading(false);
   };
   
