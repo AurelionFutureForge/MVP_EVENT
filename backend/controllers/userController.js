@@ -44,7 +44,7 @@ exports.registerUser = async (req, res) => {
   }
 };
 
-// Function to send success email
+// Function to send success email with PDF-style QR code
 const sendSuccessEmail = async (name, email, eventName, qrCodeImage, role, ticketID) => {
   try {
     const transporter = nodemailer.createTransport({
@@ -59,37 +59,37 @@ const sendSuccessEmail = async (name, email, eventName, qrCodeImage, role, ticke
     let paymentStatus = "";
 
     if (role === "Visitor") {
-      ticketClass = "Visitors Registration (PAID ENTRY)";
+      ticketClass = "VISITORS REGISTRATION (PAID ENTRY)";
       paymentStatus = "✅ Payment Received";
     } else if (role === "Speaker") {
-      ticketClass = "Speaker Registration (FREE ENTRY)";
+      ticketClass = "SPEAKER REGISTRATION (FREE ENTRY)";
       paymentStatus = "✅ No Payment Required";
     } else {
-      ticketClass = "Unknown Role";
+      ticketClass = "UNKNOWN ROLE";
       paymentStatus = "❓ Payment Status Unknown";
     }
 
     // Convert base64 to buffer for attachment
-    const base64Data = qrCodeImage.replace(/^data:image\/png;base64,/, ""); // Remove metadata prefix
+    const base64Data = qrCodeImage.replace(/^data:image\/png;base64,/, ""); 
     const qrCodeBuffer = Buffer.from(base64Data, "base64");
 
     const mailOptions = {
       from: "amthemithun@gmail.com",
       to: email,
-      subject: `🎉${eventName} - Your invited! `,
+      subject: `🎉 ${eventName} - Your Ticket Confirmation`,
       html: `
       <div style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: 0 auto; border: 1px solid #ddd; border-radius: 10px; box-shadow: 0 8px 16px rgba(0,0,0,0.1); overflow: hidden;">
         
         <!-- Header -->
         <div style="background: #4CAF50; color: white; text-align: center; padding: 20px;">
-          <h1 style="margin: 0;">🎉 ${eventName}</h1>
-          <p>You're officially registered!</p>
+          <h1 style="margin: 0;">🎫 Your E-Ticket</h1>
+          <p>You're officially registered for <strong>${eventName}</strong></p>
         </div>
 
         <!-- Event Details -->
         <div style="padding: 30px;">
           <p style="font-size: 18px;">Hello <strong>${name}</strong>,</p>
-          <p>Thank you for registering for the <strong>${eventName}</strong>. Here are your event details:</p>
+          <p>Thank you for registering for <strong>${eventName}</strong>. Here are your event details:</p>
 
           <div style="border: 1px solid #eee; padding: 20px; border-radius: 8px; margin: 20px 0;">
             <p><strong>📅 Date:</strong> March 15 - 16, 2025</p>
@@ -107,11 +107,11 @@ const sendSuccessEmail = async (name, email, eventName, qrCodeImage, role, ticke
           <p><strong>Payment Status:</strong> ${paymentStatus}</p>
         </div>
 
-        <!-- QR Code -->
-        <div style="text-align: center; padding: 20px;">
-          <h3>🎫 Your QR Code</h3>
-          <p>Show this QR code at the entry gate:</p>
-          <img src="cid:qrcode" alt="QR Code" style="width: 150px; height: 150px; border: 2px solid #ddd; border-radius: 8px;"/>
+        <!-- QR Code Section (PDF-style) -->
+        <div style="text-align: center; padding: 30px; border-top: 1px solid #ddd;">
+          <h3>📲 Scan this QR Code at Entry</h3>
+          <img src="cid:qrcode" alt="QR Code" style="width: 250px; height: 250px; border: 4px solid #4CAF50; border-radius: 12px;"/>
+          <p style="margin-top: 10px; color: #888;">Use this QR code for fast check-in at the event.</p>
         </div>
 
         <!-- Footer -->
@@ -125,6 +125,7 @@ const sendSuccessEmail = async (name, email, eventName, qrCodeImage, role, ticke
           filename: "QRCode.png",
           content: qrCodeBuffer,
           encoding: "base64",
+          cid: "qrcode" // Inline QR Code display
         },
       ],
     };
@@ -134,4 +135,4 @@ const sendSuccessEmail = async (name, email, eventName, qrCodeImage, role, ticke
   } catch (error) {
     console.error("Error sending email:", error);
   }
-}; 
+};
