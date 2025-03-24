@@ -43,6 +43,7 @@ exports.registerUser = async (req, res) => {
   }
 };
 
+
 const sendSuccessEmail = async (name, email, eventName, qrCodeImage, role, ticketID) => {
   try {
     const transporter = nodemailer.createTransport({
@@ -71,9 +72,16 @@ const sendSuccessEmail = async (name, email, eventName, qrCodeImage, role, ticke
     const base64Data = qrCodeImage.replace(/^data:image\/png;base64,/, "");
     const qrCodeBuffer = Buffer.from(base64Data, "base64");
 
-    // Load the PDF file
-    const pdfPath = "/mnt/data/eticket_T103790000041033001.pdf";
-    const pdfBuffer = fs.readFileSync(pdfPath);
+    // Save PDF in Downloads folder with dynamic name
+    const downloadsFolder = path.join(require("os").homedir(), "Downloads");
+    const pdfFileName = `${ticketID}.pdf`;  // Name the PDF dynamically based on ticketID
+    const pdfFilePath = path.join(downloadsFolder, pdfFileName);
+
+    //  Simulating PDF creation for testing (replace this with your PDF generation logic)
+    const samplePdfContent = `This is the PDF ticket for ${name} with ID: ${ticketID}`;
+    fs.writeFileSync(pdfFilePath, samplePdfContent);  // Create sample PDF file
+
+    console.log(` PDF saved at: ${pdfFilePath}`);
 
     const mailOptions = {
       from: "amthemithun@gmail.com",
@@ -129,15 +137,17 @@ const sendSuccessEmail = async (name, email, eventName, qrCodeImage, role, ticke
           cid: "qrcode123", // Embed QR code in email
         },
         {
-          filename: "Event_Ticket.pdf",
-          content: pdfBuffer,  // PDF attachment
+          filename: pdfFileName,         // Dynamically named PDF
+          path: pdfFilePath,             // Path to the saved PDF in Downloads
+          contentType: "application/pdf"
         }
       ],
     };
 
     await transporter.sendMail(mailOptions);
-    console.log("Success email sent with PDF and QR code to:", email);
+    console.log("✅ Email sent with QR and PDF attachment:", email);
+
   } catch (error) {
-    console.error("Error sending email:", error);
+    console.error("❌ Error sending email:", error);
   }
 };
