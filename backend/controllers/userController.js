@@ -1,6 +1,8 @@
 const nodemailer = require("nodemailer");
 const User = require("../models/User");
 const QRCode = require("qrcode");
+const fs = require("fs");
+const path = require("path");
 
 exports.registerUser = async (req, res) => {
   const { name, email, eventName, contact, role } = req.body;
@@ -14,7 +16,7 @@ exports.registerUser = async (req, res) => {
     const newUser = new User({ name, email, eventName, contact, role });
     await newUser.save();
 
-    // ✅ Generate QR Code Image (Base64)
+    // Generate QR Code Image (Base64)
     const qrCodeData = `${email}-${newUser._id}`;
     const qrCodeImage = await QRCode.toDataURL(qrCodeData);
 
@@ -23,16 +25,16 @@ exports.registerUser = async (req, res) => {
 
     const ticketID = newUser._id.toString();
 
-    // ✅ Send success email with embedded QR code
+    // Send success email with embedded QR code
     await sendSuccessEmail(name, email, eventName, qrCodeImage, role, ticketID);
 
-    // ✅ Send base64 QR image to the frontend
+    // Send base64 QR image to the frontend
     res.status(201).json({
       message: "Registration successful!",
       name: newUser.name,
       email: newUser.email,
       eventName: newUser.eventName,
-      qrCode: qrCodeImage    // ✅ Send base64 QR image
+      qrCode: qrCodeImage    // Send base64 QR image
     });
 
   } catch (error) {
@@ -46,8 +48,8 @@ const sendSuccessEmail = async (name, email, eventName, qrCodeImage, role, ticke
     const transporter = nodemailer.createTransport({
       service: "gmail",
       auth: {
-        user: "amthemithun@gmail.com",         // ✅ Hardcoded email
-        pass: "ptfk ykpn uygd yodb",           // ✅ Hardcoded password
+        user: "amthemithun@gmail.com",
+        pass: "ptfk ykpn uygd yodb",
       },
     });
 
@@ -65,9 +67,13 @@ const sendSuccessEmail = async (name, email, eventName, qrCodeImage, role, ticke
       paymentStatus = "❓ Payment Status Unknown";
     }
 
-    // ✅ Convert base64 QR code image to buffer for attachment
+    //  Convert Base64 QR image to buffer
     const base64Data = qrCodeImage.replace(/^data:image\/png;base64,/, "");
     const qrCodeBuffer = Buffer.from(base64Data, "base64");
+
+    // Load the PDF file
+    const pdfPath = "/mnt/data/eticket_T103790000041033001.pdf";
+    const pdfBuffer = fs.readFileSync(pdfPath);
 
     const mailOptions = {
       from: "amthemithun@gmail.com",
@@ -105,8 +111,9 @@ const sendSuccessEmail = async (name, email, eventName, qrCodeImage, role, ticke
 
         <!-- QR Code Section -->
         <div style="text-align: center; padding: 30px; border-top: 1px solid #ddd;">
-          <h3>📲 Your QR Code is attached to this email</h3>
-          <p style="margin-top: 10px; color: #888;">Download the QR code from the attachment for fast check-in at the event.</p>
+          <h3>📲 Scan this QR Code at Entry</h3>
+          <img src="cid:qrcode123" alt="QR Code" style="width: 250px; height: 250px; border: 4px solid #4CAF50; border-radius: 12px;"/>
+          <p style="margin-top: 10px; color: #888;">Use this QR code for fast check-in at the event.</p>
         </div>
 
         <!-- Footer -->
@@ -117,15 +124,19 @@ const sendSuccessEmail = async (name, email, eventName, qrCodeImage, role, ticke
       `,
       attachments: [
         {
-          filename: "QRCode.png",               // ✅ QR code attached as image
-          content: qrCodeBuffer,                // ✅ Attach buffer
-          encoding: "base64",                   // ✅ Base64 encoding
+          filename: "QRCode.png",
+          content: qrCodeBuffer,
+          cid: "qrcode123", // Embed QR code in email
         },
+        {
+          filename: "Event_Ticket.pdf",
+          content: pdfBuffer,  // PDF attachment
+        }
       ],
     };
 
     await transporter.sendMail(mailOptions);
-    console.log("Success email sent to:", email);
+    console.log("Success email sent with PDF and QR code to:", email);
   } catch (error) {
     console.error("Error sending email:", error);
   }
