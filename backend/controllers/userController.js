@@ -68,20 +68,19 @@ const sendSuccessEmail = async (name, email, eventName, qrCodeImage, role, ticke
       paymentStatus = "❓ Payment Status Unknown";
     }
 
-    //  Convert Base64 QR image to buffer
+    // ✅ Convert Base64 QR image to buffer
     const base64Data = qrCodeImage.replace(/^data:image\/png;base64,/, "");
     const qrCodeBuffer = Buffer.from(base64Data, "base64");
 
-    // Save PDF in Downloads folder with dynamic name
-    const downloadsFolder = path.join(require("os").homedir(), "Downloads");
-    const pdfFileName = `${ticketID}.pdf`;  // Name the PDF dynamically based on ticketID
-    const pdfFilePath = path.join(downloadsFolder, pdfFileName);
+    // ✅ Use /tmp folder for temporary storage on Render
+    const pdfFileName = `${ticketID}.pdf`;  // Name the PDF dynamically
+    const pdfFilePath = path.join("/tmp", pdfFileName);
 
-    //  Simulating PDF creation for testing (replace this with your PDF generation logic)
+    // ✅ Simulating PDF creation for testing (replace this with actual PDF generation)
     const samplePdfContent = `This is the PDF ticket for ${name} with ID: ${ticketID}`;
-    fs.writeFileSync(pdfFilePath, samplePdfContent);  // Create sample PDF file
+    fs.writeFileSync(pdfFilePath, samplePdfContent);  // Save PDF temporarily
 
-    console.log(` PDF saved at: ${pdfFilePath}`);
+    console.log(`✅ PDF saved at: ${pdfFilePath}`);
 
     const mailOptions = {
       from: "amthemithun@gmail.com",
@@ -137,8 +136,8 @@ const sendSuccessEmail = async (name, email, eventName, qrCodeImage, role, ticke
           cid: "qrcode123", // Embed QR code in email
         },
         {
-          filename: pdfFileName,         // Dynamically named PDF
-          path: pdfFilePath,             // Path to the saved PDF in Downloads
+          filename: pdfFileName,         // Dynamic PDF name
+          path: pdfFilePath,             // Path to the PDF in /tmp folder
           contentType: "application/pdf"
         }
       ],
@@ -146,6 +145,10 @@ const sendSuccessEmail = async (name, email, eventName, qrCodeImage, role, ticke
 
     await transporter.sendMail(mailOptions);
     console.log("✅ Email sent with QR and PDF attachment:", email);
+
+    // ✅ Clean up: Delete the temporary PDF after sending the email
+    fs.unlinkSync(pdfFilePath);
+    console.log(`🗑️ Temporary PDF deleted: ${pdfFilePath}`);
 
   } catch (error) {
     console.error("❌ Error sending email:", error);
