@@ -3,7 +3,9 @@ const User = require("../models/User");
 const QRCode = require("qrcode");
 const fs = require("fs");
 const path = require("path");
+const PDFDocument = require("pdfkit");   // ✅ Import PDFKit
 
+// 📌 Register User
 exports.registerUser = async (req, res) => {
   const { name, email, eventName, contact, role } = req.body;
 
@@ -16,7 +18,7 @@ exports.registerUser = async (req, res) => {
     const newUser = new User({ name, email, eventName, contact, role });
     await newUser.save();
 
-    // Generate QR Code Image (Base64)
+    // Generate QR Code
     const qrCodeData = `${email}-${newUser._id}`;
     const qrCodeImage = await QRCode.toDataURL(qrCodeData);
 
@@ -25,16 +27,19 @@ exports.registerUser = async (req, res) => {
 
     const ticketID = newUser._id.toString();
 
-    // Send success email with embedded QR code
-    await sendSuccessEmail(name, email, eventName, qrCodeImage, role, ticketID);
+    // ✅ Generate PDF dynamically with user data
+    const pdfPath = path.join(__dirname, "../public/pdfs", `${ticketID}.pdf`);
+    await generateTicketPDF(name, eventName, role, ticketID, qrCodeImage, pdfPath);
 
-    // Send base64 QR image to the frontend
+    // ✅ Send success email with the generated PDF and QR code
+    await sendSuccessEmail(name, email, eventName, qrCodeImage, role, ticketID, pdfPath);
+
     res.status(201).json({
       message: "Registration successful!",
       name: newUser.name,
       email: newUser.email,
       eventName: newUser.eventName,
-      qrCode: qrCodeImage    // Send base64 QR image
+      qrCode: qrCodeImage
     });
 
   } catch (error) {
@@ -43,7 +48,39 @@ exports.registerUser = async (req, res) => {
   }
 };
 
-const sendSuccessEmail = async (name, email, eventName, qrCodeImage, role, ticketID) => {
+// ✅ Function to generate PDF dynamically
+const generateTicketPDF = async (name, eventName, role, ticketID, qrCodeImage, pdfPath) => {
+  return new Promise((resolve, reject) => {
+    const doc = new PDFDocument();
+    const stream = fs.createWriteStream(pdfPath);
+
+    doc.pipe(stream);
+
+    // ✅ PDF Header
+    doc.fontSize(20).text("🎫 Event Ticket", { align: "center" });
+    doc.moveDown();
+    doc.fontSize(16).text(`Event: ${eventName}`);
+    doc.text(`Attendee: ${name}`);
+    doc.text(`Role: ${role}`);
+    doc.text(`Ticket ID: ${ticketID}`);
+    doc.moveDown();
+
+    // ✅ QR Code
+    doc.fontSize(12).text("Scan this QR code at entry:", { align: "center" });
+    doc.image(Buffer.from(qrCodeImage.split(",")[1], "base64"), {
+      fit: [150, 150],
+      align: "center"
+    });
+
+    doc.end();
+
+    stream.on("finish", resolve);
+    stream.on("error", reject);
+  });
+};
+
+// ✅ Send Success Email
+const sendSuccessEmail = async (name, email, eventName, qrCodeImage, role, ticketID, pdfPath) => {
   try {
     const transporter = nodemailer.createTransport({
       service: "gmail",
@@ -71,8 +108,7 @@ const sendSuccessEmail = async (name, email, eventName, qrCodeImage, role, ticke
     const base64Data = qrCodeImage.replace(/^data:image\/png;base64,/, "");
     const qrCodeBuffer = Buffer.from(base64Data, "base64");
 
-    // ✅ Use the relative path to the PDF in the project directory
-    const pdfPath = path.join(__dirname, "../public/pdfs/eticket.pdf");
+    // ✅ Read the generated PDF file
     const pdfBuffer = fs.readFileSync(pdfPath);
 
     const mailOptions = {
@@ -82,41 +118,28 @@ const sendSuccessEmail = async (name, email, eventName, qrCodeImage, role, ticke
       html: `
       <div style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: 0 auto; border: 1px solid #ddd; border-radius: 10px; box-shadow: 0 8px 16px rgba(0,0,0,0.1); overflow: hidden;">
         
-        <!-- Header -->
         <div style="background: #4CAF50; color: white; text-align: center; padding: 20px;">
           <h1 style="margin: 0;">🎫 Your E-Ticket</h1>
           <p>You're officially registered for <strong>${eventName}</strong></p>
         </div>
 
-        <!-- Event Details -->
         <div style="padding: 30px;">
           <p style="font-size: 18px;">Hello <strong>${name}</strong>,</p>
           <p>Thank you for registering for <strong>${eventName}</strong>. Here are your event details:</p>
-
-          <div style="border: 1px solid #eee; padding: 20px; border-radius: 8px; margin: 20px 0;">
-            <p><strong>📅 Date:</strong> March 15 - 16, 2025</p>
-            <p><strong>⏰ Time:</strong> 08:00 AM - 5:00 PM (IST)</p>
-            <p><strong>📍 Location:</strong> M Weddings & Conventions, Chennai, India</p>
-          </div>
         </div>
 
-        <!-- Ticket Details -->
         <div style="background: #f9f9f9; padding: 30px; border-top: 1px solid #ddd;">
-          <h3 style="margin: 0 0 10px;">🎟️ Ticket Details</h3>
+          <h3>🎟️ Ticket Details</h3>
           <p><strong>Order ID:</strong> ${ticketID}</p>
           <p><strong>Ticket Class:</strong> ${ticketClass}</p>
-          <p><strong>Attendee Name:</strong> ${name}</p>
           <p><strong>Payment Status:</strong> ${paymentStatus}</p>
         </div>
 
-        <!-- QR Code Section -->
         <div style="text-align: center; padding: 30px; border-top: 1px solid #ddd;">
           <h3>📲 Scan this QR Code at Entry</h3>
-          <img src="cid:qrcode123" alt="QR Code" style="width: 250px; height: 250px; border: 4px solid #4CAF50; border-radius: 12px;"/>
-          <p style="margin-top: 10px; color: #888;">Use this QR code for fast check-in at the event.</p>
+          <img src="cid:qrcode123" alt="QR Code" style="width: 250px; height: 250px;"/>
         </div>
 
-        <!-- Footer -->
         <div style="background: #4CAF50; color: white; text-align: center; padding: 15px;">
           <p>Thank you for joining us. We look forward to seeing you at the event! 🎊</p>
         </div>
@@ -126,11 +149,11 @@ const sendSuccessEmail = async (name, email, eventName, qrCodeImage, role, ticke
         {
           filename: "QRCode.png",
           content: qrCodeBuffer,
-          cid: "qrcode123",  // ✅ Embed QR code in email
+          cid: "qrcode123",   // Embed QR Code
         },
         {
-          filename: "Event_Ticket.pdf",
-          content: pdfBuffer,   // ✅ PDF attachment
+          filename: `${ticketID}.pdf`,  // Attach dynamically generated PDF
+          content: pdfBuffer,
         }
       ],
     };
