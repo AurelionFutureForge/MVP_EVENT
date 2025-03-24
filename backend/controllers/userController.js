@@ -5,7 +5,7 @@ const fs = require("fs");
 const path = require("path");
 const PDFDocument = require("pdfkit");   // ✅ Import PDFKit
 
-// 📌 Register User
+// Register User
 exports.registerUser = async (req, res) => {
   const { name, email, eventName, contact, role } = req.body;
 
@@ -48,7 +48,7 @@ exports.registerUser = async (req, res) => {
   }
 };
 
-// ✅ Function to generate PDF dynamically
+// Function to generate PDF dynamically
 const generateTicketPDF = async (name, eventName, role, ticketID, qrCodeImage, pdfPath) => {
   return new Promise((resolve, reject) => {
     const doc = new PDFDocument();
@@ -79,7 +79,7 @@ const generateTicketPDF = async (name, eventName, role, ticketID, qrCodeImage, p
   });
 };
 
-// ✅ Send Success Email
+// Send Success Email
 const sendSuccessEmail = async (name, email, eventName, qrCodeImage, role, ticketID, pdfPath) => {
   try {
     const transporter = nodemailer.createTransport({
@@ -104,11 +104,11 @@ const sendSuccessEmail = async (name, email, eventName, qrCodeImage, role, ticke
       paymentStatus = "❓ Payment Status Unknown";
     }
 
-    // ✅ Convert Base64 QR image to buffer
+    // Convert Base64 QR image to buffer
     const base64Data = qrCodeImage.replace(/^data:image\/png;base64,/, "");
     const qrCodeBuffer = Buffer.from(base64Data, "base64");
 
-    // ✅ Read the generated PDF file
+    // Read the generated PDF file
     const pdfBuffer = fs.readFileSync(pdfPath);
 
     const mailOptions = {
