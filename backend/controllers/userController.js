@@ -67,12 +67,12 @@ const sendSuccessEmail = async (name, email, eventName, qrCodeImage, role, ticke
       paymentStatus = "❓ Payment Status Unknown";
     }
 
-    //  Convert Base64 QR image to buffer
+    // ✅ Convert Base64 QR image to buffer
     const base64Data = qrCodeImage.replace(/^data:image\/png;base64,/, "");
     const qrCodeBuffer = Buffer.from(base64Data, "base64");
 
-    // Use the uploaded PDF as the attachment
-    const pdfPath = "/mnt/data/eticket_T103790000041033001.pdf";
+    // ✅ Use the relative path to the PDF in the project directory
+    const pdfPath = path.join(__dirname, "../public/pdfs/eticket.pdf");
     const pdfBuffer = fs.readFileSync(pdfPath);
 
     const mailOptions = {
@@ -126,11 +126,11 @@ const sendSuccessEmail = async (name, email, eventName, qrCodeImage, role, ticke
         {
           filename: "QRCode.png",
           content: qrCodeBuffer,
-          cid: "qrcode123", // Embed QR code in email
+          cid: "qrcode123",  // ✅ Embed QR code in email
         },
         {
-          filename: `${ticketID}.pdf`,   // Use ticket ID as PDF name
-          content: pdfBuffer,             // Attach the original PDF
+          filename: "Event_Ticket.pdf",
+          content: pdfBuffer,   // ✅ PDF attachment
         }
       ],
     };
