@@ -49,61 +49,76 @@ exports.registerUser = async (req, res) => {
 };
 
 // Function to generate PDF dynamically
-const generateTicketPDF = async (name, email, eventName, role, ticketID,qrCodeImage, pdfPath) => {
+const generateTicketPDF = async (name, email, eventName, role, ticketID, qrCodeImage, pdfPath) => {
   return new Promise((resolve, reject) => {
     const doc = new PDFDocument({ size: "A4", margin: 50 });
     const stream = fs.createWriteStream(pdfPath);
 
     doc.pipe(stream);
 
+    // ✅ Header Section (Event Branding)
+    doc.rect(0, 0, doc.page.width, 120).fill("#4CAF50"); 
+    doc.fillColor("#fff")
+      .font("Helvetica-Bold")
+      .fontSize(28)
+      .text(`${eventName}`, { align: "center", baseline: "middle" });
+    
+    doc.moveDown(0.3);
+    doc.fontSize(18).text("March 15 - 16, 2025, 08:00 AM - 5:00 PM (IST)", { align: "center" });
 
-    // ✅ Header section with event branding
-    doc.rect(0, 0, doc.page.width, 100).fill("#4CAF50"); // Header background
-    doc.fillColor("#fff").fontSize(24).text(`${eventName}`, { align: "center" });
-    doc.fontSize(16).text("Mar 15 - 16, 2025, 08:00 AM (IST)", { align: "center" });
+    // ✅ Attendee Info Section (Centered)
+    doc.moveDown(1.5);
+    doc.fillColor("#333").fontSize(20).text("🎟️ Attendee Information", { align: "center", underline: true });
+    
+    doc.moveDown(0.7);
+    doc.fontSize(16).text(`👤 Name: ${name}`, { align: "center" });
+    doc.text(`✉️ Email: ${email}`, { align: "center" });
+    doc.text(`🛠️ Role: ${role}`, { align: "center" });
 
-    // ✅ Attendee Info
-    doc.moveDown(2);
-    doc.fontSize(18).fillColor("#333").text("Attendee Information", { underline: true });
-    doc.moveDown(0.5);
-    doc.fontSize(14).text(`Name: ${name}`);
-    doc.text(`Email: ${email}`);
-    doc.text(`Role: ${role}`);
+    // ✅ Order ID and Ticket ID Section (Centered)
+    doc.moveDown(1.5);
+    doc.fontSize(20).text("🛒 Order Details", { align: "center", underline: true });
 
-    // ✅ Order ID and Ticket ID
-    doc.moveDown(1);
-    doc.fontSize(18).fillColor("#333").text("Order Details", { underline: true });
-    doc.moveDown(0.5);
-    doc.fontSize(14).text(`Order ID: ${ticketID}`);
-    doc.text(`Ticket ID: ${ticketID}`);
+    doc.moveDown(0.7);
+    doc.fontSize(16).text(`🆔 Order ID: ${ticketID}`, { align: "center" });
+    doc.text(`🔑 Ticket ID: ${ticketID}`, { align: "center" });
 
-    // ✅ Event venue details
-    doc.moveDown(1);
-    doc.fontSize(18).fillColor("#333").text("Event Venue", { underline: true });
-    doc.moveDown(0.5);
-    doc.fontSize(14).text("M Weddings & Conventions");
-    doc.text("98/99, Vanagaram-Ambattur Road, Vanagaram, Chennai, Tamil Nadu - 600095, India");
+    // ✅ Event Venue Section (Centered)
+    doc.moveDown(1.5);
+    doc.fontSize(20).text("📍 Event Venue", { align: "center", underline: true });
 
-    // ✅ QR Code Section (bottom-right corner)
+    doc.moveDown(0.7);
+    doc.fontSize(16).text("M Weddings & Conventions", { align: "center" });
+    doc.text("98/99, Vanagaram-Ambattur Road", { align: "center" });
+    doc.text("Vanagaram, Chennai, Tamil Nadu - 600095, India", { align: "center" });
+
+    // ✅ QR Code Section (Centered)
     const qrSize = 150;
-    const qrX = doc.page.width - qrSize - 80;  // Align QR code on the bottom-right
-    const qrY = doc.page.height - qrSize - 100;
+    const centerX = (doc.page.width - qrSize) / 2;  // Center QR code horizontally
+    const qrY = doc.y + 40;  // Space before QR
 
-    doc.image(Buffer.from(qrCodeImage.split(",")[1], "base64"), qrX, qrY, {
+    doc.moveDown(2);
+    doc.fontSize(16).text("📲 Scan this QR code at entry:", { align: "center" });
+
+    doc.image(Buffer.from(qrCodeImage.split(",")[1], "base64"), centerX, qrY, {
       fit: [qrSize, qrSize],
       align: "center"
     });
 
-    // ✅ Footer with branding
+    doc.moveDown(2);
+
+    // ✅ Footer Branding (Centered)
     doc.fillColor("#4CAF50")
       .rect(0, doc.page.height - 50, doc.page.width, 50)
       .fill();
 
-    doc.fillColor("#fff").fontSize(12).text("Powered by YourEvent", {
-      align: "center",
-      baseline: "middle",
-      y: doc.page.height - 35,
-    });
+    doc.fillColor("#fff")
+      .fontSize(14)
+      .text("Powered by YourEvent", {
+        align: "center",
+        baseline: "middle",
+        y: doc.page.height - 35,
+      });
 
     doc.end();
 
