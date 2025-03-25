@@ -60,7 +60,6 @@ const generateTicketPDF = async (name, email, eventName, role, ticketID,qrCodeIm
     // ✅ Header section with event branding
     doc.rect(0, 0, doc.page.width, 100).fill("#4CAF50"); // Header background
     doc.fillColor("#fff").fontSize(24).text(`${eventName}`, { align: "center" });
-    doc.moveDown(0.5);
     doc.fontSize(16).text("Mar 15 - 16, 2025, 08:00 AM (IST)", { align: "center" });
 
     // ✅ Attendee Info
