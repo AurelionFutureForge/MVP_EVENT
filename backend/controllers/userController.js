@@ -49,63 +49,61 @@ exports.registerUser = async (req, res) => {
 };
 
 // Function to generate PDF dynamically
-const generateTicketPDF = async (name, eventName, role, ticketID, qrCodeImage, pdfPath) => {
+const generateTicketPDF = async (name, email, eventName, role, ticketID, pdfPath) => {
   return new Promise((resolve, reject) => {
-    const doc = new PDFDocument({ size: "A4", margin: 50 }); // Use A4 size with consistent margins
+    const doc = new PDFDocument({ size: "A4", margin: 50 });
     const stream = fs.createWriteStream(pdfPath);
 
     doc.pipe(stream);
 
-    //  PDF Header
-    doc.font("Helvetica-Bold").fontSize(26).fillColor("#4CAF50")
-      .text("🎫 Event Ticket", { align: "center" })
-      .moveDown(0.5);
+    // ✅ Header section with event branding
+    doc.rect(0, 0, doc.page.width, 100).fill("#4CAF50"); // Header background
+    doc.fillColor("#fff").fontSize(24).text("BNI Connect Fest 2025", { align: "center" });
+    doc.moveDown(0.5);
+    doc.fontSize(16).text("Mar 15 - 16, 2025, 08:00 AM (IST)", { align: "center" });
 
-    //  Event and Attendee Info Section
-    doc.font("Helvetica-Bold").fontSize(18).fillColor("#333")
-      .text(`Event: ${eventName}`, { align: "center" })
-      .moveDown(0.3);
+    // ✅ Attendee Info
+    doc.moveDown(2);
+    doc.fontSize(18).fillColor("#333").text("Attendee Information", { underline: true });
+    doc.moveDown(0.5);
+    doc.fontSize(14).text(`Name: ${name}`);
+    doc.text(`Email: ${email}`);
+    doc.text(`Role: ${role}`);
 
-    doc.font("Helvetica").fontSize(16)
-      .text(`Attendee: ${name}`, { align: "center" })
-      .text(`Role: ${role}`, { align: "center" })
-      .text(`Ticket ID: ${ticketID}`, { align: "center" })
-      .moveDown(1.5);
+    // ✅ Order ID and Ticket ID
+    doc.moveDown(1);
+    doc.fontSize(18).fillColor("#333").text("Order Details", { underline: true });
+    doc.moveDown(0.5);
+    doc.fontSize(14).text(`Order ID: 10379000004103300`);
+    doc.text(`Ticket ID: ${ticketID}`);
 
-    //  Event Date, Time, and Location Section with separation
-    doc.font("Helvetica-Bold").fontSize(14).fillColor("#000")
-      .text(`📅 Date: March 15 - 16, 2025`, { align: "left" })
-      .moveDown(0.3);
+    // ✅ Event venue details
+    doc.moveDown(1);
+    doc.fontSize(18).fillColor("#333").text("Event Venue", { underline: true });
+    doc.moveDown(0.5);
+    doc.fontSize(14).text("M Weddings & Conventions");
+    doc.text("98/99, Vanagaram-Ambattur Road, Vanagaram, Chennai, Tamil Nadu - 600095, India");
 
-    doc.text(`⏰ Time: 08:00 AM - 5:00 PM (IST)`, { align: "left" })
-      .moveDown(0.3);
+    // ✅ QR Code Section (bottom-right corner)
+    const qrSize = 150;
+    const qrX = doc.page.width - qrSize - 80;  // Align QR code on the bottom-right
+    const qrY = doc.page.height - qrSize - 100;
 
-    doc.text(`📍 Location: M Weddings & Conventions, Chennai, India`, { align: "left" })
-      .moveDown(1.5);
+    doc.image(Buffer.from(qrCodeImage.split(",")[1], "base64"), qrX, qrY, {
+      fit: [qrSize, qrSize],
+      align: "center"
+    });
 
-    //  QR Code Section with proper alignment
-    doc.font("Helvetica-Bold").fontSize(14)
-      .text("📲 Scan this QR code at entry:", { align: "center" })
-      .moveDown(0.5);
+    // ✅ Footer with branding
+    doc.fillColor("#4CAF50")
+      .rect(0, doc.page.height - 50, doc.page.width, 50)
+      .fill();
 
-    // Center the QR code with proper scaling
-    const qrCodeBuffer = Buffer.from(qrCodeImage.split(",")[1], "base64");
-    const qrCodeWidth = 200; // Set consistent QR code size
-    const qrCodeX = (doc.page.width - qrCodeWidth) / 2;
-
-    doc.image(qrCodeBuffer, qrCodeX, doc.y, {
-      fit: [qrCodeWidth, qrCodeWidth],
+    doc.fillColor("#fff").fontSize(12).text("Powered by YourEvent", {
       align: "center",
-      valign: "center",
-    })
-    .moveDown(1.5);
-
-    //  Closing message
-    doc.font("Helvetica-Bold").fontSize(16).fillColor("#4CAF50")
-      .text("✅ Thank you for registering. We look forward to seeing you at the event!", {
-        align: "center",
-      })
-      .moveDown(0.5);
+      baseline: "middle",
+      y: doc.page.height - 35,
+    });
 
     doc.end();
 
