@@ -51,7 +51,7 @@ exports.registerUser = async (req, res) => {
 // Function to generate PDF dynamically
 const generateTicketPDF = async (name, email, eventName, role, ticketID, qrCodeImage, pdfPath) => {
   return new Promise((resolve, reject) => {
-    const doc = new PDFDocument({ size: "A4", margin: 50 });
+    const doc = new PDFDocument({ size: [595.28, 1000], margin: 50 });
     const stream = fs.createWriteStream(pdfPath);
 
     doc.pipe(stream);
@@ -71,7 +71,7 @@ const generateTicketPDF = async (name, email, eventName, role, ticketID, qrCodeI
     doc.fillColor("#333").fontSize(20).text("Attendee Information", { align: "center", underline: true });
     
     doc.moveDown(0.7);
-    doc.fontSize(16).text(`👤 Name: ${name}`, { align: "center" });
+    doc.fontSize(16).text(`Name: ${name}`, { align: "center" });
     doc.text(`Email: ${email}`, { align: "center" });
     doc.text(`Role: ${role}`, { align: "center" });
 
@@ -80,7 +80,7 @@ const generateTicketPDF = async (name, email, eventName, role, ticketID, qrCodeI
     doc.fontSize(20).text("Order Details", { align: "center", underline: true });
 
     doc.moveDown(0.7);
-    doc.fontSize(16).text(`Order ID: ${ticketID-1}`, { align: "center" });
+    doc.fontSize(16).text(`Order ID: ${ticketID+1}`, { align: "center" });
     doc.text(`Ticket ID: ${ticketID}`, { align: "center" });
 
     // ✅ Event Venue Section (Centered)
@@ -106,7 +106,7 @@ const generateTicketPDF = async (name, email, eventName, role, ticketID, qrCodeI
       align: "center"
     });
 
-    doc.moveDown(20);
+    doc.moveDown(23);
 
     // ✅ Footer Branding (Centered)
     doc.fillColor("#4CAF50")
