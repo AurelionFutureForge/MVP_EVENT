@@ -68,24 +68,24 @@ const generateTicketPDF = async (name, email, eventName, role, ticketID, qrCodeI
 
     // ✅ Attendee Info Section (Centered)
     doc.moveDown(1.5);
-    doc.fillColor("#333").fontSize(20).text("🎟️ Attendee Information", { align: "center", underline: true });
+    doc.fillColor("#333").fontSize(20).text("Attendee Information", { align: "center", underline: true });
     
     doc.moveDown(0.7);
     doc.fontSize(16).text(`👤 Name: ${name}`, { align: "center" });
-    doc.text(`✉️ Email: ${email}`, { align: "center" });
-    doc.text(`🛠️ Role: ${role}`, { align: "center" });
+    doc.text(`Email: ${email}`, { align: "center" });
+    doc.text(`Role: ${role}`, { align: "center" });
 
     // ✅ Order ID and Ticket ID Section (Centered)
     doc.moveDown(1.5);
-    doc.fontSize(20).text("🛒 Order Details", { align: "center", underline: true });
+    doc.fontSize(20).text("Order Details", { align: "center", underline: true });
 
     doc.moveDown(0.7);
-    doc.fontSize(16).text(`🆔 Order ID: ${ticketID}`, { align: "center" });
-    doc.text(`🔑 Ticket ID: ${ticketID}`, { align: "center" });
+    doc.fontSize(16).text(`Order ID: ${ticketID-1}`, { align: "center" });
+    doc.text(`Ticket ID: ${ticketID}`, { align: "center" });
 
     // ✅ Event Venue Section (Centered)
     doc.moveDown(1.5);
-    doc.fontSize(20).text("📍 Event Venue", { align: "center", underline: true });
+    doc.fontSize(20).text("Event Venue", { align: "center", underline: true });
 
     doc.moveDown(0.7);
     doc.fontSize(16).text("M Weddings & Conventions", { align: "center" });
@@ -97,15 +97,16 @@ const generateTicketPDF = async (name, email, eventName, role, ticketID, qrCodeI
     const centerX = (doc.page.width - qrSize) / 2;  // Center QR code horizontally
     const qrY = doc.y + 40;  // Space before QR
 
-    doc.moveDown(2);
-    doc.fontSize(16).text("📲 Scan this QR code at entry:", { align: "center" });
+    doc.moveDown(1.5);
+    doc.fontSize(16).text(" Scan this QR code at entry:", { align: "center" });
+    doc.moveDown(1);
 
     doc.image(Buffer.from(qrCodeImage.split(",")[1], "base64"), centerX, qrY, {
       fit: [qrSize, qrSize],
       align: "center"
     });
 
-    doc.moveDown(2);
+    doc.moveDown(20);
 
     // ✅ Footer Branding (Centered)
     doc.fillColor("#4CAF50")
@@ -114,7 +115,7 @@ const generateTicketPDF = async (name, email, eventName, role, ticketID, qrCodeI
 
     doc.fillColor("#fff")
       .fontSize(14)
-      .text("Powered by YourEvent", {
+      .text("Powered by EVENT-MVP", {
         align: "center",
         baseline: "middle",
         y: doc.page.height - 35,
