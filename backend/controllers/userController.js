@@ -51,7 +51,9 @@ exports.registerUser = async (req, res) => {
 // Function to generate PDF dynamically
 const generateTicketPDF = async (name, email, eventName, role, ticketID, qrCodeImage, pdfPath) => {
   return new Promise((resolve, reject) => {
-    const doc = new PDFDocument({ size: [595.28, 1000], margin: 50 });
+    
+    // ✅ Slightly larger height to fit all content on a single page
+    const doc = new PDFDocument({ size: [595.28, 950], margin: 50 }); 
     const stream = fs.createWriteStream(pdfPath);
 
     doc.pipe(stream);
@@ -80,7 +82,7 @@ const generateTicketPDF = async (name, email, eventName, role, ticketID, qrCodeI
     doc.fontSize(20).text("Order Details", { align: "center", underline: true });
 
     doc.moveDown(0.7);
-    doc.fontSize(16).text(`Order ID: ${ticketID+1}`, { align: "center" });
+    doc.fontSize(16).text(`Order ID: ${ticketID + 1}`, { align: "center" });
     doc.text(`Ticket ID: ${ticketID}`, { align: "center" });
 
     // ✅ Event Venue Section (Centered)
@@ -95,9 +97,11 @@ const generateTicketPDF = async (name, email, eventName, role, ticketID, qrCodeI
     // ✅ QR Code Section (Centered)
     const qrSize = 150;
     const centerX = (doc.page.width - qrSize) / 2;  // Center QR code horizontally
-    const qrY = doc.y + 40;  // Space before QR
 
+    // 📌 Adjust QR positioning to avoid overlapping with footer
+    const qrY = doc.page.height - 200;  // Enough space for footer
     doc.moveDown(1.5);
+    
     doc.fontSize(16).text(" Scan this QR code at entry:", { align: "center" });
     doc.moveDown(1);
 
@@ -106,19 +110,17 @@ const generateTicketPDF = async (name, email, eventName, role, ticketID, qrCodeI
       align: "center"
     });
 
-    doc.moveDown(23);
-
     // ✅ Footer Branding (Centered)
+    const footerHeight = 50;
     doc.fillColor("#4CAF50")
-      .rect(0, doc.page.height - 50, doc.page.width, 50)
+      .rect(0, doc.page.height - footerHeight, doc.page.width, footerHeight)
       .fill();
 
     doc.fillColor("#fff")
       .fontSize(14)
       .text("Powered by EVENT-MVP", {
         align: "center",
-        baseline: "middle",
-        y: doc.page.height - 35,
+        y: doc.page.height - footerHeight + 15,  // Ensure footer text is visible
       });
 
     doc.end();
@@ -127,6 +129,7 @@ const generateTicketPDF = async (name, email, eventName, role, ticketID, qrCodeI
     stream.on("error", reject);
   });
 };
+
 
 
 //  Updated Email Function with Date, Time, and Location
