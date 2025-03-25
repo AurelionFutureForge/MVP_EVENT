@@ -29,7 +29,7 @@ exports.registerUser = async (req, res) => {
 
     // Generate PDF dynamically with user data
     const pdfPath = path.join(__dirname, "../public/pdfs", `${ticketID}.pdf`);
-    await generateTicketPDF(name, eventName, role, ticketID, qrCodeImage, pdfPath);
+    await generateTicketPDF(name,email, eventName, role, ticketID, qrCodeImage, pdfPath);
 
     // Send success email with the generated PDF and QR code
     await sendSuccessEmail(name, email, eventName, qrCodeImage, role, ticketID, pdfPath);
@@ -49,16 +49,17 @@ exports.registerUser = async (req, res) => {
 };
 
 // Function to generate PDF dynamically
-const generateTicketPDF = async (name, email, eventName, role, ticketID, pdfPath) => {
+const generateTicketPDF = async (name, email, eventName, role, ticketID,qrCodeImage, pdfPath) => {
   return new Promise((resolve, reject) => {
     const doc = new PDFDocument({ size: "A4", margin: 50 });
     const stream = fs.createWriteStream(pdfPath);
 
     doc.pipe(stream);
 
+
     // ✅ Header section with event branding
     doc.rect(0, 0, doc.page.width, 100).fill("#4CAF50"); // Header background
-    doc.fillColor("#fff").fontSize(24).text("BNI Connect Fest 2025", { align: "center" });
+    doc.fillColor("#fff").fontSize(24).text(`${eventName}`, { align: "center" });
     doc.moveDown(0.5);
     doc.fontSize(16).text("Mar 15 - 16, 2025, 08:00 AM (IST)", { align: "center" });
 
@@ -74,7 +75,7 @@ const generateTicketPDF = async (name, email, eventName, role, ticketID, pdfPath
     doc.moveDown(1);
     doc.fontSize(18).fillColor("#333").text("Order Details", { underline: true });
     doc.moveDown(0.5);
-    doc.fontSize(14).text(`Order ID: 10379000004103300`);
+    doc.fontSize(14).text(`Order ID: ${ticketID}`);
     doc.text(`Ticket ID: ${ticketID}`);
 
     // ✅ Event venue details
