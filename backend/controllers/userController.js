@@ -99,7 +99,7 @@ const generateTicketPDF = async (name, email, eventName, role, ticketID, qrCodeI
     const centerX = (doc.page.width - qrSize) / 2;  // Center QR code horizontally
 
     // 📌 Adjust QR positioning to avoid overlapping with footer
-    const qrY = doc.page.height - 100;  // Enough space for footer
+    const qrY = doc.y + 40;  // Enough space for footer
     doc.moveDown(1.5);
     
     doc.fontSize(16).text(" Scan this QR code at entry:", { align: "center" });
