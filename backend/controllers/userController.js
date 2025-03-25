@@ -51,91 +51,65 @@ exports.registerUser = async (req, res) => {
 // Function to generate PDF dynamically
 const generateTicketPDF = async (name, eventName, role, ticketID, qrCodeImage, pdfPath) => {
   return new Promise((resolve, reject) => {
-    const doc = new PDFDocument({
-      size: 'A4',  // Standard A4 size
-      margin: 50,
-    });
-
+    const doc = new PDFDocument({ size: 'A4', margin: 50 });
     const stream = fs.createWriteStream(pdfPath);
     doc.pipe(stream);
 
-    //  Header Section with Background Color
-    doc
-      .rect(0, 0, doc.page.width, 100)
-      .fill('#4CAF50')  // Green header background
-      .fillColor('#FFFFFF')
-      .fontSize(30)
-      .text('🎫 Event Ticket', { align: 'center', valign: 'center' })
-      .moveDown();
-
-    //  Event Details Section
-    doc
-      .fillColor('#333333')  // Dark text color
-      .fontSize(18)
-      .text(`Event: ${eventName}`, { align: 'center' })
-      .moveDown(0.5)
-      .fontSize(14)
-      .text(`Attendee: ${name}`, { align: 'center' })
-      .text(`Role: ${role}`, { align: 'center' })
-      .text(`Ticket ID: ${ticketID}`, { align: 'center' })
-      .moveDown(0.5);
-
-    // Add Date, Time, and Location with icons
-    doc
-      .fontSize(12)
-      .fillColor('#555555')  // Gray color for details
-      .text('📅 Date: March 15 - 16, 2025', { align: 'center' })
-      .text('⏰ Time: 08:00 AM - 5:00 PM (IST)', { align: 'center' })
-      .text('📍 Location: M Weddings & Conventions, Chennai, India', { align: 'center' })
-      .moveDown(1.5);
-
-    //  Stylish Line Separator
-    doc
-      .moveTo(50, doc.y)
-      .lineTo(doc.page.width - 50, doc.y)
-      .lineWidth(1)
-      .stroke('#AAAAAA')
-      .moveDown(1.5);
-
-    //  QR Code Section with Border and Shadow Effect
-    const qrBuffer = Buffer.from(qrCodeImage.split(',')[1], 'base64');
-    const qrSize = 180;
-
-    doc
-      .text('📲 Scan this QR Code at Entry', { align: 'center' })
-      .moveDown(0.5)
-      .image(qrBuffer, {
-        fit: [qrSize, qrSize],
-        align: 'center',
-        valign: 'center'
-      })
-      .strokeColor('#4CAF50')
-      .lineWidth(3)
-      .rect(doc.page.width / 2 - qrSize / 2 - 5, doc.y - qrSize - 5, qrSize + 10, qrSize + 10)
-      .stroke();
+    //  Header Section with Background and Title
+    doc.rect(0, 0, doc.page.width, 100).fill("#4CAF50");  // Green header
+    doc.fillColor("#fff").fontSize(30).text("🎫 Event Ticket", {
+      align: "center",
+      valign: "center",
+    });
 
     doc.moveDown(2);
 
+    //  Event and User Info
+    doc.fillColor("#000").fontSize(18).text(`Event: ${eventName}`, { align: "left" });
+    doc.fontSize(16).text(`Attendee: ${name}`, { align: "left" });
+    doc.fontSize(16).text(`Role: ${role}`, { align: "left" });
+    doc.fontSize(16).text(`Ticket ID: ${ticketID}`, { align: "left" });
+
+    doc.moveDown(1);
+
+    //  Date, Time, and Location Section with Border
+    doc.rect(50, doc.y, doc.page.width - 100, 100).stroke();
+    doc.moveDown(0.5);
+
+    doc.fontSize(16).text(`📅 Date: March 15 - 16, 2025`, { align: "left" });
+    doc.text(`⏰ Time: 08:00 AM - 5:00 PM (IST)`, { align: "left" });
+    doc.text(`📍 Location: M Weddings & Conventions, Chennai, India`, { align: "left" });
+
+    doc.moveDown(1.5);
+
+    //  QR Code Section
+    doc.fontSize(14).text("📲 Scan this QR code at entry:", { align: "center" });
+    
+    //  QR Code Styling
+    doc.image(Buffer.from(qrCodeImage.split(",")[1], "base64"), {
+      fit: [200, 200],   // Larger QR code
+      align: "center",
+      valign: "center"
+    });
+
+    doc.moveDown(1.5);
+
     //  Footer Section
-    doc
-      .fillColor('#FFFFFF')
-      .rect(0, doc.page.height - 80, doc.page.width, 80)
-      .fill('#4CAF50')
-      .fontSize(14)
-      .fillColor('#FFFFFF')
-      .text('🎉 Thank you for registering. We look forward to seeing you at the event!', {
-        align: 'center',
-        valign: 'center'
-      });
+    doc.fillColor("#fff");
+    doc.rect(0, doc.page.height - 80, doc.page.width, 80).fill("#4CAF50");  // Footer background
+    doc.fillColor("#fff").fontSize(16).text("🎉 Thank you for registering. We look forward to seeing you at the event!", {
+      align: "center",
+      valign: "center"
+    });
 
     doc.end();
-
-    stream.on('finish', resolve);
-    stream.on('error', reject);
+    stream.on("finish", resolve);
+    stream.on("error", reject);
   });
 };
 
-// ✅ Updated Email Function with Date, Time, and Location
+
+//  Updated Email Function with Date, Time, and Location
 const sendSuccessEmail = async (name, email, eventName, qrCodeImage, role, ticketID, pdfPath) => {
   try {
     const transporter = nodemailer.createTransport({
