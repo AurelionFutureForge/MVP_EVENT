@@ -51,58 +51,64 @@ exports.registerUser = async (req, res) => {
 // Function to generate PDF dynamically
 const generateTicketPDF = async (name, eventName, role, ticketID, qrCodeImage, pdfPath) => {
   return new Promise((resolve, reject) => {
-    const doc = new PDFDocument({ size: 'A4', margin: 50 });
+    const doc = new PDFDocument({ size: "A4", margin: 50 }); // Use A4 size with consistent margins
     const stream = fs.createWriteStream(pdfPath);
+
     doc.pipe(stream);
 
-    //  Header Section with Background and Title
-    doc.rect(0, 0, doc.page.width, 100).fill("#4CAF50");  // Green header
-    doc.fillColor("#fff").fontSize(30).text("🎫 Event Ticket", {
+    //  PDF Header
+    doc.font("Helvetica-Bold").fontSize(26).fillColor("#4CAF50")
+      .text("🎫 Event Ticket", { align: "center" })
+      .moveDown(0.5);
+
+    //  Event and Attendee Info Section
+    doc.font("Helvetica-Bold").fontSize(18).fillColor("#333")
+      .text(`Event: ${eventName}`, { align: "center" })
+      .moveDown(0.3);
+
+    doc.font("Helvetica").fontSize(16)
+      .text(`Attendee: ${name}`, { align: "center" })
+      .text(`Role: ${role}`, { align: "center" })
+      .text(`Ticket ID: ${ticketID}`, { align: "center" })
+      .moveDown(1.5);
+
+    //  Event Date, Time, and Location Section with separation
+    doc.font("Helvetica-Bold").fontSize(14).fillColor("#000")
+      .text(`📅 Date: March 15 - 16, 2025`, { align: "left" })
+      .moveDown(0.3);
+
+    doc.text(`⏰ Time: 08:00 AM - 5:00 PM (IST)`, { align: "left" })
+      .moveDown(0.3);
+
+    doc.text(`📍 Location: M Weddings & Conventions, Chennai, India`, { align: "left" })
+      .moveDown(1.5);
+
+    //  QR Code Section with proper alignment
+    doc.font("Helvetica-Bold").fontSize(14)
+      .text("📲 Scan this QR code at entry:", { align: "center" })
+      .moveDown(0.5);
+
+    // Center the QR code with proper scaling
+    const qrCodeBuffer = Buffer.from(qrCodeImage.split(",")[1], "base64");
+    const qrCodeWidth = 200; // Set consistent QR code size
+    const qrCodeX = (doc.page.width - qrCodeWidth) / 2;
+
+    doc.image(qrCodeBuffer, qrCodeX, doc.y, {
+      fit: [qrCodeWidth, qrCodeWidth],
       align: "center",
       valign: "center",
-    });
+    })
+    .moveDown(1.5);
 
-    doc.moveDown(2);
-
-    //  Event and User Info
-    doc.fillColor("#000").fontSize(18).text(`Event: ${eventName}`, { align: "left" });
-    doc.fontSize(16).text(`Attendee: ${name}`, { align: "left" });
-    doc.fontSize(16).text(`Role: ${role}`, { align: "left" });
-    doc.fontSize(16).text(`Ticket ID: ${ticketID}`, { align: "left" });
-
-    doc.moveDown(1);
-
-    //  Date, Time, and Location Section with Border
-    doc.rect(50, doc.y, doc.page.width - 100, 100).stroke();
-    doc.moveDown(0.5);
-
-    doc.fontSize(16).text(`📅 Date: March 15 - 16, 2025`, { align: "left" });
-    doc.text(`⏰ Time: 08:00 AM - 5:00 PM (IST)`, { align: "left" });
-    doc.text(`📍 Location: M Weddings & Conventions, Chennai, India`, { align: "left" });
-
-    doc.moveDown(1.5);
-
-    //  QR Code Section
-    doc.fontSize(14).text("📲 Scan this QR code at entry:", { align: "center" });
-    
-    //  QR Code Styling
-    doc.image(Buffer.from(qrCodeImage.split(",")[1], "base64"), {
-      fit: [200, 200],   // Larger QR code
-      align: "center",
-      valign: "center"
-    });
-
-    doc.moveDown(1.5);
-
-    //  Footer Section
-    doc.fillColor("#fff");
-    doc.rect(0, doc.page.height - 80, doc.page.width, 80).fill("#4CAF50");  // Footer background
-    doc.fillColor("#fff").fontSize(16).text("🎉 Thank you for registering. We look forward to seeing you at the event!", {
-      align: "center",
-      valign: "center"
-    });
+    //  Closing message
+    doc.font("Helvetica-Bold").fontSize(16).fillColor("#4CAF50")
+      .text("✅ Thank you for registering. We look forward to seeing you at the event!", {
+        align: "center",
+      })
+      .moveDown(0.5);
 
     doc.end();
+
     stream.on("finish", resolve);
     stream.on("error", reject);
   });
