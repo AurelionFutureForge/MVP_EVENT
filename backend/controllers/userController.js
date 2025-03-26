@@ -100,7 +100,7 @@ const generateTicketPDF = async (name, email, eventName, role, ticketID, qrCodeI
     });
 
     // ✅ Add spacing after the QR code
-    doc.moveDown(10);
+    doc.moveDown(15);
 
     // ✅ Event Venue Section
     doc.fontSize(20).text("Event Venue", { align: "center", underline: true });
