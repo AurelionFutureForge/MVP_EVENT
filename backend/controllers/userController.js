@@ -105,7 +105,6 @@ const generateTicketPDF = async (name, email, eventName, role, ticketID, qrCodeI
 
     doc.moveDown(1.5);
     doc.fontSize(16).text(" Scan this QR code at entry:", { align: "center" });
-    doc.moveDown(1);
 
     doc.image(Buffer.from(qrCodeImage.split(",")[1], "base64"), centerX, qrY, {
       fit: [qrSize, qrSize],
