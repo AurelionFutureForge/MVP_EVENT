@@ -49,7 +49,7 @@ exports.registerUser = async (req, res) => {
 };
 
 // Function to generate PDF dynamically
-const generateTicketPDF = async (name, email, eventName, role, ticketID, qrCodeImage, pdfPath) => {
+cconst generateTicketPDF = async (name, email, eventName, role, ticketID, qrCodeImage, pdfPath) => {
   return new Promise((resolve, reject) => {
     
     // ✅ Slightly larger height to fit all content properly
@@ -94,20 +94,20 @@ const generateTicketPDF = async (name, email, eventName, role, ticketID, qrCodeI
     doc.text("98/99, Vanagaram-Ambattur Road", { align: "center" });
     doc.text("Vanagaram, Chennai, Tamil Nadu - 600095, India", { align: "center" });
 
-    // ✅ QR Code Section (Centered)
-    const qrSize = 150;
+    // ✅ Larger QR Code Section (Centered)
+    const qrSize = 200;  // ✅ Increased QR code size
     const centerX = (doc.page.width - qrSize) / 2;  // Center QR code horizontally
 
     // 📌 Adjust QR positioning with reduced space
     const footerHeight = 50;
-    const spaceAboveFooter = 80;  // Space above the footer
+    const spaceAboveFooter = 100;  // More space to fit larger QR code
     const qrY = doc.page.height - footerHeight - qrSize - spaceAboveFooter;  // Ensures space before footer
 
     // 🔥 Reduced spacing before the QR code
-    doc.moveDown(0.5);  // Smaller space between text and QR code
+    doc.moveDown(2);  
     doc.fontSize(16).text("Scan this QR code at entry:", { align: "center" });
 
-    // ✅ Display the QR code
+    // ✅ Display the larger QR code
     doc.image(Buffer.from(qrCodeImage.split(",")[1], "base64"), centerX, qrY - 30, {  
       fit: [qrSize, qrSize],  
       align: "center"  
