@@ -51,15 +51,15 @@ exports.registerUser = async (req, res) => {
 // Function to generate PDF dynamically
 const generateTicketPDF = async (name, email, eventName, role, ticketID, qrCodeImage, pdfPath) => {
   return new Promise((resolve, reject) => {
-    
-    // ✅ Slightly larger height to fit all content properly
-    const doc = new PDFDocument({ size: [595.28, 950], margin: 50 }); 
+
+    // ✅ Increased height for more space
+    const doc = new PDFDocument({ size: [595.28, 1050], margin: 50 }); 
     const stream = fs.createWriteStream(pdfPath);
 
     doc.pipe(stream);
 
     // ✅ Header Section (Event Branding)
-    doc.rect(0, 0, doc.page.width, 120).fill("#4CAF50"); 
+    doc.rect(0, 0, doc.page.width, 120).fill("#4CAF50");
     doc.fillColor("#fff")
       .font("Helvetica-Bold")
       .fontSize(28)
@@ -68,7 +68,7 @@ const generateTicketPDF = async (name, email, eventName, role, ticketID, qrCodeI
     doc.moveDown(0.3);
     doc.fontSize(18).text("March 15 - 16, 2025, 08:00 AM - 5:00 PM (IST)", { align: "center" });
 
-    // ✅ Attendee Info Section (Centered)
+    // ✅ Attendee Info Section
     doc.moveDown(1.5);
     doc.fillColor("#333").fontSize(20).text("Attendee Information", { align: "center", underline: true });
 
@@ -77,7 +77,7 @@ const generateTicketPDF = async (name, email, eventName, role, ticketID, qrCodeI
     doc.text(`Email: ${email}`, { align: "center" });
     doc.text(`Role: ${role}`, { align: "center" });
 
-    // ✅ Order ID and Ticket ID Section (Centered)
+    // ✅ Order ID and Ticket ID Section
     doc.moveDown(1.5);
     doc.fontSize(20).text("Order Details", { align: "center", underline: true });
 
@@ -85,28 +85,24 @@ const generateTicketPDF = async (name, email, eventName, role, ticketID, qrCodeI
     doc.fontSize(16).text(`Order ID: ${ticketID + 1}`, { align: "center" });
     doc.text(`Ticket ID: ${ticketID}`, { align: "center" });
 
-    doc.moveDown(1.5);
-
-    // ✅ Larger QR Code Section (Centered)
-    const qrSize = 200;  // ✅ Increased QR code size
-    const centerX = (doc.page.width - qrSize) / 2;  // Center QR code horizontally
-
-    // 📌 Adjust QR positioning
+    // ✅ QR Code Section (Increased Size & Correct Positioning)
+    const qrSize = 200;  
+    const centerX = (doc.page.width - qrSize) / 2;  
     const footerHeight = 50;
-    const spaceAboveFooter = 120;  // Space above the footer
-    const qrY = doc.page.height - footerHeight - qrSize - spaceAboveFooter;  // Ensures space before footer
+    const spaceAboveFooter = 180;  // ✅ Added space to prevent overlap
+    const qrY = doc.page.height - footerHeight - qrSize - spaceAboveFooter;
 
-    doc.moveDown(1.5);  
+    doc.moveDown(2);
     doc.fontSize(16).text("Scan this QR code at entry:", { align: "center" });
 
-    // ✅ Display the larger QR code
-    doc.image(Buffer.from(qrCodeImage.split(",")[1], "base64"), centerX, qrY - 50, {  
-      fit: [qrSize, qrSize],  
-      align: "center"  
+    // ✅ Display the QR code
+    doc.image(Buffer.from(qrCodeImage.split(",")[1], "base64"), centerX, qrY, {
+      fit: [qrSize, qrSize],
+      align: "center"
     });
 
-    // ✅ Event Venue Section (Below the QR Code)
-    doc.moveDown(4);  // Space between QR code and venue
+    // ✅ Event Venue Section (Below QR Code)
+    doc.moveDown(2.5);
     doc.fontSize(20).text("Event Venue", { align: "center", underline: true });
 
     doc.moveDown(0.7);
@@ -123,7 +119,7 @@ const generateTicketPDF = async (name, email, eventName, role, ticketID, qrCodeI
       .fontSize(14)
       .text("Powered by EVENT-MVP", {
         align: "center",
-        y: doc.page.height - footerHeight + 15,  // Proper spacing for footer text
+        y: doc.page.height - footerHeight + 15, 
       });
 
     doc.end();
@@ -132,9 +128,6 @@ const generateTicketPDF = async (name, email, eventName, role, ticketID, qrCodeI
     stream.on("error", reject);
   });
 };
-
-
-
 
 
 //  Updated Email Function with Date, Time, and Location
