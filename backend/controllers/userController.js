@@ -53,7 +53,7 @@ const generateTicketPDF = async (name, email, eventName, role, ticketID, qrCodeI
   return new Promise((resolve, reject) => {
     
     // ✅ Increased page height to fit content properly
-    const doc = new PDFDocument({ size: [595.28, 1050], margin: 50 }); 
+    const doc = new PDFDocument({ size: [595.28, 1150], margin: 50 });  // Increased height for larger QR
     const stream = fs.createWriteStream(pdfPath);
 
     doc.pipe(stream);
@@ -85,8 +85,8 @@ const generateTicketPDF = async (name, email, eventName, role, ticketID, qrCodeI
     doc.fontSize(16).text(`Order ID: ${ticketID + 1}`, { align: "center" });
     doc.text(`Ticket ID: ${ticketID}`, { align: "center" });
 
-    // ✅ QR Code Section (Centered)
-    const qrSize = 200;  // Larger QR code size
+    // ✅ Larger QR Code Section (Centered)
+    const qrSize = 280;  // ✅ Bigger QR code
     const centerX = (doc.page.width - qrSize) / 2;  
 
     // ✅ Adjusted spacing for QR code
@@ -99,8 +99,8 @@ const generateTicketPDF = async (name, email, eventName, role, ticketID, qrCodeI
       align: "center"  
     });
 
-    // ✅ Add spacing after the QR code
-    doc.moveDown(15);
+    // ✅ Add more spacing after the QR code
+    doc.moveDown(20);
 
     // ✅ Event Venue Section
     doc.fontSize(20).text("Event Venue", { align: "center", underline: true });
