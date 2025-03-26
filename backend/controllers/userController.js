@@ -52,13 +52,13 @@ exports.registerUser = async (req, res) => {
 const generateTicketPDF = async (name, email, eventName, role, ticketID, qrCodeImage, pdfPath) => {
   return new Promise((resolve, reject) => {
     
-    // ✅ Increased page height to fit content properly
+    //  Increased page height to fit content properly
     const doc = new PDFDocument({ size: [595.28, 1150], margin: 50 });  // Increased height for larger QR
     const stream = fs.createWriteStream(pdfPath);
 
     doc.pipe(stream);
 
-    // ✅ Header Section (Event Branding)
+    //  Header Section (Event Branding)
     doc.rect(0, 0, doc.page.width, 120).fill("#4CAF50"); 
     doc.fillColor("#fff")
       .font("Helvetica-Bold")
@@ -68,7 +68,7 @@ const generateTicketPDF = async (name, email, eventName, role, ticketID, qrCodeI
     doc.moveDown(0.3);
     doc.fontSize(18).text("March 15 - 16, 2025, 08:00 AM - 5:00 PM (IST)", { align: "center" });
 
-    // ✅ Attendee Info Section
+    //  Attendee Info Section
     doc.moveDown(1.5);
     doc.fillColor("#333").fontSize(20).text("Attendee Information", { align: "center", underline: true });
 
@@ -77,7 +77,7 @@ const generateTicketPDF = async (name, email, eventName, role, ticketID, qrCodeI
     doc.text(`Email: ${email}`, { align: "center" });
     doc.text(`Role: ${role}`, { align: "center" });
 
-    // ✅ Order ID and Ticket ID Section
+    //  Order ID and Ticket ID Section
     doc.moveDown(1.5);
     doc.fontSize(20).text("Order Details", { align: "center", underline: true });
 
@@ -85,11 +85,11 @@ const generateTicketPDF = async (name, email, eventName, role, ticketID, qrCodeI
     doc.fontSize(16).text(`Order ID: ${ticketID + 1}`, { align: "center" });
     doc.text(`Ticket ID: ${ticketID}`, { align: "center" });
 
-    // ✅ Larger QR Code Section (Centered)
-    const qrSize = 280;  // ✅ Bigger QR code
+    //  Larger QR Code Section (Centered)
+    const qrSize = 280;  //  Bigger QR code
     const centerX = (doc.page.width - qrSize) / 2;  
 
-    // ✅ Adjusted spacing for QR code
+    //  Adjusted spacing for QR code
     doc.moveDown(2);
     doc.fontSize(16).text("Scan this QR code at entry:", { align: "center" });
 
@@ -99,10 +99,10 @@ const generateTicketPDF = async (name, email, eventName, role, ticketID, qrCodeI
       align: "center"  
     });
 
-    // ✅ Add more spacing after the QR code
-    doc.moveDown(20);
+    // Add more spacing after the QR code
+    doc.moveDown(18);
 
-    // ✅ Event Venue Section
+    //  Event Venue Section
     doc.fontSize(20).text("Event Venue", { align: "center", underline: true });
 
     doc.moveDown(0.7);
@@ -110,7 +110,7 @@ const generateTicketPDF = async (name, email, eventName, role, ticketID, qrCodeI
     doc.text("98/99, Vanagaram-Ambattur Road", { align: "center" });
     doc.text("Vanagaram, Chennai, Tamil Nadu - 600095, India", { align: "center" });
 
-    // ✅ Footer Branding (Centered)
+    // Footer Branding (Centered)
     const footerHeight = 50;
 
     doc.fillColor("#4CAF50")
