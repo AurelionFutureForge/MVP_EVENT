@@ -91,23 +91,22 @@ const generateTicketPDF = async (name, email, eventName, role, ticketID, qrCodeI
     const qrSize = 200;  // ✅ Increased QR code size
     const centerX = (doc.page.width - qrSize) / 2;  // Center QR code horizontally
 
-    // 📌 Adjust QR positioning with reduced space
+    // 📌 Adjust QR positioning
     const footerHeight = 50;
-    const spaceAboveFooter = 100;  // More space to fit larger QR code
+    const spaceAboveFooter = 120;  // Space above the footer
     const qrY = doc.page.height - footerHeight - qrSize - spaceAboveFooter;  // Ensures space before footer
 
-    // 🔥 Reduced spacing before the QR code
-    doc.moveDown(2);  
+    doc.moveDown(1.5);  
     doc.fontSize(16).text("Scan this QR code at entry:", { align: "center" });
 
     // ✅ Display the larger QR code
-    doc.image(Buffer.from(qrCodeImage.split(",")[1], "base64"), centerX, qrY - 30, {  
+    doc.image(Buffer.from(qrCodeImage.split(",")[1], "base64"), centerX, qrY - 50, {  
       fit: [qrSize, qrSize],  
       align: "center"  
     });
 
-    doc.moveDown(2);
-
+    // ✅ Event Venue Section (Below the QR Code)
+    doc.moveDown(4);  // Space between QR code and venue
     doc.fontSize(20).text("Event Venue", { align: "center", underline: true });
 
     doc.moveDown(0.7);
@@ -133,6 +132,7 @@ const generateTicketPDF = async (name, email, eventName, role, ticketID, qrCodeI
     stream.on("error", reject);
   });
 };
+
 
 
 
