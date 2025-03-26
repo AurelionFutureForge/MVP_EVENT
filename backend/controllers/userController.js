@@ -52,8 +52,8 @@ exports.registerUser = async (req, res) => {
 const generateTicketPDF = async (name, email, eventName, role, ticketID, qrCodeImage, pdfPath) => {
   return new Promise((resolve, reject) => {
 
-    // ✅ Increased height for more space
-    const doc = new PDFDocument({ size: [595.28, 1050], margin: 50 }); 
+    // ✅ Increased height to prevent overlap
+    const doc = new PDFDocument({ size: [595.28, 1150], margin: 50 });  
     const stream = fs.createWriteStream(pdfPath);
 
     doc.pipe(stream);
@@ -85,41 +85,46 @@ const generateTicketPDF = async (name, email, eventName, role, ticketID, qrCodeI
     doc.fontSize(16).text(`Order ID: ${ticketID + 1}`, { align: "center" });
     doc.text(`Ticket ID: ${ticketID}`, { align: "center" });
 
-    // ✅ QR Code Section (Increased Size & Correct Positioning)
+    // ✅ QR Code Section (Proper Absolute Positioning)
     const qrSize = 200;  
-    const centerX = (doc.page.width - qrSize) / 2;  
-    const footerHeight = 50;
-    const spaceAboveFooter = 180;  // ✅ Added space to prevent overlap
-    const qrY = doc.page.height - footerHeight - qrSize - spaceAboveFooter;
+    const qrX = (doc.page.width - qrSize) / 2;   // Center QR horizontally
+    const qrY = 550;  // Fixed Y-position to prevent overlap
 
     doc.moveDown(2);
     doc.fontSize(16).text("Scan this QR code at entry:", { align: "center" });
 
-    // ✅ Display the QR code
-    doc.image(Buffer.from(qrCodeImage.split(",")[1], "base64"), centerX, qrY, {
-      fit: [qrSize, qrSize],
-      align: "center"
+    // ✅ Display the QR code with absolute positioning
+    doc.image(Buffer.from(qrCodeImage.split(",")[1], "base64"), qrX, qrY, {  
+      fit: [qrSize, qrSize],  
+      align: "center"  
     });
 
-    // ✅ Event Venue Section (Below QR Code)
-    doc.moveDown(2.5);
-    doc.fontSize(20).text("Event Venue", { align: "center", underline: true });
+    // ✅ Event Venue Section (Positioned Below QR Code)
+    const venueY = qrY + qrSize + 40;  // Ensure proper spacing below QR code
+
+    doc
+      .fontSize(20)
+      .fillColor("#333")
+      .text("Event Venue", { align: "center", underline: true, y: venueY });
 
     doc.moveDown(0.7);
     doc.fontSize(16).text("M Weddings & Conventions", { align: "center" });
     doc.text("98/99, Vanagaram-Ambattur Road", { align: "center" });
     doc.text("Vanagaram, Chennai, Tamil Nadu - 600095, India", { align: "center" });
 
-    // ✅ Footer Branding (Centered)
+    // ✅ Footer Branding (Absolute Positioning)
+    const footerHeight = 50;
+    const footerY = doc.page.height - footerHeight;  // Fixed position at the bottom
+
     doc.fillColor("#4CAF50")
-      .rect(0, doc.page.height - footerHeight, doc.page.width, footerHeight)
+      .rect(0, footerY, doc.page.width, footerHeight)
       .fill();
 
     doc.fillColor("#fff")
       .fontSize(14)
       .text("Powered by EVENT-MVP", {
         align: "center",
-        y: doc.page.height - footerHeight + 15, 
+        y: footerY + 15,  
       });
 
     doc.end();
