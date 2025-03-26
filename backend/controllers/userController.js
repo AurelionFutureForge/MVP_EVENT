@@ -98,17 +98,19 @@ const generateTicketPDF = async (name, email, eventName, role, ticketID, qrCodeI
     const qrSize = 150;
     const centerX = (doc.page.width - qrSize) / 2;  // Center QR code horizontally
 
-    // 📌 Adjust QR positioning to avoid overlapping with footer
+    // 📌 Adjust QR positioning with reduced space
     const footerHeight = 50;
     const spaceAboveFooter = 80;  // Space above the footer
     const qrY = doc.page.height - footerHeight - qrSize - spaceAboveFooter;  // Ensures space before footer
 
-    doc.moveDown(1.5);
-    doc.fontSize(16).text(" Scan this QR code at entry:", { align: "center" });
+    // 🔥 Reduced spacing before the QR code
+    doc.moveDown(0.5);  // Smaller space between text and QR code
+    doc.fontSize(16).text("Scan this QR code at entry:", { align: "center" });
 
-    doc.image(Buffer.from(qrCodeImage.split(",")[1], "base64"), centerX, qrY, {
-      fit: [qrSize, qrSize],
-      align: "center"
+    // ✅ Display the QR code
+    doc.image(Buffer.from(qrCodeImage.split(",")[1], "base64"), centerX, qrY - 30, {  
+      fit: [qrSize, qrSize],  
+      align: "center"  
     });
 
     // ✅ Footer Branding (Centered)
