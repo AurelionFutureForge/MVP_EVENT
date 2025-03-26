@@ -49,7 +49,7 @@ exports.registerUser = async (req, res) => {
 };
 
 // Function to generate PDF dynamically
-cconst generateTicketPDF = async (name, email, eventName, role, ticketID, qrCodeImage, pdfPath) => {
+const generateTicketPDF = async (name, email, eventName, role, ticketID, qrCodeImage, pdfPath) => {
   return new Promise((resolve, reject) => {
     
     // ✅ Slightly larger height to fit all content properly
