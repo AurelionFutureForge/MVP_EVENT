@@ -85,14 +85,7 @@ const generateTicketPDF = async (name, email, eventName, role, ticketID, qrCodeI
     doc.fontSize(16).text(`Order ID: ${ticketID + 1}`, { align: "center" });
     doc.text(`Ticket ID: ${ticketID}`, { align: "center" });
 
-    // ✅ Event Venue Section (Centered)
     doc.moveDown(1.5);
-    doc.fontSize(20).text("Event Venue", { align: "center", underline: true });
-
-    doc.moveDown(0.7);
-    doc.fontSize(16).text("M Weddings & Conventions", { align: "center" });
-    doc.text("98/99, Vanagaram-Ambattur Road", { align: "center" });
-    doc.text("Vanagaram, Chennai, Tamil Nadu - 600095, India", { align: "center" });
 
     // ✅ Larger QR Code Section (Centered)
     const qrSize = 200;  // ✅ Increased QR code size
@@ -112,6 +105,15 @@ const generateTicketPDF = async (name, email, eventName, role, ticketID, qrCodeI
       fit: [qrSize, qrSize],  
       align: "center"  
     });
+
+    doc.moveDown(2);
+
+    doc.fontSize(20).text("Event Venue", { align: "center", underline: true });
+
+    doc.moveDown(0.7);
+    doc.fontSize(16).text("M Weddings & Conventions", { align: "center" });
+    doc.text("98/99, Vanagaram-Ambattur Road", { align: "center" });
+    doc.text("Vanagaram, Chennai, Tamil Nadu - 600095, India", { align: "center" });
 
     // ✅ Footer Branding (Centered)
     doc.fillColor("#4CAF50")
