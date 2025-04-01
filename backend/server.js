@@ -6,6 +6,7 @@ const cors = require("cors");
 const authRoutes = require("./routes/authRoutes");
 const userRoutes = require("./routes/userRoutes");
 const scanRoutes = require("./routes/scanRoutes");
+const eventRoutes = require("./routes/eventRoutes");
 
 const app = express();
 app.use(express.json());
@@ -26,6 +27,7 @@ mongoose.connect(process.env.MONGO_URI)
 app.use("/admin", authRoutes);
 app.use("/users", userRoutes);
 app.use("/scan", scanRoutes);
+app.use("/events",eventRoutes);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

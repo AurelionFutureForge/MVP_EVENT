@@ -7,7 +7,7 @@ const PDFDocument = require("pdfkit");
 
 // Register User
 exports.registerUser = async (req, res) => {
-  const { name, email, eventName, contact, role } = req.body;
+  const { name, email, eventName,companyName, place, time, contact, role } = req.body;
 
   try {
     const existingUser = await User.findOne({ email });
@@ -15,7 +15,7 @@ exports.registerUser = async (req, res) => {
       return res.status(400).json({ message: "User with this email already exists!" });
     }
 
-    const newUser = new User({ name, email, eventName, contact, role });
+    const newUser = new User({ name, email, eventName, companyName, place, time, contact, role });
     await newUser.save();
 
     // Generate QR Code
@@ -29,10 +29,10 @@ exports.registerUser = async (req, res) => {
 
     // Generate PDF dynamically with user data
     const pdfPath = path.join(__dirname, "../public/pdfs", `${ticketID}.pdf`);
-    await generateTicketPDF(name,email, eventName, role, ticketID, qrCodeImage, pdfPath);
+    await generateTicketPDF(name,email, eventName, companyName, place, time, role, ticketID, qrCodeImage, pdfPath);
 
     // Send success email with the generated PDF and QR code
-    await sendSuccessEmail(name, email, eventName, qrCodeImage, role, ticketID, pdfPath);
+    await sendSuccessEmail(name, email, eventName, companyName, place, time, qrCodeImage, role, ticketID, pdfPath);
 
     res.status(201).json({
       message: "Registration successful!",
@@ -49,7 +49,7 @@ exports.registerUser = async (req, res) => {
 };
 
 // Function to generate PDF dynamically
-const generateTicketPDF = async (name, email, eventName, role, ticketID, qrCodeImage, pdfPath) => {
+const generateTicketPDF = async (name, email, eventName, companyName, place, time,  role, ticketID, qrCodeImage, pdfPath) => {
   return new Promise((resolve, reject) => {
     
     //  Increased page height to fit content properly
@@ -133,7 +133,7 @@ const generateTicketPDF = async (name, email, eventName, role, ticketID, qrCodeI
 
 
 //  Updated Email Function with Date, Time, and Location
-const sendSuccessEmail = async (name, email, eventName, qrCodeImage, role, ticketID, pdfPath) => {
+const sendSuccessEmail = async (name, email, eventName, companyName, place, time, qrCodeImage, role, ticketID, pdfPath) => {
   try {
     const transporter = nodemailer.createTransport({
       service: "gmail",
@@ -174,6 +174,7 @@ const sendSuccessEmail = async (name, email, eventName, qrCodeImage, role, ticke
         <!-- Header -->
         <div style="background: #4CAF50; color: white; text-align: center; padding: 20px;">
           <h1 style="margin: 0;">🎫 Your E-Ticket</h1>
+          <p> ${companyName} </p>
           <p>You're officially registered for <strong>${eventName}</strong></p>
         </div>
 
@@ -184,8 +185,8 @@ const sendSuccessEmail = async (name, email, eventName, qrCodeImage, role, ticke
 
           <div style="border: 1px solid #eee; padding: 20px; border-radius: 8px; margin: 20px 0;">
             <p><strong>📅 Date:</strong> March 15 - 16, 2025</p>
-            <p><strong>⏰ Time:</strong> 08:00 AM - 5:00 PM (IST)</p>
-            <p><strong>📍 Location:</strong> M Weddings & Conventions, Chennai, India</p>
+            <p><strong>⏰ Time:</strong> ${time} (IST)</p>
+            <p><strong>📍 Location:</strong> ${place} </p>
           </div>
         </div>
 

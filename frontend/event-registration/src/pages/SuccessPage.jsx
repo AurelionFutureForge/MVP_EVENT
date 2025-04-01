@@ -5,7 +5,7 @@ import { FaCheckCircle, FaEnvelope, FaHome, FaQrcode, FaUser, FaCalendarAlt, FaM
 function SuccessPage() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { name, email, eventName, qrCode } = location.state || {};
+  const { name, email, eventName, companyName, place, time, qrCode } = location.state || {};
   const [showConfetti, setShowConfetti] = useState(false);
 
   useEffect(() => {
@@ -24,7 +24,7 @@ function SuccessPage() {
         <div className="flex items-center justify-center mb-6">
           <FaCheckCircle className="text-green-500 text-5xl mr-2" />
           <h2 className="text-4xl font-extrabold text-green-700">
-            Registration Successful
+            Registration Successful for the event {eventName} 
           </h2>
         </div>
 
@@ -40,10 +40,10 @@ function SuccessPage() {
             <FaCalendarAlt className="mr-2 text-purple-500" /> {eventName}
           </p>
           <p className="flex items-center justify-center mt-2">
-            <FaClock className="mr-2 text-yellow-500" /> March 15 - 16, 2025 | 08:00 AM - 5:00 PM (IST)
+            <FaClock className="mr-2 text-yellow-500" /> March 15 - 16, 2025 | {time} (IST)
           </p>
           <p className="flex items-center justify-center mt-2">
-            <FaMapMarkerAlt className="mr-2 text-pink-500" /> M Weddings & Conventions, Chennai, India
+            <FaMapMarkerAlt className="mr-2 text-pink-500" /> {place}
           </p>
         </div>
 

@@ -1,13 +1,19 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-hot-toast";
 
 function RegistrationForm() {
+  const location = useLocation();
+  const { eventName, companyName, place, time } = location.state || {};
+  
   const [formData, setFormData] = useState({
     name: "",
     email: "",
-    eventName: "",
+    eventName: eventName || "",
+    companyName: companyName || "",
+    place: place || "",
+    time: time || "",
     contact: "",
     role: "Visitor",
     paymentCompleted: false
@@ -24,7 +30,6 @@ function RegistrationForm() {
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) tempErrors.email = "Invalid email format";
     if (!formData.contact) tempErrors.contact = "Contact number is required";
     else if (!/^\d{10}$/.test(formData.contact)) tempErrors.contact = "Invalid contact number";
-    if (!formData.eventName) tempErrors.eventName = "Event Name is required";
     
     if (!isPayment && !formData.paymentCompleted) {
       tempErrors.payment = "Payment is required";
@@ -60,10 +65,10 @@ function RegistrationForm() {
         throw new Error("QR Code not received");
       }
 
-      const { name, email, eventName, qrCode } = response.data;
+      const { name, email, eventName, companyName, place, time, qrCode } = response.data;
       toast.success("Registration successful!");
 
-      navigate("/success", { state: { name, email, eventName, qrCode } });
+      navigate("/success", { state: { name, email, eventName, companyName, place, time, qrCode } });
     } catch (error) {
       toast.error("Registration failed. Try again.");
       console.error("Error:", error);
@@ -74,7 +79,7 @@ function RegistrationForm() {
   return (
     <div className="flex justify-center items-center min-h-screen bg-gradient-to-r from-blue-500 to-purple-600 p-4">
       <form onSubmit={handleSubmit} className="bg-white p-8 rounded-lg shadow-xl w-96">
-        <h2 className="text-3xl font-bold text-center text-gray-800 mb-6">Event Registration</h2>
+        <h2 className="text-3xl font-bold text-center text-gray-800 mb-6">{eventName}Registration`</h2>
         
         <div className="mb-4">
           <label className="block text-gray-700 font-medium mb-1">Name</label>
@@ -98,18 +103,6 @@ function RegistrationForm() {
             className="w-full border border-gray-300 px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400" 
           />
           {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
-        </div>
-
-        <div className="mb-4">
-          <label className="block text-gray-700 font-medium mb-1">Event Name</label>
-          <input 
-            type="text" 
-            name="eventName" 
-            value={formData.eventName} 
-            onChange={handleChange} 
-            className="w-full border border-gray-300 px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400" 
-          />
-          {errors.eventName && <p className="text-red-500 text-sm mt-1">{errors.eventName}</p>}
         </div>
 
         <div className="mb-4">
