@@ -5,7 +5,7 @@ import { toast } from "react-hot-toast";
 
 function RegistrationForm() {
   const location = useLocation();
-  const { eventName, companyName, place, time } = location.state || {};
+  const { eventName, companyName, place, time, date } = location.state || {};  // 🔹 Added 'date'
 
   const [formData, setFormData] = useState({
     name: "",
@@ -14,8 +14,9 @@ function RegistrationForm() {
     companyName: companyName || "",
     place: place || "",
     time: time || "",
+    date: date || "",  // 🔹 Storing the date
     contact: "",
-    role: "Visitor",
+    role: "Visitor", // Default role
     paymentCompleted: false,
   });
 
@@ -83,6 +84,13 @@ function RegistrationForm() {
         <h2 className="text-3xl font-bold text-center text-gray-800 mb-6">
           {eventName} Registration
         </h2>
+
+        {/* Display event details */}
+        <div className="mb-4">
+          <p className="text-gray-700 font-medium">{companyName}</p>
+          <p className="text-gray-700">{place} - {time}</p>
+          <p className="text-gray-700 font-semibold">{date}</p> {/* 🔹 Display Date */}
+        </div>
 
         <div className="mb-4">
           <label className="block text-gray-700 font-medium mb-1">Name</label>

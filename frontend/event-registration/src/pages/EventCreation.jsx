@@ -10,6 +10,8 @@ export default function EventCreation() {
     eventName: '',
     place: '',
     time: '',
+    startDate: '',
+    endDate: '',
   });
 
   const [loading, setLoading] = useState(false);
@@ -32,6 +34,22 @@ export default function EventCreation() {
     fetchEvents();
   }, []);
 
+  // Format date like "MARCH 15-16, 2025"
+  const formatEventDate = (startDate, endDate) => {
+    if (!startDate) return "";
+
+    const options = { month: "long", day: "numeric", year: "numeric" };
+    const start = new Date(startDate).toLocaleDateString("en-US", options);
+    const end = endDate ? new Date(endDate).toLocaleDateString("en-US", options) : null;
+
+    if (end && new Date(startDate).getMonth() === new Date(endDate).getMonth() && 
+        new Date(startDate).getFullYear() === new Date(endDate).getFullYear()) {
+      return start.replace(/\d+/, `${new Date(startDate).getDate()}-${new Date(endDate).getDate()}`);
+    }
+
+    return end ? `${start} - ${end}` : start;
+  };
+
   // Handle form field changes
   const handleChange = (e) => {
     setEventDetails({ ...eventDetails, [e.target.name]: e.target.value });
@@ -39,7 +57,7 @@ export default function EventCreation() {
 
   // Validate input fields
   const validateForm = () => {
-    if (!eventDetails.companyName || !eventDetails.eventName || !eventDetails.place || !eventDetails.time) {
+    if (!eventDetails.companyName || !eventDetails.eventName || !eventDetails.place || !eventDetails.time || !eventDetails.startDate) {
       setError("All fields are required.");
       return false;
     }
@@ -58,7 +76,7 @@ export default function EventCreation() {
       if (response.status === 201) {
         setEvents([...events, response.data]); // Add new event to list
         setShowForm(false);
-        setEventDetails({ companyName: '', eventName: '', place: '', time: '' });
+        setEventDetails({ companyName: '', eventName: '', place: '', time: '', startDate: '', endDate: '' });
       }
     } catch (error) {
       console.error("Error creating event:", error);
@@ -74,7 +92,8 @@ export default function EventCreation() {
       eventName: event.eventName, 
       companyName: event.companyName, 
       place: event.place, 
-      time: event.time 
+      time: event.time,
+      date: formatEventDate(event.startDate, event.endDate)
     } });
   };
 
@@ -86,8 +105,7 @@ export default function EventCreation() {
           <h1 className="text-2xl font-bold">EventMVP</h1>
           <div className="hidden md:flex space-x-6">
             <a href="/" className="hover:text-gray-200">Home</a>
-            <a href="/register" className="hover:text-gray-200">Register</a>
-            <a href="/admin/login" className="hover:text-gray-200">Admin</a>
+            <a href="/register" className="hover:text-gray-200">Admin</a>
           </div>
         </div>
       </nav>
@@ -106,6 +124,7 @@ export default function EventCreation() {
                 <h4 className="font-semibold text-xl">{event.eventName}</h4>
                 <p>{event.companyName}</p>
                 <p>{event.place} - {event.time}</p>
+                <p>{formatEventDate(event.startDate, event.endDate)}</p>
                 <button 
                   onClick={() => handleRegister(event)} 
                   className="text-blue-500 hover:text-blue-600"
@@ -162,6 +181,20 @@ export default function EventCreation() {
               onChange={handleChange}
               value={eventDetails.time}
             />
+            <input
+              type="date"
+              name="startDate"
+              className="w-full p-2 mb-3 border rounded"
+              onChange={handleChange}
+              value={eventDetails.startDate}
+            />
+            <input
+              type="date"
+              name="endDate"
+              className="w-full p-2 mb-3 border rounded"
+              onChange={handleChange}
+              value={eventDetails.endDate}
+            />
 
             {/* Show Error Message */}
             {error && <p className="text-red-600 mb-3">{error}</p>}
@@ -184,3 +217,4 @@ export default function EventCreation() {
     </div>
   );
 }
+
