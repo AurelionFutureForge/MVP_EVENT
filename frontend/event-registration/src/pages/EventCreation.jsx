@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 export default function EventCreation() {
@@ -14,6 +14,7 @@ export default function EventCreation() {
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const navigate = useNavigate();
 
   const BASE_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
 
@@ -48,7 +49,7 @@ export default function EventCreation() {
 
   // Handle form submission for new event
   const handleSubmit = async () => {
-    if (!validateForm()) return; // Stop if validation fails
+    if (!validateForm()) return;
 
     setLoading(true);
     try {
@@ -67,6 +68,16 @@ export default function EventCreation() {
     }
   };
 
+  // Navigate to registration page with event details
+  const handleRegister = (event) => {
+    navigate("/register", { state: { 
+      eventName: event.eventName, 
+      companyName: event.companyName, 
+      place: event.place, 
+      time: event.time 
+    } });
+  };
+
   return (
     <div className="min-h-screen flex flex-col">
       {/* Navbar */}
@@ -74,9 +85,9 @@ export default function EventCreation() {
         <div className="container mx-auto flex justify-between items-center text-white">
           <h1 className="text-2xl font-bold">EventMVP</h1>
           <div className="hidden md:flex space-x-6">
-            <Link to="/" className="hover:text-gray-200">Home</Link>
-            <Link to="/register" className="hover:text-gray-200">Register</Link>
-            <Link to="/admin/login" className="hover:text-gray-200">Admin</Link>
+            <a href="/" className="hover:text-gray-200">Home</a>
+            <a href="/register" className="hover:text-gray-200">Register</a>
+            <a href="/admin/login" className="hover:text-gray-200">Admin</a>
           </div>
         </div>
       </nav>
@@ -95,7 +106,12 @@ export default function EventCreation() {
                 <h4 className="font-semibold text-xl">{event.eventName}</h4>
                 <p>{event.companyName}</p>
                 <p>{event.place} - {event.time}</p>
-                <Link to={ { pathname:"/register", state : { eventName : event.eventName, companyName : event.companyName, place : event.place, time : event.time } }} className="text-blue-500 hover:text-blue-600">Register Now</Link>
+                <button 
+                  onClick={() => handleRegister(event)} 
+                  className="text-blue-500 hover:text-blue-600"
+                >
+                  Register Now
+                </button>
               </div>
             ))
           )}
