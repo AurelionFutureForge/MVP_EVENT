@@ -7,7 +7,7 @@ const PDFDocument = require("pdfkit");
 
 // Register User
 exports.registerUser = async (req, res) => {
-  const { name, email, eventName,companyName, place, time, contact, role } = req.body;
+  const { name, email, eventName,companyName, place, time, date, contact, role } = req.body;
   console.log("req-body : "+req.body);
 
   try {
