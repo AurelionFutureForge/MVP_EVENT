@@ -51,11 +51,14 @@ export default function EventCreation() {
   // Handle form submission for new event
   const handleSubmit = async () => {
     if (!validateForm()) return;
-
+  
     setLoading(true);
     try {
-      const response = await axios.post(`${BASE_URL}/events/create-event`, eventDetails);
-
+      const response = await axios.post(`${BASE_URL}/events/create-event`, {
+        ...eventDetails,
+        date: new Date(eventDetails.date).toISOString(), // Ensure correct format
+      });
+  
       if (response.status === 201) {
         setEvents([...events, response.data]); // Add new event to list
         setShowForm(false);
@@ -68,6 +71,7 @@ export default function EventCreation() {
       setLoading(false);
     }
   };
+  
 
   // Navigate to registration page with event details
   const handleRegister = (event) => {
@@ -108,7 +112,7 @@ export default function EventCreation() {
                 <h4 className="font-semibold text-xl">{event.eventName}</h4>
                 <p>{event.companyName}</p>
                 <p>{event.place} - {event.time}</p>
-                <p>{event.date}</p>
+                <p>{new Date(event.date).toLocaleDateString()}</p>
                 <button 
                   onClick={() => handleRegister(event)} 
                   className="text-blue-500 hover:text-blue-600"

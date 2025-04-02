@@ -6,14 +6,14 @@ const userSchema = new mongoose.Schema({
   eventName: { type: String, required: true },
   companyName: { type: String, required: true },
   place: { type: String, required: true },
-  time: { type: String, required: true }, // Kept as String assuming it's a specific time format
-  date: { type: Date, required: true }, // Now properly stored as a Date object
-  contact: { type: String, required: true, match: /^\d{10}$/ }, // Ensuring only 10-digit numbers
+  time: { type: String, required: true }, // Can be stored as a string or Date
+  date: { type: Date, required: true }, // Changed from String to Date
+  contact: { type: String, required: true, match: /^\d{10}$/ }, // Validating 10-digit phone numbers
   role: { type: String, enum: ["Visitor", "Speaker"], default: "Visitor" },
-  qrCode: { type: String, unique: true }, // Ensuring QR codes are unique
+  qrCode: { type: String, unique: true }, // Ensure QR generation prevents duplicates
   hasEntered: { type: Boolean, default: false },
   hasClaimedLunch: { type: Boolean, default: false },
   hasClaimedGift: { type: Boolean, default: false },
-}, { timestamps: true }); // Adds createdAt & updatedAt fields
+}, { timestamps: true }); // Automatically adds createdAt & updatedAt fields
 
 module.exports = mongoose.model("User", userSchema);
