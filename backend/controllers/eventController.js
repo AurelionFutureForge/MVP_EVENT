@@ -2,7 +2,7 @@ const Event = require('../models/Event');
 
 // Create a new event
 const createEvent = async (req, res) => {
-  const { companyName, eventName, place, time } = req.body;
+  const { companyName, eventName, place, time, date} = req.body;
 
   try {
     const newEvent = new Event({
@@ -10,6 +10,7 @@ const createEvent = async (req, res) => {
       eventName,
       place,
       time,
+      date
     });
 
     await newEvent.save();
