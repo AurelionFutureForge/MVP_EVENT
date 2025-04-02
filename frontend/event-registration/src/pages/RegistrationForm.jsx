@@ -60,6 +60,7 @@ function RegistrationForm() {
     try {
       const { paymentCompleted, ...dataToSend } = formData;
       const response = await axios.post(`${BASE_URL}/users/register`, dataToSend);
+      console.log(response);
 
       if (!response.data || !response.data.qrCode) {
         throw new Error("QR Code not received");
@@ -79,7 +80,7 @@ function RegistrationForm() {
   return (
     <div className="flex justify-center items-center min-h-screen bg-gradient-to-r from-blue-500 to-purple-600 p-4">
       <form onSubmit={handleSubmit} className="bg-white p-8 rounded-lg shadow-xl w-96">
-        <h2 className="text-3xl font-bold text-center text-gray-800 mb-6">{eventName}Registration`</h2>
+        <h2 className="text-3xl font-bold text-center text-gray-800 mb-6">{eventName} Registration</h2>
         
         <div className="mb-4">
           <label className="block text-gray-700 font-medium mb-1">Name</label>
