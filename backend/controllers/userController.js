@@ -7,15 +7,16 @@ const PDFDocument = require("pdfkit");
 
 // Register User
 exports.registerUser = async (req, res) => {
-  const { name, email, eventName, companyName, place, time, date, contact, role } = req.body;
+  const { name, email, eventName,companyName, place, time, contact, role } = req.body;
+  console.log("req-body : "+req.body);
 
   try {
-    const existingUser = await User.findOne({ email, eventName });
+    const existingUser = await User.findOne({ email });
     if (existingUser) {
-      return res.status(400).json({ message: "User with this email already registered for this event!" });
+      return res.status(400).json({ message: "User with this email already exists!" });
     }
 
-    const newUser = new User({ name, email, eventName, companyName, place, time, date, contact, role });
+    const newUser = new User({ name, email, eventName, companyName, place, time, contact, role });
     await newUser.save();
 
     // Generate QR Code
@@ -27,11 +28,11 @@ exports.registerUser = async (req, res) => {
 
     const ticketID = newUser._id.toString();
 
-    // Generate PDF dynamically
+    // Generate PDF dynamically with user data
     const pdfPath = path.join(__dirname, "../public/pdfs", `${ticketID}.pdf`);
-    await generateTicketPDF(name, email, eventName, companyName, place, time, date, role, ticketID, qrCodeImage, pdfPath);
+    await generateTicketPDF(name,email, eventName, companyName, place, time, date, role, ticketID, qrCodeImage, pdfPath);
 
-    // Send confirmation email with dynamic data
+    // Send success email with the generated PDF and QR code
     await sendSuccessEmail(name, email, eventName, companyName, place, time, date, qrCodeImage, role, ticketID, pdfPath);
 
     res.status(201).json({
@@ -51,22 +52,24 @@ exports.registerUser = async (req, res) => {
 // Function to generate PDF dynamically
 const generateTicketPDF = async (name, email, eventName, companyName, place, time, date, role, ticketID, qrCodeImage, pdfPath) => {
   return new Promise((resolve, reject) => {
-    const doc = new PDFDocument({ size: [595.28, 1150], margin: 50 });
+    
+    //  Increased page height to fit content properly
+    const doc = new PDFDocument({ size: [595.28, 1150], margin: 50 });  // Increased height for larger QR
     const stream = fs.createWriteStream(pdfPath);
 
     doc.pipe(stream);
 
-    // Header Section
-    doc.rect(0, 0, doc.page.width, 120).fill("#4CAF50");
+    //  Header Section (Event Branding)
+    doc.rect(0, 0, doc.page.width, 120).fill("#4CAF50"); 
     doc.fillColor("#fff")
       .font("Helvetica-Bold")
       .fontSize(28)
-      .text(`${eventName}`, { align: "center" });
+      .text(`${eventName}`, { align: "center", baseline: "middle" });
 
     doc.moveDown(0.3);
-    doc.fontSize(18).text(`${date}, ${time} (IST)`, { align: "center" });
+    doc.fontSize(18).text(`${date}, ${time}(IST)`, { align: "center" });
 
-    // Attendee Info Section
+    //  Attendee Info Section
     doc.moveDown(1.5);
     doc.fillColor("#333").fontSize(20).text("Attendee Information", { align: "center", underline: true });
 
@@ -75,7 +78,7 @@ const generateTicketPDF = async (name, email, eventName, companyName, place, tim
     doc.text(`Email: ${email}`, { align: "center" });
     doc.text(`Role: ${role}`, { align: "center" });
 
-    // Order ID and Ticket ID Section
+    //  Order ID and Ticket ID Section
     doc.moveDown(1.5);
     doc.fontSize(20).text("Order Details", { align: "center", underline: true });
 
@@ -83,28 +86,32 @@ const generateTicketPDF = async (name, email, eventName, companyName, place, tim
     doc.fontSize(16).text(`Order ID: ${ticketID + 1}`, { align: "center" });
     doc.text(`Ticket ID: ${ticketID}`, { align: "center" });
 
-    // QR Code Section
-    const qrSize = 280;
-    const centerX = (doc.page.width - qrSize) / 2;
+    //  Larger QR Code Section (Centered)
+    const qrSize = 280;  //  Bigger QR code
+    const centerX = (doc.page.width - qrSize) / 2;  
+
+    //  Adjusted spacing for QR code
     doc.moveDown(2);
     doc.fontSize(16).text("Scan this QR code at entry:", { align: "center" });
 
-    const qrY = doc.y + 20;
-    doc.image(Buffer.from(qrCodeImage.split(",")[1], "base64"), centerX, qrY, {
-      fit: [qrSize, qrSize],
-      align: "center"
+    const qrY = doc.y + 20;  // Space before QR code
+    doc.image(Buffer.from(qrCodeImage.split(",")[1], "base64"), centerX, qrY, {  
+      fit: [qrSize, qrSize],  
+      align: "center"  
     });
 
+    // Add more spacing after the QR code
     doc.moveDown(18);
 
-    // Event Venue Section
+    //  Event Venue Section
     doc.fontSize(20).text("Event Venue", { align: "center", underline: true });
 
     doc.moveDown(0.7);
     doc.fontSize(16).text(`${place}`, { align: "center" });
 
-    // Footer Branding
+    // Footer Branding (Centered)
     const footerHeight = 50;
+
     doc.fillColor("#4CAF50")
       .rect(0, doc.page.height - footerHeight, doc.page.width, footerHeight)
       .fill();
@@ -113,57 +120,76 @@ const generateTicketPDF = async (name, email, eventName, companyName, place, tim
       .fontSize(14)
       .text("Powered by EVENT-MVP", {
         align: "center",
-        y: doc.page.height - footerHeight + 15,
+        y: doc.page.height - footerHeight + 15,  
       });
 
     doc.end();
+
     stream.on("finish", resolve);
     stream.on("error", reject);
   });
 };
 
-// Updated Email Function
+
+//  Updated Email Function with Date, Time, and Location
 const sendSuccessEmail = async (name, email, eventName, companyName, place, time, date, qrCodeImage, role, ticketID, pdfPath) => {
   try {
     const transporter = nodemailer.createTransport({
       service: "gmail",
       auth: {
-        user: "your-email@gmail.com",
-        pass: "your-app-password",
+        user: "amthemithun@gmail.com",
+        pass: "ptfk ykpn uygd yodb",
       },
     });
 
-    let ticketClass = role === "Visitor" ? "VISITORS REGISTRATION (PAID ENTRY)" : "SPEAKER REGISTRATION (FREE ENTRY)";
-    let paymentStatus = role === "Visitor" ? "✅ Payment Received" : "✅ No Payment Required";
+    let ticketClass = "";
+    let paymentStatus = "";
 
+    if (role === "Visitor") {
+      ticketClass = "VISITORS REGISTRATION (PAID ENTRY)";
+      paymentStatus = "✅ Payment Received";
+    } else if (role === "Speaker") {
+      ticketClass = "SPEAKER REGISTRATION (FREE ENTRY)";
+      paymentStatus = "✅ No Payment Required";
+    } else {
+      ticketClass = "UNKNOWN ROLE";
+      paymentStatus = "❓ Payment Status Unknown";
+    }
+
+    // Convert Base64 QR image to buffer
     const base64Data = qrCodeImage.replace(/^data:image\/png;base64,/, "");
     const qrCodeBuffer = Buffer.from(base64Data, "base64");
+
+    // Read the generated PDF file
     const pdfBuffer = fs.readFileSync(pdfPath);
 
     const mailOptions = {
-      from: "your-email@gmail.com",
+      from: "amthemithun@gmail.com",
       to: email,
       subject: `🎉 ${eventName} - Your Ticket Confirmation`,
       html: `
       <div style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: 0 auto; border: 1px solid #ddd; border-radius: 10px; box-shadow: 0 8px 16px rgba(0,0,0,0.1); overflow: hidden;">
         
+        <!-- Header -->
         <div style="background: #4CAF50; color: white; text-align: center; padding: 20px;">
-          <h1>🎫 Your E-Ticket</h1>
-          <p>${companyName}</p>
+          <h1 style="margin: 0;">🎫 Your E-Ticket</h1>
+          <p> ${companyName} </p>
           <p>You're officially registered for <strong>${eventName}</strong></p>
         </div>
 
+        <!-- Event Details -->
         <div style="padding: 30px;">
-          <p>Hello <strong>${name}</strong>,</p>
+          <p style="font-size: 18px;">Hello <strong>${name}</strong>,</p>
           <p>Thank you for registering for <strong>${eventName}</strong>. Here are your event details:</p>
 
           <div style="border: 1px solid #eee; padding: 20px; border-radius: 8px; margin: 20px 0;">
-            <p><strong>📅 Date:</strong> ${date}</p>
+            <p><strong>📅 Date:</strong> ${date} </p>
             <p><strong>⏰ Time:</strong> ${time} (IST)</p>
-            <p><strong>📍 Location:</strong> ${place}</p>
+            <p><strong>📍 Location:</strong> ${place} </p>
           </div>
         </div>
 
+        <!-- Ticket Details -->
         <div style="background: #f9f9f9; padding: 30px; border-top: 1px solid #ddd;">
           <h3>🎟️ Ticket Details</h3>
           <p><strong>Order ID:</strong> ${ticketID}</p>
@@ -171,20 +197,32 @@ const sendSuccessEmail = async (name, email, eventName, companyName, place, time
           <p><strong>Payment Status:</strong> ${paymentStatus}</p>
         </div>
 
+        <!-- QR Code Section -->
         <div style="text-align: center; padding: 30px; border-top: 1px solid #ddd;">
           <h3>📲 Scan this QR Code at Entry</h3>
           <img src="cid:qrcode123" alt="QR Code" style="width: 250px; height: 250px;"/>
         </div>
+
+        <div style="background: #4CAF50; color: white; text-align: center; padding: 15px;">
+          <p>Thank you for joining us. We look forward to seeing you at the event! 🎊</p>
+        </div>
       </div>
       `,
       attachments: [
-        { filename: "QRCode.png", content: qrCodeBuffer, cid: "qrcode123" },
-        { filename: `${ticketID}.pdf`, content: pdfBuffer },
+        {
+          filename: "QRCode.png",
+          content: qrCodeBuffer,
+          cid: "qrcode123",   // Embed QR Code
+        },
+        {
+          filename: `${ticketID}.pdf`,  // Attach dynamically generated PDF
+          content: pdfBuffer,
+        }
       ],
     };
 
     await transporter.sendMail(mailOptions);
-    console.log("Success email sent to:", email);
+    console.log("Success email sent with PDF and QR code to:", email);
   } catch (error) {
     console.error("Error sending email:", error);
   }
