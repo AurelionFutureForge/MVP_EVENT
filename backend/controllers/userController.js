@@ -16,7 +16,17 @@ exports.registerUser = async (req, res) => {
       return res.status(400).json({ message: "User with this email already exists!" });
     }
 
-    const newUser = new User({ name, email, eventName, companyName, place, time, contact, role });
+    const newUser = new User({ 
+      name, 
+      email, 
+      eventName, 
+      companyName, 
+      place, 
+      time, 
+      date: new Date(date), 
+      contact, 
+      role 
+    });
     await newUser.save();
 
     // Generate QR Code
