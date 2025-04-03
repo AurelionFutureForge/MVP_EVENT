@@ -10,7 +10,7 @@ const createEvent = async (req, res) => {
       return res.status(400).json({ msg: 'Date is required' });
     }
 
-    const formattedDate = new Date(date);
+    const formattedDate = new Date(date).toISOString().split("T")[0];
     
     if (isNaN(formattedDate.getTime())) {
       return res.status(400).json({ msg: 'Invalid date format' });

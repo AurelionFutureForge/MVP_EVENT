@@ -23,7 +23,7 @@ exports.registerUser = async (req, res) => {
       companyName, 
       place, 
       time, 
-      date: new Date(date), 
+      date: new Date(date).toISOString().split("T")[0], 
       contact, 
       role 
     });
