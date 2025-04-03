@@ -3,16 +3,18 @@ const Event = require('../models/Event');
 // Create a new event
 const createEvent = async (req, res) => {
   try {
-    console.log("Incoming Request Body:", req.body); // Log request data
+    console.log("Incoming Request Body:", req.body);
     const { companyName, eventName, place, time, date } = req.body;
 
     if (!date) {
       return res.status(400).json({ msg: 'Date is required' });
     }
 
-    const formattedDate = new Date(date).toISOString().split("T")[0];
+    // Convert the date to a proper Date object
+    const formattedDate = new Date(date);
     
-    if (isNaN(formattedDate.getTime())) {
+    // Validate if it's a valid date
+    if (isNaN(formattedDate.getTime())) { 
       return res.status(400).json({ msg: 'Invalid date format' });
     }
 
@@ -21,7 +23,7 @@ const createEvent = async (req, res) => {
       eventName, 
       place, 
       time, 
-      date: formattedDate 
+      date: formattedDate.toISOString().split("T")[0] // Save only YYYY-MM-DD
     });
 
     await newEvent.save();
@@ -31,6 +33,7 @@ const createEvent = async (req, res) => {
     res.status(500).json({ msg: 'Server error', error: error.message });
   }
 };
+
 
 
 const getEvents = async (req, res) => {
