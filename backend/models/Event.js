@@ -4,8 +4,8 @@ const eventSchema = new mongoose.Schema({
   companyName: { type: String, required: true },
   eventName: { type: String, required: true },
   place: { type: String, required: true },
-  time: { type: String, required: true }, // Can be stored as string or Date (if full datetime)
-  date: { type: Date, required: true }, // Changed from String to Date
+  time: { type: String, required: true },
+  date: { type: Date, required: true }, // Date field is properly defined
 });
 
 module.exports = mongoose.model("Event", eventSchema);

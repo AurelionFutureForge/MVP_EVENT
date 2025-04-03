@@ -60,7 +60,7 @@ export default function EventCreation() {
       });
   
       if (response.status === 201) {
-        setEvents([...events, response.data]); // Add new event to list
+        setEvents([...events, response.data.event]); // Add new event to list
         setShowForm(false);
         setEventDetails({ companyName: '', eventName: '', place: '', time: '', date: '' });
       }
@@ -71,7 +71,6 @@ export default function EventCreation() {
       setLoading(false);
     }
   };
-  
 
   // Navigate to registration page with event details
   const handleRegister = (event) => {
@@ -138,53 +137,16 @@ export default function EventCreation() {
         {showForm && (
           <div className="mt-6 p-6 border border-gray-300 rounded-lg bg-white">
             <h4 className="text-xl font-semibold mb-4">Create New Event</h4>
-            <input
-              type="text"
-              name="companyName"
-              placeholder="Company Name"
-              className="w-full p-2 mb-3 border rounded"
-              onChange={handleChange}
-              value={eventDetails.companyName}
-            />
-            <input
-              type="text"
-              name="eventName"
-              placeholder="Event Name"
-              className="w-full p-2 mb-3 border rounded"
-              onChange={handleChange}
-              value={eventDetails.eventName}
-            />
-            <input
-              type="text"
-              name="place"
-              placeholder="Place"
-              className="w-full p-2 mb-3 border rounded"
-              onChange={handleChange}
-              value={eventDetails.place}
-            />
-            <input
-              type="time"
-              name="time"
-              className="w-full p-2 mb-3 border rounded"
-              onChange={handleChange}
-              value={eventDetails.time}
-            />
-            <input
-              type="date"
-              name="date"
-              className="w-full p-2 mb-3 border rounded"
-              onChange={handleChange}
-              value={eventDetails.date}
-            />
+            <input type="text" name="companyName" placeholder="Company Name" className="w-full p-2 mb-3 border rounded" onChange={handleChange} value={eventDetails.companyName} />
+            <input type="text" name="eventName" placeholder="Event Name" className="w-full p-2 mb-3 border rounded" onChange={handleChange} value={eventDetails.eventName} />
+            <input type="text" name="place" placeholder="Place" className="w-full p-2 mb-3 border rounded" onChange={handleChange} value={eventDetails.place} />
+            <input type="time" name="time" className="w-full p-2 mb-3 border rounded" onChange={handleChange} value={eventDetails.time} />
+            <input type="date" name="date" className="w-full p-2 mb-3 border rounded" onChange={handleChange} value={eventDetails.date} />
 
             {/* Show Error Message */}
             {error && <p className="text-red-600 mb-3">{error}</p>}
 
-            <button
-              onClick={handleSubmit}
-              className="w-full bg-blue-600 text-white p-2 rounded-lg hover:bg-blue-700"
-              disabled={loading}
-            >
+            <button onClick={handleSubmit} className="w-full bg-blue-600 text-white p-2 rounded-lg hover:bg-blue-700" disabled={loading}>
               {loading ? "Submitting..." : "Submit Event"}
             </button>
           </div>
