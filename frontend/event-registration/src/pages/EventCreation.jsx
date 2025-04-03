@@ -54,23 +54,25 @@ export default function EventCreation() {
   
     setLoading(true);
     try {
+      console.log("Sending Data to Backend:", eventDetails); // Debugging line
       const response = await axios.post(`${BASE_URL}/events/create-event`, {
         ...eventDetails,
         date: new Date(eventDetails.date).toISOString(), // Ensure correct format
       });
   
       if (response.status === 201) {
-        setEvents([...events, response.data.event]); // Add new event to list
+        setEvents([...events, response.data.event]);
         setShowForm(false);
         setEventDetails({ companyName: '', eventName: '', place: '', time: '', date: '' });
       }
     } catch (error) {
-      console.error("Error creating event:", error);
+      console.error("Error creating event:", error.response?.data || error.message);
       setError("Failed to create event. Please try again.");
     } finally {
       setLoading(false);
     }
   };
+  
 
   // Navigate to registration page with event details
   const handleRegister = (event) => {
