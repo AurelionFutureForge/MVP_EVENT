@@ -11,7 +11,7 @@ export default function EventCreation() {
     place: '',
     time: '',
     date: '',
-    roles: [], // Array to hold selected roles
+    eventRoles: [], // Array to hold selected roles
   });
 
   const [loading, setLoading] = useState(false);
@@ -36,23 +36,24 @@ export default function EventCreation() {
 
   // Handle form field changes
   const handleChange = (e) => {
-    if (e.target.name === "roles") {
+    if (e.target.name === "eventRoles") {
       const role = e.target.value;
       setEventDetails((prevDetails) => {
-        // Toggle role selection in the roles array
-        const updatedRoles = prevDetails.roles.includes(role)
-          ? prevDetails.roles.filter((r) => r !== role) // Remove role if already selected
-          : [...prevDetails.roles, role]; // Add role if not selected
-        return { ...prevDetails, roles: updatedRoles };
+        // Toggle role selection in the eventRoles array
+        const updatedRoles = prevDetails.eventRoles.includes(role)
+          ? prevDetails.eventRoles.filter((r) => r !== role) // Remove role if already selected
+          : [...prevDetails.eventRoles, role]; // Add role if not selected
+        return { ...prevDetails, eventRoles: updatedRoles };
       });
     } else {
       setEventDetails({ ...eventDetails, [e.target.name]: e.target.value });
     }
   };
+  
 
   // Validate input fields
   const validateForm = () => {
-    if (!eventDetails.companyName || !eventDetails.eventName || !eventDetails.place || !eventDetails.time || !eventDetails.date || eventDetails.roles.length === 0) {
+    if (!eventDetails.companyName || !eventDetails.eventName || !eventDetails.place || !eventDetails.time || !eventDetails.date || eventDetails.eventRoles.length === 0) {
       setError("All fields are required, including at least one role.");
       return false;
     }
@@ -75,7 +76,7 @@ export default function EventCreation() {
       if (response.status === 201) {
         setEvents([...events, response.data.event]);
         setShowForm(false);
-        setEventDetails({ companyName: '', eventName: '', place: '', time: '', date: '', roles: [] });
+        setEventDetails({ companyName: '', eventName: '', place: '', time: '', date: '', eventRoles: [] });
       }
     } catch (error) {
       console.error("Error creating event:", error.response?.data || error.message);
@@ -91,7 +92,8 @@ export default function EventCreation() {
       state: {
         place: event.place,
         time: event.time,
-        date: event.date
+        date: event.date,
+        roles:event.eventRoles,
       }
     });
   };
@@ -174,10 +176,10 @@ export default function EventCreation() {
                 <label className="flex items-center space-x-3 mb-3">
                   <input
                     type="checkbox"
-                    name="roles"
+                    name="eventRoles"
                     value="Speaker"
                     onChange={handleChange}
-                    checked={eventDetails.roles.includes('Speaker')}
+                    checked={eventDetails.eventRoles.includes('Speaker')}
                     className="form-checkbox text-blue-600"
                   />
                   <span className="text-gray-700">Speaker</span>
@@ -185,10 +187,10 @@ export default function EventCreation() {
                 <label className="flex items-center space-x-3 mb-3">
                   <input
                     type="checkbox"
-                    name="roles"
+                    name="eventRoles"
                     value="Visitor"
                     onChange={handleChange}
-                    checked={eventDetails.roles.includes('Visitor')}
+                    checked={eventDetails.eventRoles.includes('Visitor')}
                     className="form-checkbox text-blue-600"
                   />
                   <span className="text-gray-700">Visitor</span>
@@ -196,10 +198,10 @@ export default function EventCreation() {
                 <label className="flex items-center space-x-3 mb-3">
                   <input
                     type="checkbox"
-                    name="roles"
+                    name="eventRoles"
                     value="Delegate"
                     onChange={handleChange}
-                    checked={eventDetails.roles.includes('Delegate')}
+                    checked={eventDetails.eventRoles.includes('Delegate')}
                     className="form-checkbox text-blue-600"
                   />
                   <span className="text-gray-700">Delegate</span>

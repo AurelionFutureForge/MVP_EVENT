@@ -1,11 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate, useLocation, useParams } from "react-router-dom";
-import axios from "axios";
 import { toast } from "react-hot-toast";
 
 function RegistrationForm() {
   const location = useLocation();
-  const { place, time, date } = location.state || {};  // Added 'date'
+  const { place, time, date, eventRoles } = location.state || {};  // Receiving roles through location.state
   const { companyName, eventName } = useParams();
 
   const [formData, setFormData] = useState({
@@ -21,26 +20,9 @@ function RegistrationForm() {
     paymentCompleted: false,
   });
 
-  const [roles, setRoles] = useState([]); // Holds the dynamic roles
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  const BASE_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
-
-  useEffect(() => {
-    // Fetch event-specific roles from the backend
-    const fetchRoles = async () => {
-      try {
-        const response = await axios.get(`${BASE_URL}/events/${companyName}/${eventName}/roles`);
-        setRoles(response.data.roles || []); // Assuming 'roles' is the response field
-      } catch (error) {
-        toast.error("Failed to fetch roles. Please try again.");
-        console.error("Error fetching roles:", error);
-      }
-    };
-
-    fetchRoles();
-  }, [companyName, eventName]);
 
   const validate = (isPayment = false) => {
     let tempErrors = {};
@@ -80,6 +62,7 @@ function RegistrationForm() {
     setLoading(true);
     try {
       const { paymentCompleted, ...dataToSend } = formData;
+      // Send the data to the backend for registration (adjust URL as needed)
       const response = await axios.post(`${BASE_URL}/users/register`, dataToSend);
 
       if (!response.data || !response.data.qrCode) {
@@ -150,14 +133,14 @@ function RegistrationForm() {
             className="w-full border border-gray-300 px-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-400"
             disabled={formData.paymentCompleted}
           >
-            {roles.length > 0 ? (
-              roles.map((role) => (
+            {eventRoles.length > 0 ? (
+              eventRoles.map((role) => (
                 <option key={role} value={role}>
                   {role}
                 </option>
               ))
             ) : (
-              <option value="Visitor">Visitor</option>
+              <option value="select">please Select</option>
             )}
           </select>
         </div>
