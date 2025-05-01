@@ -111,7 +111,7 @@ function AdminScanner() {
                   {verifiedUser.hasEntered ? "Entry Claimed" : "Claim Entry"}
                 </button>
 
-                {/* Speaker-specific options */}
+                {/* Speaker and Delegate-specific options */}
                 {(verifiedUser.role === "Speaker" || verifiedUser.role === "Delegate") && (
                   <>
                     <button
