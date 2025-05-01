@@ -86,13 +86,6 @@ function RegistrationForm() {
           {eventName} Registration
         </h2>
 
-        {/* Display event details */}
-        <div className="mb-4">
-          <p className="text-gray-700 font-medium">{companyName}</p>
-          <p className="text-gray-700">{place} - {time}</p>
-          <p className="text-gray-700 font-semibold">{date}</p> {/* 🔹 Display Date */}
-        </div>
-
         <div className="mb-4">
           <label className="block text-gray-700 font-medium mb-1">Name</label>
           <input

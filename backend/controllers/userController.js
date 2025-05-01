@@ -207,6 +207,10 @@ const sendSuccessEmail = async (name, email, eventName, companyName, place, time
           <p><strong>Payment Status:</strong> ${paymentStatus}</p>
         </div>
 
+        <div style="text-align: center; padding: 20px;">
+            <a href="https://mvp-event.vercel.app/register/${companyName}/${eventName}" style="padding: 10px 20px; background-color: #4CAF50; color: white; text-decoration: none; border-radius: 5px;">Click here to register</a>
+        </div>
+
         <!-- QR Code Section -->
         <div style="text-align: center; padding: 30px; border-top: 1px solid #ddd;">
           <h3>📲 Scan this QR Code at Entry</h3>
