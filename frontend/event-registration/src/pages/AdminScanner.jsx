@@ -6,23 +6,17 @@ import axios from "axios";
 
 function AdminScanner() {
   const location = useLocation();
+  const [scannerInstance, setScannerInstance] = useState(null);
   const [scanResult, setScanResult] = useState(null);
   const [verifiedUser, setVerifiedUser] = useState(null);
-  const [scannerInstance, setScannerInstance] = useState(null);
+  const [scannerActive, setScannerActive] = useState(false);
 
   const BASE_URL = import.meta.env.VITE_BACKEND_URL;
 
-  // Initialize scanner
-  useEffect(() => {
-    if (location.pathname !== "/admin/scanner") return;
-
+  const startScanner = () => {
     const scannerElement = document.getElementById("qr-reader");
     if (!scannerElement) return;
-
-    // Clear any previous scanner
-    if (scannerInstance) {
-      scannerInstance.clear().then(() => setScannerInstance(null));
-    }
+    scannerElement.innerHTML = ""; // Clear previous scanner view
 
     const scanner = new Html5QrcodeScanner("qr-reader", {
       fps: 10,
@@ -32,12 +26,10 @@ function AdminScanner() {
     scanner.render(
       async (decodedText) => {
         console.log("Scanned QR Code:", decodedText);
-
-        // Prevent multiple scans
-        scanner.clear().then(() => setScannerInstance(null));
-
         setScanResult(decodedText);
-        await verifyAndClaimEntry(decodedText);
+        await verifyQRCode(decodedText);
+        scanner.clear(); // Stop scanner after first scan
+        setScannerActive(false);
       },
       (error) => {
         if (error.name !== "NotFoundException") console.error(error);
@@ -45,39 +37,58 @@ function AdminScanner() {
     );
 
     setScannerInstance(scanner);
+    setScannerActive(true);
+  };
+
+  useEffect(() => {
+    if (location.pathname === "/admin/scanner") {
+      startScanner();
+    }
 
     return () => {
-      scanner.clear().then(() => setScannerInstance(null));
+      if (scannerInstance) {
+        scannerInstance.clear();
+      }
     };
   }, [location.pathname]);
 
-  const verifyAndClaimEntry = async (qrCode) => {
+  const verifyQRCode = async (qrCode) => {
     try {
       const token = localStorage.getItem("adminToken");
-
-      // Verify QR Code
-      const verifyResponse = await axios.post(
+      const response = await axios.post(
         `${BASE_URL}/scan/verify`,
         { qrCode },
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      if (verifyResponse.data.status === "success") {
-        setVerifiedUser(verifyResponse.data.user);
-
-        // Immediately claim entry
-        const claimResponse = await axios.post(
-          `${BASE_URL}/scan/claim-entry`,
-          { qrCode },
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
-
-        toast.success(`Entry Claimed for ${verifyResponse.data.user.name}`);
+      if (response.data.status === "success") {
+        setVerifiedUser(response.data.user);
+        toast.success(response.data.message);
+        await handleClaimEntry(qrCode);
       } else {
-        toast.error(verifyResponse.data.message);
+        toast.error(response.data.message);
       }
     } catch (error) {
-      toast.error(error.response?.data?.message || "Invalid QR Code or already used!");
+      toast.error("Invalid QR Code or already used!");
+    }
+  };
+
+  const handleClaimEntry = async (qrCode) => {
+    try {
+      const token = localStorage.getItem("adminToken");
+      const response = await axios.post(
+        `${BASE_URL}/scan/claim-entry`,
+        { qrCode },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      toast.success(response.data.message);
+      setVerifiedUser((prev) => ({
+        ...prev,
+        hasEntered: true,
+      }));
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Error claiming entry");
     }
   };
 
@@ -102,21 +113,26 @@ function AdminScanner() {
     }
   };
 
+  const handleScanNext = () => {
+    setScanResult(null);
+    setVerifiedUser(null);
+    startScanner(); // Restart scanner
+  };
+
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-6">
       <div className="bg-white p-6 shadow-lg rounded-lg w-full max-w-md text-center">
         <h2 className="text-3xl font-bold text-gray-800 mb-4">QR Code Scanner</h2>
         <div id="qr-reader" className="w-full border rounded-md shadow-md p-4"></div>
 
-        {scanResult && verifiedUser && (
+        {verifiedUser && (
           <div className="mt-4 bg-gray-200 p-4 rounded-lg shadow-md">
-            <p className="text-green-700 font-semibold">Scanned: {scanResult}</p>
             <div className="mt-2 bg-white p-3 rounded-md shadow">
               <h3 className="text-lg font-bold">
                 {verifiedUser.name} ({verifiedUser.role})
               </h3>
 
-              { (verifiedUser.role === "Speaker" || verifiedUser.role === "Delegate") && (
+              {verifiedUser.role === "Speaker" && (
                 <div className="mt-4 space-y-3">
                   <button
                     onClick={() => handleClaim("lunch")}
@@ -144,6 +160,14 @@ function AdminScanner() {
                 </div>
               )}
             </div>
+
+            {/* Scan Next QR Button */}
+            <button
+              onClick={handleScanNext}
+              className="mt-4 w-full px-4 py-2 rounded bg-blue-500 hover:bg-blue-600 text-white shadow"
+            >
+              Scan Next QR
+            </button>
           </div>
         )}
       </div>
