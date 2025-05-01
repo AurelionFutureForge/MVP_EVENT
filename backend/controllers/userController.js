@@ -157,13 +157,16 @@ const sendSuccessEmail = async (name, email, eventName, companyName, place, time
 
     if (role === "Visitor") {
       ticketClass = "VISITORS REGISTRATION (PAID ENTRY)";
-      paymentStatus = "✅ Payment Received";
+      paymentStatus = "Payment Received";
     } else if (role === "Speaker") {
       ticketClass = "SPEAKER REGISTRATION (FREE ENTRY)";
-      paymentStatus = "✅ No Payment Required";
+      paymentStatus = "No Payment Required";
+    } else if (role === "Delegate") {
+      ticketClass = "DELEGATE REGISTRATION (FREE ENTRY)";
+      paymentStatus = "No Payment Required";
     } else {
       ticketClass = "UNKNOWN ROLE";
-      paymentStatus = "❓ Payment Status Unknown";
+      paymentStatus = "? Payment Status Unknown";
     }
 
     // Convert Base64 QR image to buffer

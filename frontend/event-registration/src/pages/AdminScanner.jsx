@@ -112,7 +112,7 @@ function AdminScanner() {
                 </button>
 
                 {/* Speaker-specific options */}
-                {verifiedUser.role === "Speaker" && (
+                {(verifiedUser.role === "Speaker" || verifiedUser.role === "Delegate") && (
                   <>
                     <button
                       onClick={() => handleClaim("lunch")}

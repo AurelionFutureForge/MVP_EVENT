@@ -8,7 +8,7 @@ function AdminLogin() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);  
   const navigate = useNavigate();
-  //import.meta.env.VITE_BACKEND_URL
+ 
   const BASE_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
 
   const handleLogin = async (e) => {
