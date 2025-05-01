@@ -1,56 +1,29 @@
-import { useState, useEffect } from "react";
-import { useNavigate, useLocation, useParams } from "react-router-dom";
+import { useState } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-hot-toast";
 
 function RegistrationForm() {
   const location = useLocation();
-  const navigate = useNavigate();
-  const { companyName: paramCompany, eventName: paramEvent } = useParams(); // 🔹 URL params
-
-  const { eventName, companyName, place, time, date } = location.state || {}; // Existing state
-
-  const BASE_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
-
-  const [eventDetails, setEventDetails] = useState({
-    eventName: eventName || "",
-    companyName: companyName || "",
-    place: place || "",
-    time: time || "",
-    date: date || "",
-  });
+  const { eventName, companyName, place, time, date } = location.state || {};  // 🔹 Added 'date'
 
   const [formData, setFormData] = useState({
     name: "",
     email: "",
+    eventName: eventName || "",
+    companyName: companyName || "",
+    place: place || "",
+    time: time || "",
+    date: date || "",  // 🔹 Storing the date
     contact: "",
-    role: "Visitor",
+    role: "Visitor", // Default role
     paymentCompleted: false,
   });
 
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
-
-  // Fetch event details if params are in URL
-  useEffect(() => {
-    if (paramCompany && paramEvent && (!eventName || !companyName)) {
-      axios
-        .get(`${BASE_URL}/events?company=${paramCompany}&event=${paramEvent}`)
-        .then((res) => {
-          setEventDetails({
-            eventName: res.data.eventName,
-            companyName: res.data.companyName,
-            place: res.data.place,
-            time: res.data.time,
-            date: res.data.date,
-          });
-        })
-        .catch((err) => {
-          toast.error("Failed to load event details");
-          console.error(err);
-        });
-    }
-  }, [paramCompany, paramEvent, eventName, companyName, BASE_URL]);
+  const navigate = useNavigate();
+  const BASE_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
 
   const validate = (isPayment = false) => {
     let tempErrors = {};
@@ -89,11 +62,7 @@ function RegistrationForm() {
 
     setLoading(true);
     try {
-      const dataToSend = {
-        ...formData,
-        ...eventDetails,
-      };
-
+      const { paymentCompleted, ...dataToSend } = formData;
       const response = await axios.post(`${BASE_URL}/users/register`, dataToSend);
 
       if (!response.data || !response.data.qrCode) {
@@ -113,14 +82,14 @@ function RegistrationForm() {
     <div className="flex justify-center items-center min-h-screen bg-gradient-to-r from-blue-500 to-purple-600 p-4">
       <form onSubmit={handleSubmit} className="bg-white p-8 rounded-lg shadow-xl w-96">
         <h2 className="text-3xl font-bold text-center text-gray-800 mb-6">
-          {eventDetails.eventName} Registration
+          {eventName} Registration
         </h2>
 
         {/* Display event details */}
         <div className="mb-4">
-          <p className="text-gray-700 font-medium">{eventDetails.companyName}</p>
-          <p className="text-gray-700">{eventDetails.place} - {eventDetails.time}</p>
-          <p className="text-gray-700 font-semibold">{eventDetails.date}</p>
+          <p className="text-gray-700 font-medium">{companyName}</p>
+          <p className="text-gray-700">{place} - {time}</p>
+          <p className="text-gray-700 font-semibold">{date}</p> {/* 🔹 Display Date */}
         </div>
 
         <div className="mb-4">
