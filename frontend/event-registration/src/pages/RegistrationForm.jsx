@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate, useLocation, useParams } from "react-router-dom";
 import { toast } from "react-hot-toast";
+import axios from "axios";
 
 function RegistrationForm() {
   const location = useLocation();
