@@ -4,7 +4,7 @@ const Event = require('../models/Event');
 const createEvent = async (req, res) => {
   try {
     console.log("Incoming Request Body:", req.body);
-    const { companyName, eventName, roles, place, time, date } = req.body;
+    const { companyName, eventName, eventRoles, place, time, date } = req.body;
 
     if (!date) {
       return res.status(400).json({ msg: 'Date is required' });
@@ -21,7 +21,7 @@ const createEvent = async (req, res) => {
     const newEvent = new Event({ 
       companyName, 
       eventName, 
-      roles,
+      eventRoles,
       place, 
       time, 
       date: formattedDate.toISOString().split("T")[0] // Save only YYYY-MM-DD
