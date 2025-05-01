@@ -133,15 +133,16 @@ function RegistrationForm() {
             className="w-full border border-gray-300 px-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-400"
             disabled={formData.paymentCompleted}
           >
-            {eventRoles.length > 0 ? (
-              eventRoles.map((role) => (
-                <option key={role} value={role}>
-                  {role}
-                </option>
-              ))
-            ) : (
-              <option value="select">please Select</option>
-            )}
+        {eventRoles?.length > 0 ? (
+          eventRoles.map((role) => (
+            <option key={role} value={role}>
+              {role}
+            </option>
+          ))
+        ) : (
+          <option value="select">Please Select</option>
+        )}
+
           </select>
         </div>
 
