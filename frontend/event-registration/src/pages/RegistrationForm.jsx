@@ -1,11 +1,12 @@
 import { useState } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, useParams } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-hot-toast";
 
 function RegistrationForm() {
   const location = useLocation();
-  const { eventName, companyName, place, time, date } = location.state || {};  //  Added 'date'
+  const { place, time, date } = location.state || {};  //  Added 'date'
+  const { companyName,eventName } = useParams();
 
   const [formData, setFormData] = useState({
     name: "",

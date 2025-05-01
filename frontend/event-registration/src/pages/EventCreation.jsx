@@ -76,9 +76,7 @@ export default function EventCreation() {
 
   // Navigate to registration page with event details
   const handleRegister = (event) => {
-    navigate(`/register/${companyName}/${eventName}`, { state: { 
-      eventName: event.eventName, 
-      companyName: event.companyName, 
+    navigate(`/register/${event.companyName}/${event.eventName}`, { state: { 
       place: event.place, 
       time: event.time,
       date: event.date 
