@@ -6,59 +6,78 @@ import axios from "axios";
 
 function AdminScanner() {
   const location = useLocation();
-  const [scannerInstance, setScannerInstance] = useState(null);
   const [scanResult, setScanResult] = useState(null);
   const [verifiedUser, setVerifiedUser] = useState(null);
+  const [scannerInstance, setScannerInstance] = useState(null);
 
   const BASE_URL = import.meta.env.VITE_BACKEND_URL;
 
+  // Initialize scanner
   useEffect(() => {
     if (location.pathname !== "/admin/scanner") return;
 
     const scannerElement = document.getElementById("qr-reader");
-    if (!scannerElement || scannerInstance) return;
-    scannerElement.innerHTML = ""; // Clear previous scanner
+    if (!scannerElement) return;
+
+    // Clear any previous scanner
+    if (scannerInstance) {
+      scannerInstance.clear().then(() => setScannerInstance(null));
+    }
 
     const scanner = new Html5QrcodeScanner("qr-reader", {
       fps: 10,
       qrbox: { width: 300, height: 300 },
     });
 
-    setScannerInstance(scanner);
-
     scanner.render(
       async (decodedText) => {
         console.log("Scanned QR Code:", decodedText);
+
+        // Prevent multiple scans
+        scanner.clear().then(() => setScannerInstance(null));
+
         setScanResult(decodedText);
-        await verifyQRCode(decodedText);
+        await verifyAndClaimEntry(decodedText);
       },
       (error) => {
         if (error.name !== "NotFoundException") console.error(error);
       }
     );
 
+    setScannerInstance(scanner);
+
     return () => {
-      scanner.clear();
+      scanner.clear().then(() => setScannerInstance(null));
     };
   }, [location.pathname]);
 
-  const verifyQRCode = async (qrCode) => {
+  const verifyAndClaimEntry = async (qrCode) => {
     try {
       const token = localStorage.getItem("adminToken");
-      const response = await axios.post(
+
+      // Verify QR Code
+      const verifyResponse = await axios.post(
         `${BASE_URL}/scan/verify`,
         { qrCode },
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      if (response.data.status === "success") {
-        setVerifiedUser(response.data.user);
-        toast.success(response.data.message);
+      if (verifyResponse.data.status === "success") {
+        setVerifiedUser(verifyResponse.data.user);
+
+        // Immediately claim entry
+        const claimResponse = await axios.post(
+          `${BASE_URL}/scan/claim-entry`,
+          { qrCode },
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+
+        toast.success(`Entry Claimed for ${verifyResponse.data.user.name}`);
       } else {
-        toast.error(response.data.message);
+        toast.error(verifyResponse.data.message);
       }
     } catch (error) {
-      toast.error("Invalid QR Code or already used!");
+      toast.error(error.response?.data?.message || "Invalid QR Code or already used!");
     }
   };
 
@@ -97,49 +116,33 @@ function AdminScanner() {
                 {verifiedUser.name} ({verifiedUser.role})
               </h3>
 
-              <div className="mt-4 space-y-3">
-                {/* Entry Button - Common for All */}
-                <button
-                  onClick={() => handleClaim("entry")}
-                  disabled={verifiedUser.hasEntered}
-                  className={`w-full px-4 py-2 rounded shadow ${
-                    verifiedUser.hasEntered
-                      ? "bg-gray-400"
-                      : "bg-blue-600 hover:bg-blue-700 text-white"
-                  }`}
-                >
-                  {verifiedUser.hasEntered ? "Entry Claimed" : "Claim Entry"}
-                </button>
+              { (verifiedUser.role === "Speaker" || verifiedUser.role === "Delegate") && (
+                <div className="mt-4 space-y-3">
+                  <button
+                    onClick={() => handleClaim("lunch")}
+                    disabled={verifiedUser.hasClaimedLunch}
+                    className={`w-full px-4 py-2 rounded shadow ${
+                      verifiedUser.hasClaimedLunch
+                        ? "bg-gray-400"
+                        : "bg-green-600 hover:bg-green-700 text-white"
+                    }`}
+                  >
+                    {verifiedUser.hasClaimedLunch ? "Lunch Claimed" : "Claim Lunch"}
+                  </button>
 
-                {/* Speaker and Delegate-specific options */}
-                {(verifiedUser.role === "Speaker" || verifiedUser.role === "Delegate") && (
-                  <>
-                    <button
-                      onClick={() => handleClaim("lunch")}
-                      disabled={verifiedUser.hasClaimedLunch}
-                      className={`w-full px-4 py-2 rounded shadow ${
-                        verifiedUser.hasClaimedLunch
-                          ? "bg-gray-400"
-                          : "bg-green-600 hover:bg-green-700 text-white"
-                      }`}
-                    >
-                      {verifiedUser.hasClaimedLunch ? "Lunch Claimed" : "Claim Lunch"}
-                    </button>
-
-                    <button
-                      onClick={() => handleClaim("gift")}
-                      disabled={verifiedUser.hasClaimedGift}
-                      className={`w-full px-4 py-2 rounded shadow ${
-                        verifiedUser.hasClaimedGift
-                          ? "bg-gray-400"
-                          : "bg-yellow-600 hover:bg-yellow-700 text-white"
-                      }`}
-                    >
-                      {verifiedUser.hasClaimedGift ? "Gift Claimed" : "Claim Gift"}
-                    </button>
-                  </>
-                )}
-              </div>
+                  <button
+                    onClick={() => handleClaim("gift")}
+                    disabled={verifiedUser.hasClaimedGift}
+                    className={`w-full px-4 py-2 rounded shadow ${
+                      verifiedUser.hasClaimedGift
+                        ? "bg-gray-400"
+                        : "bg-yellow-600 hover:bg-yellow-700 text-white"
+                    }`}
+                  >
+                    {verifiedUser.hasClaimedGift ? "Gift Claimed" : "Claim Gift"}
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         )}
