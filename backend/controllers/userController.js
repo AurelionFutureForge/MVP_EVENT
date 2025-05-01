@@ -59,6 +59,30 @@ exports.registerUser = async (req, res) => {
   }
 };
 
+exports.getEventDetails = async (req, res) => {
+  const { companyName, eventName } = req.query;
+
+  try {
+    const event = await User.findOne({ companyName, eventName }).select("companyName eventName place time date");
+
+    if (!event) {
+      return res.status(404).json({ message: "Event not found!" });
+    }
+
+    res.status(200).json({
+      companyName: event.companyName,
+      eventName: event.eventName,
+      place: event.place,
+      time: event.time,
+      date: event.date
+    });
+
+  } catch (error) {
+    console.error("Error fetching event details:", error);
+    res.status(500).json({ message: "Error fetching event details", error: error.message });
+  }
+};
+
 // Function to generate PDF dynamically
 const generateTicketPDF = async (name, email, eventName, companyName, place, time, date, role, ticketID, qrCodeImage, pdfPath) => {
   return new Promise((resolve, reject) => {
