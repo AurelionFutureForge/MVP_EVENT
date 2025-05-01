@@ -5,7 +5,7 @@ import { toast } from "react-hot-toast";
 
 function RegistrationForm() {
   const location = useLocation();
-  const { eventName, companyName, place, time, date } = location.state || {};  // 🔹 Added 'date'
+  const { eventName, companyName, place, time, date } = location.state || {};  //  Added 'date'
 
   const [formData, setFormData] = useState({
     name: "",
