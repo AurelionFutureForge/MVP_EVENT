@@ -1,12 +1,12 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, useLocation, useParams } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-hot-toast";
 
 function RegistrationForm() {
   const location = useLocation();
-  const { place, time, date } = location.state || {};  //  Added 'date'
-  const { companyName,eventName } = useParams();
+  const { place, time, date } = location.state || {};  // Added 'date'
+  const { companyName, eventName } = useParams();
 
   const [formData, setFormData] = useState({
     name: "",
@@ -15,16 +15,32 @@ function RegistrationForm() {
     companyName: companyName || "",
     place: place || "",
     time: time || "",
-    date: date || "",  // 🔹 Storing the date
+    date: date || "",  // Storing the date
     contact: "",
     role: "Visitor", // Default role
     paymentCompleted: false,
   });
 
+  const [roles, setRoles] = useState([]); // Holds the dynamic roles
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const BASE_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
+
+  useEffect(() => {
+    // Fetch event-specific roles from the backend
+    const fetchRoles = async () => {
+      try {
+        const response = await axios.get(`${BASE_URL}/events/${companyName}/${eventName}/roles`);
+        setRoles(response.data.roles || []); // Assuming 'roles' is the response field
+      } catch (error) {
+        toast.error("Failed to fetch roles. Please try again.");
+        console.error("Error fetching roles:", error);
+      }
+    };
+
+    fetchRoles();
+  }, [companyName, eventName]);
 
   const validate = (isPayment = false) => {
     let tempErrors = {};
@@ -134,8 +150,15 @@ function RegistrationForm() {
             className="w-full border border-gray-300 px-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-400"
             disabled={formData.paymentCompleted}
           >
-            <option value="Visitor">Visitor</option>
-            <option value="Speaker">Speaker</option>
+            {roles.length > 0 ? (
+              roles.map((role) => (
+                <option key={role} value={role}>
+                  {role}
+                </option>
+              ))
+            ) : (
+              <option value="Visitor">Visitor</option>
+            )}
           </select>
         </div>
 

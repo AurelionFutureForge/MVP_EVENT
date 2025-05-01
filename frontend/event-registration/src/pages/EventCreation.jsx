@@ -11,6 +11,7 @@ export default function EventCreation() {
     place: '',
     time: '',
     date: '',
+    roles: [], // Array to hold selected roles
   });
 
   const [loading, setLoading] = useState(false);
@@ -35,13 +36,24 @@ export default function EventCreation() {
 
   // Handle form field changes
   const handleChange = (e) => {
-    setEventDetails({ ...eventDetails, [e.target.name]: e.target.value });
+    if (e.target.name === "roles") {
+      const role = e.target.value;
+      setEventDetails((prevDetails) => {
+        // Toggle role selection in the roles array
+        const updatedRoles = prevDetails.roles.includes(role)
+          ? prevDetails.roles.filter((r) => r !== role) // Remove role if already selected
+          : [...prevDetails.roles, role]; // Add role if not selected
+        return { ...prevDetails, roles: updatedRoles };
+      });
+    } else {
+      setEventDetails({ ...eventDetails, [e.target.name]: e.target.value });
+    }
   };
 
   // Validate input fields
   const validateForm = () => {
-    if (!eventDetails.companyName || !eventDetails.eventName || !eventDetails.place || !eventDetails.time || !eventDetails.date) {
-      setError("All fields are required.");
+    if (!eventDetails.companyName || !eventDetails.eventName || !eventDetails.place || !eventDetails.time || !eventDetails.date || eventDetails.roles.length === 0) {
+      setError("All fields are required, including at least one role.");
       return false;
     }
     setError(""); // Clear error if valid
@@ -51,7 +63,7 @@ export default function EventCreation() {
   // Handle form submission for new event
   const handleSubmit = async () => {
     if (!validateForm()) return;
-  
+
     setLoading(true);
     try {
       console.log("Sending Data to Backend:", eventDetails); // Debugging line
@@ -59,11 +71,11 @@ export default function EventCreation() {
         ...eventDetails,
         date: new Date(eventDetails.date).toISOString(), // Ensure correct format
       });
-  
+
       if (response.status === 201) {
         setEvents([...events, response.data.event]);
         setShowForm(false);
-        setEventDetails({ companyName: '', eventName: '', place: '', time: '', date: '' });
+        setEventDetails({ companyName: '', eventName: '', place: '', time: '', date: '', roles: [] });
       }
     } catch (error) {
       console.error("Error creating event:", error.response?.data || error.message);
@@ -72,19 +84,20 @@ export default function EventCreation() {
       setLoading(false);
     }
   };
-  
 
   // Navigate to registration page with event details
   const handleRegister = (event) => {
-    navigate(`/register/${event.companyName}/${event.eventName}`, { state: { 
-      place: event.place, 
-      time: event.time,
-      date: event.date 
-    } });
+    navigate(`/register/${event.companyName}/${event.eventName}`, {
+      state: {
+        place: event.place,
+        time: event.time,
+        date: event.date
+      }
+    });
   };
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-gradient-to-r from-blue-500 to-purple-600">
       {/* Navbar */}
       <nav className="bg-blue-600 p-4 shadow-md">
         <div className="container mx-auto flex justify-between items-center text-white">
@@ -99,22 +112,22 @@ export default function EventCreation() {
 
       {/* Events Section */}
       <section className="container mx-auto text-center p-6 md:p-12">
-        <h3 className="text-2xl md:text-3xl font-semibold mb-4">Your Events</h3>
+        <h3 className="text-3xl font-semibold text-white mb-4">Your Events</h3>
 
         {/* Display Existing Events */}
-        <div className="space-y-4">
+        <div className="space-y-6">
           {events.length === 0 ? (
-            <p>No events created yet. Add a new event!</p>
+            <p className="text-white">No events created yet. Add a new event!</p>
           ) : (
             events.map((event) => (
-              <div key={event._id} className="border p-4 rounded-lg">
+              <div key={event._id} className="bg-white p-6 rounded-lg shadow-lg">
                 <h4 className="font-semibold text-xl">{event.eventName}</h4>
                 <p>{event.companyName}</p>
                 <p>{event.place} - {event.time}</p>
                 <p>{new Date(event.date).toLocaleDateString()}</p>
-                <button 
-                  onClick={() => handleRegister(event)} 
-                  className="text-blue-500 hover:text-blue-600"
+                <button
+                  onClick={() => handleRegister(event)}
+                  className="mt-3 text-blue-500 hover:text-blue-600"
                 >
                   Register Now
                 </button>
@@ -135,18 +148,99 @@ export default function EventCreation() {
 
         {/* Event Creation Form */}
         {showForm && (
-          <div className="mt-6 p-6 border border-gray-300 rounded-lg bg-white">
-            <h4 className="text-xl font-semibold mb-4">Create New Event</h4>
-            <input type="text" name="companyName" placeholder="Company Name" className="w-full p-2 mb-3 border rounded" onChange={handleChange} value={eventDetails.companyName} />
-            <input type="text" name="eventName" placeholder="Event Name" className="w-full p-2 mb-3 border rounded" onChange={handleChange} value={eventDetails.eventName} />
-            <input type="text" name="place" placeholder="Place" className="w-full p-2 mb-3 border rounded" onChange={handleChange} value={eventDetails.place} />
-            <input type="time" name="time" className="w-full p-2 mb-3 border rounded" onChange={handleChange} value={eventDetails.time} />
-            <input type="date" name="date" className="w-full p-2 mb-3 border rounded" onChange={handleChange} value={eventDetails.date} />
+          <div className="mt-6 p-6 bg-white rounded-lg shadow-md">
+            <h4 className="text-2xl font-semibold mb-4">Create New Event</h4>
+
+            <input
+              type="text"
+              name="companyName"
+              placeholder="Company Name"
+              className="w-full p-3 mb-4 border rounded-lg shadow-sm"
+              onChange={handleChange}
+              value={eventDetails.companyName}
+            />
+            <input
+              type="text"
+              name="eventName"
+              placeholder="Event Name"
+              className="w-full p-3 mb-4 border rounded-lg shadow-sm"
+              onChange={handleChange}
+              value={eventDetails.eventName}
+            />
+
+            <div className="mb-6">
+              <h5 className="text-lg font-semibold mb-2">Select Roles</h5>
+              <div className="p-4 border rounded-lg shadow-md bg-white">
+                <label className="flex items-center space-x-3 mb-3">
+                  <input
+                    type="checkbox"
+                    name="roles"
+                    value="Speaker"
+                    onChange={handleChange}
+                    checked={eventDetails.roles.includes('Speaker')}
+                    className="form-checkbox text-blue-600"
+                  />
+                  <span className="text-gray-700">Speaker</span>
+                </label>
+                <label className="flex items-center space-x-3 mb-3">
+                  <input
+                    type="checkbox"
+                    name="roles"
+                    value="Visitor"
+                    onChange={handleChange}
+                    checked={eventDetails.roles.includes('Visitor')}
+                    className="form-checkbox text-blue-600"
+                  />
+                  <span className="text-gray-700">Visitor</span>
+                </label>
+                <label className="flex items-center space-x-3 mb-3">
+                  <input
+                    type="checkbox"
+                    name="roles"
+                    value="Delegate"
+                    onChange={handleChange}
+                    checked={eventDetails.roles.includes('Delegate')}
+                    className="form-checkbox text-blue-600"
+                  />
+                  <span className="text-gray-700">Delegate</span>
+                </label>
+              </div>
+            </div>
+
+
+
+            {/* Additional Input Fields */}
+            <input
+              type="text"
+              name="place"
+              placeholder="Place"
+              className="w-full p-3 mb-4 border rounded-lg shadow-sm"
+              onChange={handleChange}
+              value={eventDetails.place}
+            />
+            <input
+              type="time"
+              name="time"
+              className="w-full p-3 mb-4 border rounded-lg shadow-sm"
+              onChange={handleChange}
+              value={eventDetails.time}
+            />
+            <input
+              type="date"
+              name="date"
+              className="w-full p-3 mb-4 border rounded-lg shadow-sm"
+              onChange={handleChange}
+              value={eventDetails.date}
+            />
 
             {/* Show Error Message */}
             {error && <p className="text-red-600 mb-3">{error}</p>}
 
-            <button onClick={handleSubmit} className="w-full bg-blue-600 text-white p-2 rounded-lg hover:bg-blue-700" disabled={loading}>
+            <button
+              onClick={handleSubmit}
+              className="w-full bg-blue-600 text-white p-3 rounded-lg shadow hover:bg-blue-700 transition disabled:bg-gray-400"
+              disabled={loading}
+            >
               {loading ? "Submitting..." : "Submit Event"}
             </button>
           </div>
