@@ -93,7 +93,7 @@ export default function EventCreation() {
         place: event.place,
         time: event.time,
         date: event.date,
-        roles:event.eventRoles,
+        eventRoles:event.eventRoles,
       }
     });
   };
