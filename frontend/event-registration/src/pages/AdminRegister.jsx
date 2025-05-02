@@ -10,7 +10,7 @@ function AdminRegister() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const BASE_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
+  const BASE_URL = import.meta.env.VITE_BACKEND_URL;
 
   const handleRegister = async (e) => {
     e.preventDefault();
