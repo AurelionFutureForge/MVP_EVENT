@@ -1,46 +1,38 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
 
-function AdminLogin() {
+function AdminRegister() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);  
+  const [companyName, setCompanyName] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
- 
+
   const BASE_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
 
-  const handleLogin = async (e) => {
+  const handleRegister = async (e) => {
     e.preventDefault();
-    setLoading(true);  
+    setLoading(true);
 
     try {
-      const response = await axios.post(`${BASE_URL}/admin/login`, { email, password });
-
-      // Store the admin token in localStorage
-      localStorage.setItem("adminToken", response.data.token);
-
-      // Store the company name as well
-      localStorage.setItem("adminCompany", response.data.admin.companyName);
-
-      toast.success("Login Successful!");
-
-      // Redirect to the dashboard (now it can use the company context too)
-      navigate("/admin/dashboard");
+      const response = await axios.post(`${BASE_URL}/admin/register`, { email, password, companyName });
+      toast.success("Admin registered successfully!");
+      navigate("/admin/login"); // Redirect to login page
     } catch (error) {
-      toast.error("Invalid Credentials!");
+      toast.error(error.response?.data?.message || "Something went wrong");
     } finally {
-      setLoading(false);  
+      setLoading(false);
     }
   };
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-r from-blue-500 to-indigo-600 p-6">
       <div className="bg-white p-8 shadow-xl rounded-lg w-full max-w-md transform transition-all duration-300 hover:shadow-2xl">
-        <h2 className="text-3xl font-bold text-gray-800 mb-6 text-center">Admin Login</h2>
+        <h2 className="text-3xl font-bold text-gray-800 mb-6 text-center">Admin Registration</h2>
 
-        <form onSubmit={handleLogin} className="space-y-5">
+        <form onSubmit={handleRegister} className="space-y-5">
           <div>
             <label className="block text-gray-700 font-medium">Email</label>
             <input
@@ -50,7 +42,7 @@ function AdminLogin() {
               onChange={(e) => setEmail(e.target.value)}
               required
               placeholder="Enter your email"
-              disabled={loading}   
+              disabled={loading}
             />
           </div>
 
@@ -63,7 +55,20 @@ function AdminLogin() {
               onChange={(e) => setPassword(e.target.value)}
               required
               placeholder="Enter your password"
-              disabled={loading}   
+              disabled={loading}
+            />
+          </div>
+
+          <div>
+            <label className="block text-gray-700 font-medium">Company Name</label>
+            <input
+              type="text"
+              className="w-full p-3 border border-gray-300 rounded-lg mt-1 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+              value={companyName}
+              onChange={(e) => setCompanyName(e.target.value)}
+              required
+              placeholder="Enter your company name"
+              disabled={loading}
             />
           </div>
 
@@ -71,18 +76,21 @@ function AdminLogin() {
             type="submit"
             className={`w-full p-3 rounded-lg font-semibold transition transform hover:scale-105 
             ${loading ? "bg-gray-500 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700 text-white"}`}
-            disabled={loading}   
+            disabled={loading}
           >
-            {loading ? "Logging in..." : "Login"} 
+            {loading ? "Registering..." : "Register"}
           </button>
         </form>
 
         <p className="text-gray-600 text-center mt-4 text-sm">
-          Admin access only. Unauthorized users will be denied.
+          Already have an account?{" "}
+          <a href="/admin/login" className="text-blue-600 hover:underline">
+            Login here
+          </a>
         </p>
       </div>
     </div>
   );
 }
 
-export default AdminLogin;
+export default AdminRegister;

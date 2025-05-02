@@ -3,6 +3,7 @@ const bcrypt = require("bcryptjs");
 const Admin = require("../models/Admin");
 const User = require("../models/User");
 
+
 // Admin login function
 const adminLogin = async (req, res) => {
   try {
@@ -23,7 +24,11 @@ const adminLogin = async (req, res) => {
     res.status(200).json({
       message: "Login successful",
       token,
-      admin: { id: admin._id, email: admin.email },
+      admin: { 
+        id: admin._id, 
+        email: admin.email, 
+        companyName: admin.companyName   // Directly send company name
+      },
     });
   } catch (error) {
     res.status(500).json({ message: "Internal server error", error });
@@ -33,11 +38,55 @@ const adminLogin = async (req, res) => {
 // Get all registered users (for admin)
 const getAllUsers = async (req, res) => {
   try {
-    const users = await User.find({}, "-password"); // Exclude password for security
+    const admin = await Admin.findById(req.adminId);
+
+    if (!admin) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    const companyName = admin.companyName;
+
+    // Fetch users ONLY under this company name
+    const users = await User.find({ companyName }, "-password");
+
     res.status(200).json(users);
   } catch (error) {
     res.status(500).json({ message: "Failed to retrieve users", error });
   }
 };
 
-module.exports = { adminLogin, getAllUsers }; // Ensure both functions are exported correctly
+
+
+const registerAdmin = async (req, res) => {
+  try {
+    const { email, password, companyName } = req.body;
+
+    if (!email || !password || !companyName) {
+      return res.status(400).json({ message: "Email, password, and company name are required" });
+    }
+
+    // Check if the admin already exists
+    const existingAdmin = await Admin.findOne({ email });
+    if (existingAdmin) {
+      return res.status(400).json({ message: "Admin already exists" });
+    }
+
+    // Hash the password before saving
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const newAdmin = new Admin({
+      email,
+      password: hashedPassword,
+      companyName,
+    });
+
+    await newAdmin.save();
+
+    res.status(201).json({ message: "Admin registered successfully" });
+  } catch (error) {
+    res.status(500).json({ message: "Error registering admin", error });
+  }
+};
+
+
+module.exports = { adminLogin, getAllUsers, registerAdmin };

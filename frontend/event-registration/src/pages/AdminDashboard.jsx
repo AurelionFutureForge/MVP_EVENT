@@ -10,23 +10,35 @@ function AdminDashboard() {
   const navigate = useNavigate();
   const BASE_URL = import.meta.env.VITE_BACKEND_URL;
 
+  // Get the company name from localStorage
+  const companyName = localStorage.getItem("adminCompany");
+
   useEffect(() => {
     const fetchUsers = async () => {
       try {
         const token = localStorage.getItem("adminToken");
+        if (!token) {
+          toast.error("Unauthorized! Please log in.");
+          navigate("/admin/login");
+          return;
+        }
+
         const response = await axios.get(`${BASE_URL}/admin/users`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        setUsers(response.data);
+
+        // Filter users based on companyName
+        const filteredUsers = response.data.filter(user => user.companyName === companyName);
+        setUsers(filteredUsers);
       } catch (error) {
-        toast.error("Unauthorized! Please log in.");
-        navigate("/admin/login");
+        toast.error("Failed to fetch users. Please try again.");
       }
     };
-    fetchUsers();
-  }, [navigate]);
 
-  //  Function to Download PDF
+    fetchUsers();
+  }, [navigate, companyName, BASE_URL]);
+
+  // Function to Download PDF
   const downloadPDF = () => {
     if (users.length === 0) {
       toast.error("No data available to download!");
@@ -45,15 +57,14 @@ function AdminDashboard() {
       user.contact,
     ]);
 
-    
     autoTable(pdf, {
       startY: 30,
       head: headers,
       body: data,
       theme: "grid",
-      headStyles: { fillColor: [41, 128, 185] },  
+      headStyles: { fillColor: [41, 128, 185] },
       styles: { fontSize: 10, cellPadding: 5 },
-      alternateRowStyles: { fillColor: [240, 240, 240] },  
+      alternateRowStyles: { fillColor: [240, 240, 240] },
     });
 
     pdf.save("registered_users.pdf");
@@ -64,6 +75,9 @@ function AdminDashboard() {
     <div className="min-h-screen bg-gray-100 p-6 flex flex-col items-center">
       <div className="bg-white p-6 shadow-lg rounded-lg w-full max-w-4xl">
         <h2 className="text-3xl font-bold text-gray-800 mb-6 text-center">Admin Dashboard</h2>
+
+        {/* Display company name */}
+        <p className="text-center text-lg mb-4">Company: {companyName}</p>
 
         {/* ✅ Download Buttons */}
         <div className="flex justify-between mb-4">

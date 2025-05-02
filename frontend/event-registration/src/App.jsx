@@ -7,6 +7,7 @@ import AdminLogin from './pages/AdminLogin';
 import AdminDashboard from './pages/AdminDashboard';
 import Home from './pages/Home'; 
 import EventCreation from './pages/EventCreation';  
+import AdminRegister from './pages/AdminRegister'
 
 const App = () => {
   return (
@@ -16,6 +17,7 @@ const App = () => {
         <Route path='/register/:companyName/:eventName' element={<RegistrationForm />} />
         <Route path="/success" element={<SuccessPage />} />
         <Route path='/admin/scanner' element={<AdminScanner />} />
+        <Route path="/admin/register" element={<AdminRegister />} />
         <Route path='/admin/login' element={<AdminLogin />} />
         <Route path='/admin/dashboard' element={<AdminDashboard />} />
         <Route path='/create-event' element={<EventCreation />} />  
