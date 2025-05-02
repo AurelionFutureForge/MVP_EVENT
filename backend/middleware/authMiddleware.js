@@ -6,7 +6,7 @@ exports.authenticateAdmin = (req, res, next) => {
 
   try {
     const verified = jwt.verify(token, process.env.JWT_SECRET);
-    req.admin = verified;
+    req.adminId = verified.adminId;  // Store directly as req.adminId
     next();
   } catch (err) {
     res.status(403).json({ message: "Invalid Token" });
