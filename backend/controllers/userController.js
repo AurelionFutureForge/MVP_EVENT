@@ -4,17 +4,38 @@ const QRCode = require("qrcode");
 const fs = require("fs");
 const path = require("path");
 const PDFDocument = require("pdfkit");   
+const Event = require("../models/Event");   // ADD this import at the top if not already
 
 // Register User
 exports.registerUser = async (req, res) => {
-  const { name, email, eventName,companyName, place, time, date, contact, role } = req.body;
-  console.log("req-body : "+req.body);
+  const { name, email, eventName, companyName, place, time, date, contact, role } = req.body;
+  console.log("req-body : ", req.body);
 
   try {
-    const existingUser = await User.findOne({ email });
+    const existingUser = await User.findOne({ email, eventName, companyName });
     if (existingUser) {
-      return res.status(400).json({ message: "User with this email already exists!" });
+      return res.status(400).json({ message: "User with this email already registered for this event!" });
     }
+
+    // Fetch the Event to get the role privileges
+    const event = await Event.findOne({ companyName, eventName });
+    if (!event) {
+      return res.status(404).json({ message: "Event not found!" });
+    }
+
+    // Find the matching role privileges from eventRoles
+    const selectedRole = event.eventRoles.find(r => r.name === role);
+    if (!selectedRole) {
+      return res.status(400).json({ message: "Selected role not found in this event!" });
+    }
+
+    const privileges = selectedRole.privileges;
+
+    // Dynamically set only those privilege flags
+    const privilegeFields = {};
+    if (privileges.entry) privilegeFields.hasEntered = false;
+    if (privileges.lunch) privilegeFields.hasClaimedLunch = false;
+    if (privileges.gift) privilegeFields.hasClaimedGift = false;
 
     const newUser = new User({ 
       name, 
@@ -25,8 +46,10 @@ exports.registerUser = async (req, res) => {
       time, 
       date: new Date(date).toISOString().split("T")[0], 
       contact, 
-      role 
+      role,
+      ...privilegeFields   // dynamically spread here
     });
+
     await newUser.save();
 
     // Generate QR Code
@@ -40,9 +63,9 @@ exports.registerUser = async (req, res) => {
 
     // Generate PDF dynamically with user data
     const pdfPath = path.join(__dirname, "../public/pdfs", `${ticketID}.pdf`);
-    await generateTicketPDF(name,email, eventName, companyName, place, time, date, role, ticketID, qrCodeImage, pdfPath);
+    await generateTicketPDF(name, email, eventName, companyName, place, time, date, role, ticketID, qrCodeImage, pdfPath);
 
-    // Send success email with the generated PDF and QR code
+    // Send success email with PDF + QR
     await sendSuccessEmail(name, email, eventName, companyName, place, time, date, qrCodeImage, role, ticketID, pdfPath);
 
     res.status(201).json({
@@ -58,6 +81,7 @@ exports.registerUser = async (req, res) => {
     res.status(500).json({ message: "Error registering user", error: error.message });
   }
 };
+
 
 // Function to generate PDF dynamically
 const generateTicketPDF = async (name, email, eventName, companyName, place, time, date, role, ticketID, qrCodeImage, pdfPath) => {
