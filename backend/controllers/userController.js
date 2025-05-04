@@ -9,24 +9,27 @@ const Event = require("../models/Event");   // ADD this import at the top if not
 // Register User
 exports.registerUser = async (req, res) => {
   const { name, email, eventName, companyName, place, time, date, contact, role } = req.body;
-  console.log("req-body : ", req.body);
+  console.log("Received registration request with body:", req.body);  // Debugging line
 
   try {
     // Check if the user is already registered for the event
     const existingUser = await User.findOne({ email, eventName, companyName });
     if (existingUser) {
+      console.log("User already registered for this event:", existingUser);  // Debugging line
       return res.status(400).json({ message: "User with this email already registered for this event!" });
     }
 
     // Fetch the event to get the role privileges
     const event = await Event.findOne({ companyName, eventName });
     if (!event) {
+      console.log("Event not found:", { companyName, eventName });  // Debugging line
       return res.status(404).json({ message: "Event not found!" });
     }
 
     // Find the matching role privileges from eventRoles
     const selectedRole = event.eventRoles.find(r => r.name === role);
     if (!selectedRole) {
+      console.log("Role not found in event:", role);  // Debugging line
       return res.status(400).json({ message: "Selected role not found in this event!" });
     }
 
@@ -46,13 +49,15 @@ exports.registerUser = async (req, res) => {
       companyName,
       place,
       time,
-      date: new Date(date).toISOString().split("T")[0], // Format date
+      date: new Date(date).toISOString().split("T")[0], // Format date as YYYY-MM-DD
       contact,
       role,
       ...privilegeFields, // Dynamically add privileges
     });
 
     await newUser.save();
+
+    console.log("User registered successfully:", newUser);  // Debugging line
 
     // Generate QR Code for the user
     const qrCodeData = `${email}-${newUser._id}`;

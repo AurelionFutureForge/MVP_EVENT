@@ -71,16 +71,28 @@ const getEvents = async (req, res) => {
 const getEventByDetails = async (req, res) => {
   try {
     const { companyName, eventName } = req.params;
-    console.log("Company Name:", companyName);  // Debugging line
-    console.log("Event Name:", eventName);  // Debugging line
+    console.log("Received Company Name:", companyName);  // Log received companyName
+    console.log("Received Event Name:", eventName);  // Log received eventName
 
-    const event = await Event.findOne({ companyName, eventName });
+    // Perform the query to find the event
+    const event = await Event.findOne({
+      companyName: { $regex: new RegExp(`^${companyName}$`, 'i') },  // Case-insensitive search
+      eventName: { $regex: new RegExp(`^${eventName}$`, 'i') }       // Case-insensitive search
+    });
+
+    // Debug the found event
+    if (event) {
+      console.log("Event found:", event);  // Log the found event
+    } else {
+      console.log("No event found matching the criteria.");
+    }
 
     if (!event) {
       return res.status(404).json({ msg: 'Event not found!' });
     }
 
-    res.json(event); // Respond with event details
+    // Return the event details if found
+    res.json(event);  // Respond with event details
   } catch (error) {
     console.error("Server Error:", error);
     res.status(500).json({ msg: 'Server error', error: error.message });
