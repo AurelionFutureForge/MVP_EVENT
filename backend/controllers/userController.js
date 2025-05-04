@@ -64,7 +64,7 @@ exports.registerUser = async (req, res) => {
     const qrCodeImage = await QRCode.toDataURL(qrCodeData);
 
     // Save the generated QR code to the user
-    newUser.qrCode = qrCodeImage;
+    newUser.qrCode = qrCodeData;
     await newUser.save();
 
     // Generate PDF for the user ticket
