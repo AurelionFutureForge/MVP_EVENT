@@ -1,3 +1,5 @@
+const mongoose = require('mongoose');  // 👈 You forgot this line!
+
 const eventSchema = new mongoose.Schema({
   companyName: { type: String, required: true },
   eventName: { type: String, required: true },
