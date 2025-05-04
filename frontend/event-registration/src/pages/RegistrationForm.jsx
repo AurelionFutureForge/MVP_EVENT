@@ -73,6 +73,7 @@ function RegistrationForm() {
 
     // Check role and form data
     console.log("Form data being submitted:", formData);
+    console.log("API URL:", `${BASE_URL}/users/register`);
 
     if (!validate()) return;
 
