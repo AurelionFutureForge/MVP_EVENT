@@ -8,7 +8,7 @@ function RegistrationForm() {
   const { place, time, date, eventRoles } = location.state || {};  // Receiving roles through location.state
   const { companyName, eventName } = useParams();
 
-  const BASE_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
+  const BASE_URL = import.meta.env.VITE_BACKEND_URL;
 
   const [formData, setFormData] = useState({
     name: "",
