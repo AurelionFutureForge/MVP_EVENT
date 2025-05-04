@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, useLocation, useParams } from "react-router-dom";
 import { toast } from "react-hot-toast";
 import axios from "axios";
@@ -26,6 +26,16 @@ function RegistrationForm() {
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+
+  // Ensure the role defaults to first available role if eventRoles are present
+  useEffect(() => {
+    if (eventRoles?.length > 0) {
+      setFormData((prev) => ({
+        ...prev,
+        role: eventRoles[0].name,  // Set the first available role by default
+      }));
+    }
+  }, [eventRoles]);
 
   const validate = (isPayment = false) => {
     let tempErrors = {};
@@ -60,13 +70,25 @@ function RegistrationForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Check role and form data
+    console.log("Form data being submitted:", formData);
+
     if (!validate()) return;
+
+    if (formData.role === "select") {
+      toast.error("Please select a valid role.");
+      return;
+    }
 
     setLoading(true);
     try {
       const { paymentCompleted, ...dataToSend } = formData;
-      // Send the data to the backend for registration (adjust URL as needed)
+      // Send the data to the backend for registration
       const response = await axios.post(`${BASE_URL}/users/register`, dataToSend);
+
+      // Log response for debugging
+      console.log("Backend response:", response);
 
       if (!response.data || !response.data.qrCode) {
         throw new Error("QR Code not received");
@@ -138,8 +160,8 @@ function RegistrationForm() {
           >
             {eventRoles?.length > 0 ? (
               eventRoles.map((role) => (
-                <option key={role._id} value={role.name}> {/* Use unique _id for key */}
-                  {role.name} {/* Display the name of the role */}
+                <option key={role._id} value={role.name}>
+                  {role.name}
                 </option>
               ))
             ) : (
