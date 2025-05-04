@@ -6,6 +6,10 @@ const createEvent = async (req, res) => {
     console.log("Incoming Request Body:", req.body);
     const { companyName, eventName, eventRoles, place, time, date } = req.body;
 
+    // Trim spaces from companyName and eventName to avoid trailing spaces
+    const trimmedCompanyName = companyName.trim();
+    const trimmedEventName = eventName.trim();
+
     if (!date) {
       return res.status(400).json({ msg: 'Date is required' });
     }
@@ -39,10 +43,10 @@ const createEvent = async (req, res) => {
       }
     }));
 
-    const newEvent = new Event({ 
-      companyName, 
-      eventName, 
-      eventRoles: processedRoles, // ✅ Corrected here
+    const newEvent = new Event({
+      companyName: trimmedCompanyName,  // Use trimmed value
+      eventName: trimmedEventName,      // Use trimmed value
+      eventRoles: processedRoles,       // Corrected here
       place, 
       time, 
       date: formattedDate.toISOString().split("T")[0] // Save only YYYY-MM-DD
@@ -56,6 +60,7 @@ const createEvent = async (req, res) => {
   }
 };
 
+// Get all events
 const getEvents = async (req, res) => {
   try {
     const events = await Event.find();
@@ -66,18 +71,21 @@ const getEvents = async (req, res) => {
   }
 };
 
-// Add this function to your event controller
-
+// Get event by company name and event name
 const getEventByDetails = async (req, res) => {
   try {
     const { companyName, eventName } = req.params;
     console.log("Received Company Name:", companyName);  // Log received companyName
     console.log("Received Event Name:", eventName);  // Log received eventName
 
+    // Trim spaces from the received params to avoid trailing spaces
+    const trimmedCompanyName = companyName.trim();
+    const trimmedEventName = eventName.trim();
+
     // Perform the query to find the event
     const event = await Event.findOne({
-      companyName: { $regex: new RegExp(`^${companyName}$`, 'i') },  // Case-insensitive search
-      eventName: { $regex: new RegExp(`^${eventName}$`, 'i') }       // Case-insensitive search
+      companyName: { $regex: new RegExp(`^${trimmedCompanyName}$`, 'i') },  // Case-insensitive search
+      eventName: { $regex: new RegExp(`^${trimmedEventName}$`, 'i') }       // Case-insensitive search
     });
 
     // Debug the found event
@@ -98,7 +106,6 @@ const getEventByDetails = async (req, res) => {
     res.status(500).json({ msg: 'Server error', error: error.message });
   }
 };
-
 
 module.exports = { createEvent, getEvents, getEventByDetails };
 
