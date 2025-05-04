@@ -9,7 +9,6 @@ function Home() {
           <h1 className="text-2xl font-bold">EventMVP</h1>
           <div className="hidden md:flex space-x-6">
             <Link to="/" className="hover:text-gray-200">Home</Link>
-            <Link to="/register" className="hover:text-gray-200">Register</Link>
             <Link to="/admin/login" className="hover:text-gray-200">Admin</Link>
           </div>
           <div className="md:hidden">
@@ -25,10 +24,10 @@ function Home() {
           Seamlessly register and manage attendees for your events with our QR-based system.
         </p>
         <div className="mt-6 space-y-4 md:space-y-0 md:space-x-4 flex flex-col md:flex-row">
-          <Link to="/admin/register" className="px-6 py-3 bg-blue-700 text-white font-semibold rounded-lg shadow hover:bg-blue-800 transition">
-            Admin Register
+          <Link to="/admin/login" className="px-6 py-3 bg-blue-700 text-white font-semibold rounded-lg shadow hover:bg-blue-800 transition">
+            Admin Login 
           </Link>
-          <Link to="/create-event" className="px-6 py-3 bg-white text-blue-600 font-semibold rounded-lg shadow hover:bg-gray-100 transition">
+          <Link to="/admin/register" className="px-6 py-3 bg-white text-blue-600 font-semibold rounded-lg shadow hover:bg-gray-100 transition">
             Create Event
           </Link> {/* Sign In Button */}
         </div>

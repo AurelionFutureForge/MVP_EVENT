@@ -10,7 +10,7 @@ function AdminRegister() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const BASE_URL = import.meta.env.VITE_BACKEND_URL;
+  const BASE_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
 
   const handleRegister = async (e) => {
     e.preventDefault();
@@ -19,7 +19,7 @@ function AdminRegister() {
     try {
       const response = await axios.post(`${BASE_URL}/admin/register`, { email, password, companyName });
       toast.success("Admin registered successfully!");
-      navigate("/admin/login"); // Redirect to login page
+      navigate("/create-event"); // Redirect to login page
     } catch (error) {
       toast.error(error.response?.data?.message || "Something went wrong");
     } finally {
@@ -81,13 +81,6 @@ function AdminRegister() {
             {loading ? "Registering..." : "Register"}
           </button>
         </form>
-
-        <p className="text-gray-600 text-center mt-4 text-sm">
-          Already have an account?{" "}
-          <a href="/admin/login" className="text-blue-600 hover:underline">
-            Login here
-          </a>
-        </p>
       </div>
     </div>
   );

@@ -18,10 +18,31 @@ const createEvent = async (req, res) => {
       return res.status(400).json({ msg: 'Invalid date format' });
     }
 
+    // Validate eventRoles structure
+    if (!Array.isArray(eventRoles) || eventRoles.length === 0) {
+      return res.status(400).json({ msg: 'At least one role is required' });
+    }
+
+    eventRoles.forEach(role => {
+      if (!role.name || typeof role.lunch !== 'boolean' || typeof role.gift !== 'boolean') {
+        return res.status(400).json({ msg: 'Each role must have name, lunch, and gift as booleans' });
+      }
+    });
+
+    // Map eventRoles to include privileges with entry=true always
+    const processedRoles = eventRoles.map(role => ({
+      name: role.name,
+      privileges: {
+        entry: true,            // Always true
+        lunch: !!role.lunch,    // Ensure boolean
+        gift: !!role.gift
+      }
+    }));
+
     const newEvent = new Event({ 
       companyName, 
       eventName, 
-      eventRoles,
+      eventRoles: processedRoles,
       place, 
       time, 
       date: formattedDate.toISOString().split("T")[0] // Save only YYYY-MM-DD
@@ -34,8 +55,6 @@ const createEvent = async (req, res) => {
     res.status(500).json({ msg: 'Server error', error: error.message });
   }
 };
-
-
 
 const getEvents = async (req, res) => {
   try {
