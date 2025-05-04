@@ -23,11 +23,11 @@ const createEvent = async (req, res) => {
       return res.status(400).json({ msg: 'At least one role is required' });
     }
 
-    eventRoles.forEach(role => {
+    for (const role of eventRoles) {
       if (!role.name || typeof role.lunch !== 'boolean' || typeof role.gift !== 'boolean') {
         return res.status(400).json({ msg: 'Each role must have name, lunch, and gift as booleans' });
       }
-    });
+    }
 
     // Map eventRoles to include privileges with entry=true always
     const processedRoles = eventRoles.map(role => ({
@@ -42,7 +42,7 @@ const createEvent = async (req, res) => {
     const newEvent = new Event({ 
       companyName, 
       eventName, 
-      eventRoles: processedRoles,
+      eventRoles: processedRoles, // ✅ Corrected here
       place, 
       time, 
       date: formattedDate.toISOString().split("T")[0] // Save only YYYY-MM-DD

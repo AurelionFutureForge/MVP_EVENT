@@ -10,7 +10,6 @@ function RegistrationForm() {
 
   const BASE_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
 
-
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -137,16 +136,15 @@ function RegistrationForm() {
             className="w-full border border-gray-300 px-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-400"
             disabled={formData.paymentCompleted}
           >
-        {eventRoles?.length > 0 ? (
-          eventRoles.map((role) => (
-            <option key={role} value={role}>
-              {role}
-            </option>
-          ))
-        ) : (
-          <option value="select">Please Select</option>
-        )}
-
+            {eventRoles?.length > 0 ? (
+              eventRoles.map((role) => (
+                <option key={role._id} value={role.name}> {/* Use unique _id for key */}
+                  {role.name} {/* Display the name of the role */}
+                </option>
+              ))
+            ) : (
+              <option value="select">Please Select</option>
+            )}
           </select>
         </div>
 

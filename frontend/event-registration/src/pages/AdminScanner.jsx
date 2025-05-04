@@ -1,8 +1,8 @@
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
-import { Html5QrcodeScanner } from "html5-qrcode";
-import { toast } from "react-hot-toast";
 import axios from "axios";
+import { toast } from "react-hot-toast";
+import { Html5QrcodeScanner } from "html5-qrcode";
 
 function AdminScanner() {
   const location = useLocation();
@@ -10,7 +10,7 @@ function AdminScanner() {
   const [scanResult, setScanResult] = useState(null);
   const [verifiedUser, setVerifiedUser] = useState(null);
   const [scannerActive, setScannerActive] = useState(false);
-
+  const [privileges, setPrivileges] = useState({});
   const BASE_URL = import.meta.env.VITE_BACKEND_URL;
 
   const startScanner = () => {
@@ -63,32 +63,13 @@ function AdminScanner() {
 
       if (response.data.status === "success") {
         setVerifiedUser(response.data.user);
+        setPrivileges(response.data.privileges); // Set privileges dynamically based on user and event
         toast.success(response.data.message);
-        await handleClaimEntry(qrCode);
       } else {
         toast.error(response.data.message);
       }
     } catch (error) {
       toast.error("Invalid QR Code or already used!");
-    }
-  };
-
-  const handleClaimEntry = async (qrCode) => {
-    try {
-      const token = localStorage.getItem("adminToken");
-      const response = await axios.post(
-        `${BASE_URL}/scan/claim-entry`,
-        { qrCode },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-
-      toast.success(response.data.message);
-      setVerifiedUser((prev) => ({
-        ...prev,
-        hasEntered: true,
-      }));
-    } catch (error) {
-      toast.error(error.response?.data?.message || "Error claiming entry");
     }
   };
 
@@ -108,6 +89,10 @@ function AdminScanner() {
         ...prev,
         [`hasClaimed${type.charAt(0).toUpperCase() + type.slice(1)}`]: true,
       }));
+      setPrivileges((prev) => ({
+        ...prev,
+        [`canClaim${type.charAt(0).toUpperCase() + type.slice(1)}`]: false, // Disable the claim option after it's claimed
+      }));
     } catch (error) {
       toast.error(error.response?.data?.message || "Error processing request");
     }
@@ -116,6 +101,7 @@ function AdminScanner() {
   const handleScanNext = () => {
     setScanResult(null);
     setVerifiedUser(null);
+    setPrivileges({}); // Reset privileges
     startScanner(); // Restart scanner
   };
 
@@ -134,40 +120,42 @@ function AdminScanner() {
 
               {verifiedUser.role === "Speaker" && (
                 <div className="mt-4 space-y-3">
-                  <button
-                    onClick={() => handleClaim("lunch")}
-                    disabled={verifiedUser.hasClaimedLunch}
-                    className={`w-full px-4 py-2 rounded shadow ${
-                      verifiedUser.hasClaimedLunch
-                        ? "bg-gray-400"
-                        : "bg-green-600 hover:bg-green-700 text-white"
-                    }`}
-                  >
-                    {verifiedUser.hasClaimedLunch ? "Lunch Claimed" : "Claim Lunch"}
-                  </button>
+                  {privileges.canClaimLunch && (
+                    <button
+                      onClick={() => handleClaim("lunch")}
+                      className={`w-full px-4 py-2 rounded shadow ${
+                        privileges.canClaimLunch
+                          ? "bg-green-600 hover:bg-green-700 text-white"
+                          : "bg-gray-400 cursor-not-allowed"
+                      }`}
+                    >
+                      {verifiedUser.hasClaimedLunch ? "Lunch Claimed" : "Claim Lunch"}
+                    </button>
+                  )}
 
-                  <button
-                    onClick={() => handleClaim("gift")}
-                    disabled={verifiedUser.hasClaimedGift}
-                    className={`w-full px-4 py-2 rounded shadow ${
-                      verifiedUser.hasClaimedGift
-                        ? "bg-gray-400"
-                        : "bg-yellow-600 hover:bg-yellow-700 text-white"
-                    }`}
-                  >
-                    {verifiedUser.hasClaimedGift ? "Gift Claimed" : "Claim Gift"}
-                  </button>
+                  {privileges.canClaimGift && (
+                    <button
+                      onClick={() => handleClaim("gift")}
+                      className={`w-full px-4 py-2 rounded shadow ${
+                        privileges.canClaimGift
+                          ? "bg-yellow-600 hover:bg-yellow-700 text-white"
+                          : "bg-gray-400 cursor-not-allowed"
+                      }`}
+                    >
+                      {verifiedUser.hasClaimedGift ? "Gift Claimed" : "Claim Gift"}
+                    </button>
+                  )}
                 </div>
               )}
-            </div>
 
-            {/* Scan Next QR Button */}
-            <button
-              onClick={handleScanNext}
-              className="mt-4 w-full px-4 py-2 rounded bg-blue-500 hover:bg-blue-600 text-white shadow"
-            >
-              Scan Next QR
-            </button>
+              {/* Scan Next QR Button */}
+              <button
+                onClick={handleScanNext}
+                className="mt-4 w-full px-4 py-2 rounded bg-blue-500 hover:bg-blue-600 text-white shadow"
+              >
+                Scan Next QR
+              </button>
+            </div>
           </div>
         )}
       </div>
