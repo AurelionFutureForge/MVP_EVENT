@@ -5,7 +5,7 @@ import axios from "axios";
 
 function RegistrationForm() {
   const location = useLocation();
-  const { place, time, date, eventRoles } = location.state || {};  // Receiving roles through location.state
+  const { place, time, date, eventRoles } = location.state || {}; // Receiving roles through location.state
   const { companyName, eventName } = useParams();
 
   const BASE_URL = import.meta.env.VITE_BACKEND_URL;
@@ -17,7 +17,7 @@ function RegistrationForm() {
     companyName: companyName || "",
     place: place || "",
     time: time || "",
-    date: date || "",  // Storing the date
+    date: date || "", // Storing the date
     contact: "",
     role: "Visitor", // Default role
     paymentCompleted: false,
@@ -32,7 +32,7 @@ function RegistrationForm() {
   useEffect(() => {
     const fetchEvent = async () => {
       try {
-        const response = await axios.get(`${BASE_URL}/event/${companyName}/${eventName}`);
+        const response = await axios.get(`${BASE_URL}/events/${companyName}/${eventName}`);
         setEvent(response.data);  // Set event data
         setFormData((prev) => ({
           ...prev,
