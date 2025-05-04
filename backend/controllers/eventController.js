@@ -66,4 +66,25 @@ const getEvents = async (req, res) => {
   }
 };
 
-module.exports = { createEvent, getEvents };
+// Add this function to your event controller
+
+const getEventByDetails = async (req, res) => {
+  try {
+    const { companyName, eventName } = req.params;
+
+    // Find the event using companyName and eventName
+    const event = await Event.findOne({ companyName, eventName });
+
+    if (!event) {
+      return res.status(404).json({ msg: 'Event not found!' });
+    }
+
+    res.json(event); // Respond with event details
+  } catch (error) {
+    console.error("Server Error:", error);
+    res.status(500).json({ msg: 'Server error', error: error.message });
+  }
+};
+
+module.exports = { createEvent, getEvents, getEventByDetails };
+

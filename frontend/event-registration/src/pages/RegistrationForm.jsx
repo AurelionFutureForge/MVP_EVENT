@@ -25,17 +25,38 @@ function RegistrationForm() {
 
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
+  const [event, setEvent] = useState(null);
   const navigate = useNavigate();
 
-  // Ensure the role defaults to first available role if eventRoles are present
+  // Fetch event details when component mounts
   useEffect(() => {
-    if (eventRoles?.length > 0) {
-      setFormData((prev) => ({
-        ...prev,
-        role: eventRoles[0].name,  // Set the first available role by default
-      }));
-    }
-  }, [eventRoles]);
+    const fetchEvent = async () => {
+      try {
+        const response = await axios.get(`${BASE_URL}/event/${companyName}/${eventName}`);
+        setEvent(response.data);  // Set event data
+        setFormData((prev) => ({
+          ...prev,
+          place: response.data.place,
+          time: response.data.time,
+          date: response.data.date,
+        }));
+
+        // Set the first available role if roles are provided
+        if (response.data.eventRoles?.length > 0) {
+          setFormData((prev) => ({
+            ...prev,
+            role: response.data.eventRoles[0].name,  // Set the first available role by default
+          }));
+        }
+      } catch (error) {
+        console.error("Error fetching event:", error);
+        toast.error("Event not found!");
+        navigate("/");  // Navigate to homepage if event not found
+      }
+    };
+
+    fetchEvent();
+  }, [companyName, eventName, BASE_URL, navigate]);
 
   const validate = (isPayment = false) => {
     let tempErrors = {};
@@ -71,10 +92,6 @@ function RegistrationForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Check role and form data
-    console.log("Form data being submitted:", formData);
-    console.log("API URL:", `${BASE_URL}/users/register`);
-
     if (!validate()) return;
 
     if (formData.role === "select") {
@@ -85,7 +102,6 @@ function RegistrationForm() {
     setLoading(true);
     try {
       const { paymentCompleted, ...dataToSend } = formData;
-      // Send the data to the backend for registration
       const response = await axios.post(`${BASE_URL}/users/register`, dataToSend);
 
       // Log response for debugging
@@ -159,8 +175,8 @@ function RegistrationForm() {
             className="w-full border border-gray-300 px-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-400"
             disabled={formData.paymentCompleted}
           >
-            {eventRoles?.length > 0 ? (
-              eventRoles.map((role) => (
+            {event?.eventRoles?.length > 0 ? (
+              event.eventRoles.map((role) => (
                 <option key={role._id} value={role.name}>
                   {role.name}
                 </option>

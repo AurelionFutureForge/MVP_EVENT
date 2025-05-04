@@ -12,12 +12,13 @@ exports.registerUser = async (req, res) => {
   console.log("req-body : ", req.body);
 
   try {
+    // Check if the user is already registered for the event
     const existingUser = await User.findOne({ email, eventName, companyName });
     if (existingUser) {
       return res.status(400).json({ message: "User with this email already registered for this event!" });
     }
 
-    // Fetch the Event to get the role privileges
+    // Fetch the event to get the role privileges
     const event = await Event.findOne({ companyName, eventName });
     if (!event) {
       return res.status(404).json({ message: "Event not found!" });
@@ -37,43 +38,45 @@ exports.registerUser = async (req, res) => {
     if (privileges.lunch) privilegeFields.hasClaimedLunch = false;
     if (privileges.gift) privilegeFields.hasClaimedGift = false;
 
-    const newUser = new User({ 
-      name, 
-      email, 
-      eventName, 
-      companyName, 
-      place, 
-      time, 
-      date: new Date(date).toISOString().split("T")[0], 
-      contact, 
+    // Create a new user object with the role-specific privileges
+    const newUser = new User({
+      name,
+      email,
+      eventName,
+      companyName,
+      place,
+      time,
+      date: new Date(date).toISOString().split("T")[0], // Format date
+      contact,
       role,
-      ...privilegeFields   // dynamically spread here
+      ...privilegeFields, // Dynamically add privileges
     });
 
     await newUser.save();
 
-    // Generate QR Code
+    // Generate QR Code for the user
     const qrCodeData = `${email}-${newUser._id}`;
     const qrCodeImage = await QRCode.toDataURL(qrCodeData);
 
-    newUser.qrCode = qrCodeData;
+    // Save the generated QR code to the user
+    newUser.qrCode = qrCodeImage;
     await newUser.save();
 
+    // Generate PDF for the user ticket
     const ticketID = newUser._id.toString();
-
-    // Generate PDF dynamically with user data
     const pdfPath = path.join(__dirname, "../public/pdfs", `${ticketID}.pdf`);
     await generateTicketPDF(name, email, eventName, companyName, place, time, date, role, ticketID, qrCodeImage, pdfPath);
 
-    // Send success email with PDF + QR
+    // Send success email with PDF and QR code
     await sendSuccessEmail(name, email, eventName, companyName, place, time, date, qrCodeImage, role, ticketID, pdfPath);
 
+    // Respond to the user with success
     res.status(201).json({
       message: "Registration successful!",
       name: newUser.name,
       email: newUser.email,
       eventName: newUser.eventName,
-      qrCode: qrCodeImage
+      qrCode: qrCodeImage,
     });
 
   } catch (error) {

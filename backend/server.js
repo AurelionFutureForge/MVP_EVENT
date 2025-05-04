@@ -21,13 +21,13 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
-// ✅ Routes
+// Routes
 app.use("/admin", authRoutes);
 app.use("/users", userRoutes);
 app.use("/scan", scanRoutes);
 app.use("/events", eventRoutes);
 
-// ✅ Connect DB + start server
+// Connect DB + start server
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log("Connected to MongoDB"))
   .catch((err) => console.error("MongoDB connection error:", err));
