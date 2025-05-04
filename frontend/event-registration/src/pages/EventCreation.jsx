@@ -119,7 +119,6 @@ export default function EventCreation() {
           <h1 className="text-2xl font-bold">EventMVP</h1>
           <div className="hidden md:flex space-x-6">
             <a href="/" className="hover:text-gray-200">Home</a>
-            <a href="/register" className="hover:text-gray-200">Register</a>
             <a href="/admin/login" className="hover:text-gray-200">Admin</a>
           </div>
         </div>

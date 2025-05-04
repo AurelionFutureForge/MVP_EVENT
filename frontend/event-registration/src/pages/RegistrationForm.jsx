@@ -32,7 +32,7 @@ function RegistrationForm() {
   useEffect(() => {
     const fetchEvent = async () => {
       try {
-        const response = await axios.get(`${BASE_URL}/events/${companyName}/${eventName}`);
+        const response = await axios.get(`${BASE_URL}/events/${encodeURIComponent(companyName)}/${encodeURIComponent(eventName)}`);
         setEvent(response.data);  // Set event data
         setFormData((prev) => ({
           ...prev,

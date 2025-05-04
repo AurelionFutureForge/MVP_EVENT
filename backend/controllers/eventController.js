@@ -71,8 +71,9 @@ const getEvents = async (req, res) => {
 const getEventByDetails = async (req, res) => {
   try {
     const { companyName, eventName } = req.params;
+    console.log("Company Name:", companyName);  // Debugging line
+    console.log("Event Name:", eventName);  // Debugging line
 
-    // Find the event using companyName and eventName
     const event = await Event.findOne({ companyName, eventName });
 
     if (!event) {
@@ -85,6 +86,7 @@ const getEventByDetails = async (req, res) => {
     res.status(500).json({ msg: 'Server error', error: error.message });
   }
 };
+
 
 module.exports = { createEvent, getEvents, getEventByDetails };
 
