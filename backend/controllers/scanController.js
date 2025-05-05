@@ -17,10 +17,18 @@ exports.verifyQRCode = async (req, res) => {
 
     console.log("User found:", user);
 
+    // Fetching the event and role privileges dynamically
+    const event = await Event.findById(user.eventId);
+    const role = event.eventRoles.find((role) => role.name === user.role);
+
+    if (!role) {
+      return res.status(404).json({ status: "error", message: "Role not found for user!" });
+    }
+
     const privileges = {
       canClaimEntry: !user.hasEntered,
-      canClaimLunch: user.role === 'Speaker' && !user.hasClaimedLunch, // Corrected this check for Speaker role
-      canClaimGift: user.role === 'Speaker' && !user.hasClaimedGift // Corrected this check for Speaker role
+      canClaimLunch: role.privileges.lunch && !user.hasClaimedLunch, // Check if lunch is allowed for the user's role
+      canClaimGift: role.privileges.gift && !user.hasClaimedGift // Check if gift is allowed for the user's role
     };
 
     console.log("Privileges calculated:", privileges);
@@ -105,13 +113,8 @@ exports.claimLunch = async (req, res) => {
       return res.status(403).json({ status: "error", message: "Lunch already claimed!" });
     }
 
-    // Proceed with claiming lunch
     user.hasClaimedLunch = true;
     await user.save();
-
-    // Optionally, update the event roles if needed
-    role.privileges.lunch = true;  // Set lunch as claimed in the role privileges if needed
-    await event.save();
 
     console.log("Lunch successfully claimed for user:", user);
 
@@ -161,13 +164,8 @@ exports.claimGift = async (req, res) => {
       return res.status(403).json({ status: "error", message: "Gift already claimed!" });
     }
 
-    // Proceed with claiming gift
     user.hasClaimedGift = true;
     await user.save();
-
-    // Optionally, update the event roles if needed
-    role.privileges.gift = true;  // Set gift as claimed in the role privileges if needed
-    await event.save();
 
     console.log("Gift successfully claimed for user:", user);
 
