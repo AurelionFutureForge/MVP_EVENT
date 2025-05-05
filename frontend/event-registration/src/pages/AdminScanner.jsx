@@ -29,7 +29,7 @@ function AdminScanner() {
         const now = Date.now();
         if (
           decodedText === lastScanned.text &&
-          now - lastScanned.timestamp < 1000
+          now - lastScanned.timestamp < 3000
         ) {
           
           console.log("Duplicate scan ignored:", decodedText);
