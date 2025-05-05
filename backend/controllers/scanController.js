@@ -1,8 +1,7 @@
 const User = require("../models/User");
 const Event = require("../models/Event");
 
-// VERIFY QR CODE — Auto-claims entry if not already done
-// VERIFY QR CODE — Auto-claims entry if not already done, with error for already claimed entry
+// VERIFY QR CODE — Always show user info & available privileges
 exports.verifyQRCode = async (req, res) => {
   const { qrCode } = req.body;
   const trimmedQR = qrCode.trim();
@@ -18,7 +17,6 @@ exports.verifyQRCode = async (req, res) => {
 
     console.log("User found:", user);
 
-    // Fetch event and role privileges dynamically
     const event = await Event.findById(user.eventId);
     const role = event?.eventRoles.find(r => r.name === user.role);
 
@@ -26,19 +24,23 @@ exports.verifyQRCode = async (req, res) => {
       return res.status(404).json({ status: "error", message: "Role not found for user!" });
     }
 
-    // Check if entry has already been claimed
-    if (user.hasEntered) {
-      console.log("Entry already claimed for user:", user.name);
-      return res.status(403).json({ status: "error", message: "Entry already claimed!" });
+    let entryJustClaimed = false;
+    let entryMessage = "";
+
+    if (!user.hasEntered) {
+      user.hasEntered = true;
+      await user.save();
+      entryJustClaimed = true;
+      entryMessage = "Entry auto-claimed!";
+      console.log("Entry auto-claimed for user:", user.name);
+    } else {
+      entryMessage = "Entry already claimed!";
+      console.log("Entry was already claimed for user:", user.name);
     }
 
-    // Auto-claim entry if not already claimed
-    user.hasEntered = true;
-    await user.save();
-    console.log("Entry auto-claimed for user:", user.name);
-
+    // Compute privileges
     const privileges = {
-      canClaimEntry: !user.hasEntered, // Will be false now (entry claimed)
+      canClaimEntry: false, // Always false after scanning
       canClaimLunch: role.privileges.lunch ? !user.hasClaimedLunch : false,
       canClaimGift: role.privileges.gift ? !user.hasClaimedGift : false
     };
@@ -47,7 +49,7 @@ exports.verifyQRCode = async (req, res) => {
 
     return res.json({
       status: "success",
-      message: "QR Code Verified & Entry auto-claimed!",
+      message: entryMessage,  // "Entry auto-claimed!" OR "Entry already claimed!"
       user,
       privileges
     });
