@@ -1,7 +1,7 @@
 const User = require("../models/User");
 const Event = require("../models/Event");
 
-// VERIFY QR CODE — Auto-claim Entry
+// VERIFY QR CODE
 exports.verifyQRCode = async (req, res) => {
   const { qrCode } = req.body;
   const trimmedQR = qrCode.trim();
@@ -25,26 +25,17 @@ exports.verifyQRCode = async (req, res) => {
       return res.status(404).json({ status: "error", message: "Role not found for user!" });
     }
 
-    // === AUTO-CLAIM ENTRY ===
-    let entryJustClaimed = false;
-    if (!user.hasEntered) {
-      user.hasEntered = true;
-      await user.save();
-      entryJustClaimed = true;
-      console.log("Entry auto-claimed for user:", user);
-    }
-
     const privileges = {
-      canClaimEntry: !user.hasEntered,  // Should be false after auto-claim
-      canClaimLunch: role.privileges.lunch ? !user.hasClaimedLunch : false,
-      canClaimGift: role.privileges.gift ? !user.hasClaimedGift : false
+      canClaimEntry: !user.hasEntered,
+      canClaimLunch: role.privileges.lunch ? !user.hasClaimedLunch : false,   // Safe even if hasClaimedLunch is undefined
+      canClaimGift: role.privileges.gift ? !user.hasClaimedGift : false       // Safe even if hasClaimedGift is undefined
     };
 
     console.log("Privileges calculated:", privileges);
 
     return res.json({
       status: "success",
-      message: entryJustClaimed ? "QR Code Verified & Entry auto-claimed!" : "QR Code Verified!",
+      message: "QR Code Verified!",
       user,
       privileges
     });
@@ -55,6 +46,33 @@ exports.verifyQRCode = async (req, res) => {
   }
 };
 
+// CLAIM ENTRY
+exports.claimEntry = async (req, res) => {
+  const { qrCode } = req.body;
+  console.log("Claiming entry for QR Code:", qrCode.trim());
+
+  try {
+    const user = await User.findOne({ qrCode: new RegExp(`^${qrCode.trim()}$`, "i") });
+
+    if (!user) {
+      return res.status(404).json({ status: "error", message: "Invalid QR Code!" });
+    }
+
+    if (user.hasEntered) {
+      return res.status(403).json({ status: "error", message: "Entry already claimed!" });
+    }
+
+    user.hasEntered = true;
+    await user.save();
+
+    console.log("Entry successfully claimed for user:", user);
+    return res.json({ status: "success", message: "Entry claimed successfully!", user });
+
+  } catch (error) {
+    console.error("Error claiming entry:", error);
+    res.status(500).json({ status: "error", message: "Server error" });
+  }
+};
 
 // CLAIM LUNCH (Safe for missing field)
 exports.claimLunch = async (req, res) => {
