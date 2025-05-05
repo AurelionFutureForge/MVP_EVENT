@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useLocation } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-hot-toast";
@@ -11,15 +11,16 @@ function AdminScanner() {
   const [verifiedUser, setVerifiedUser] = useState(null);
   const [scannerActive, setScannerActive] = useState(false);
   const [privileges, setPrivileges] = useState({});
-  const [isProcessing, setIsProcessing] = useState(false); // New state to prevent multiple scans
-  const [lastScanned, setLastScanned] = useState({ text: "", timestamp: 0 }); // To track last scanned QR
+  const [lastScanned, setLastScanned] = useState({ text: "", timestamp: 0 });
+
+  const isProcessingRef = useRef(false); // useRef to block instantly
 
   const BASE_URL = import.meta.env.VITE_BACKEND_URL;
 
   const startScanner = () => {
     const scannerElement = document.getElementById("qr-reader");
     if (!scannerElement) return;
-    scannerElement.innerHTML = ""; // Clear previous scanner view
+    scannerElement.innerHTML = "";
 
     const scanner = new Html5QrcodeScanner("qr-reader", {
       fps: 10,
@@ -28,15 +29,16 @@ function AdminScanner() {
 
     scanner.render(
       async (decodedText) => {
-        if (isProcessing) return; // Prevent double execution at start
-        setIsProcessing(true); // Block immediately
-
         const now = Date.now();
 
-        // Duplicate check after blocking other scans
+        // 1. Block re-entry instantly
+        if (isProcessingRef.current) return;
+        isProcessingRef.current = true;
+
+        // 2. Ignore duplicate scan within 3s
         if (decodedText === lastScanned.text && now - lastScanned.timestamp < 3000) {
           console.log("Duplicate scan ignored:", decodedText);
-          setIsProcessing(false);
+          isProcessingRef.current = false;
           return;
         }
 
@@ -44,10 +46,14 @@ function AdminScanner() {
         setLastScanned({ text: decodedText, timestamp: now });
 
         setScanResult(decodedText);
-        await verifyQRCode(decodedText);
-        scanner.clear(); // Stop scanner after first scan
+
+        // 3. IMMEDIATELY clear scanner before processing to stop camera & fires
+        await scanner.clear();
         setScannerActive(false);
-        setIsProcessing(false);
+
+        await verifyQRCode(decodedText);
+
+        isProcessingRef.current = false;
       },
       (error) => {
         if (error.name !== "NotFoundException") console.error(error);
@@ -128,6 +134,7 @@ function AdminScanner() {
     setVerifiedUser(null);
     setPrivileges({});
     setLastScanned({ text: "", timestamp: 0 });
+    isProcessingRef.current = false;
     startScanner();
   };
 
