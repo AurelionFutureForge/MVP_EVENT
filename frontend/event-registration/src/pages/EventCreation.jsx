@@ -149,22 +149,22 @@ export default function EventCreation() {
                     Register Now
                   </button>
 
-                  {/* Sharable Link */}
-                  <div className="flex items-center justify-center space-x-2 mt-2">
+                  {/* Copy Link UI: Initially Hidden */}
+                  <div className="mt-2 group relative">
                     <input
                       type="text"
                       readOnly
                       value={`${window.location.origin}/register/${encodeURIComponent(event.companyName)}/${encodeURIComponent(event.eventName)}`}
-                      className="w-full p-2 border rounded text-sm text-gray-600 bg-gray-100"
+                      className="w-full p-2 border rounded text-sm text-gray-600 bg-gray-100 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                     />
                     <button
                       onClick={() => {
                         navigator.clipboard.writeText(`${window.location.origin}/register/${encodeURIComponent(event.companyName)}/${encodeURIComponent(event.eventName)}`);
                         alert('Link copied to clipboard!');
                       }}
-                      className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700 text-sm"
+                      className="absolute right-2 top-2 px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700 text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                     >
-                      Copy
+                      Copy Link
                     </button>
                   </div>
                 </div>
