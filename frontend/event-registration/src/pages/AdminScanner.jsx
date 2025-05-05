@@ -68,11 +68,10 @@ function AdminScanner() {
         const message = response.data.message;
 
         if (message === "Entry already claimed!") {
-          toast(message, { icon: '⚠️', style: { background: '#fff3cd', color: '#856404' } }); // yellow toast
+          toast(message, { icon: '⚠️', style: { background: '#fff3cd', color: '#856404' } });
         } else {
-          toast.success(message); // green toast
+          toast.success(message);
         }
-
       } else {
         toast.error(response.data.message);
       }
@@ -127,13 +126,13 @@ function AdminScanner() {
               </h3>
 
               <div className="mt-4 space-y-3">
-                {/* Conditionally render Lunch Button */}
-                {privileges.canClaimLunch !== undefined && (
+                {/* Show Lunch Button only if canClaimLunch === true */}
+                {privileges.canClaimLunch && (
                   <button
                     onClick={() => handleClaim("lunch")}
-                    disabled={verifiedUser.hasClaimedLunch || !privileges.canClaimLunch}
+                    disabled={verifiedUser.hasClaimedLunch}
                     className={`w-full px-4 py-2 rounded shadow ${
-                      verifiedUser.hasClaimedLunch || !privileges.canClaimLunch
+                      verifiedUser.hasClaimedLunch
                         ? "bg-gray-400 cursor-not-allowed"
                         : "bg-green-600 hover:bg-green-700 text-white"
                     }`}
@@ -142,13 +141,13 @@ function AdminScanner() {
                   </button>
                 )}
 
-                {/* Conditionally render Gift Button */}
-                {privileges.canClaimGift !== undefined && (
+                {/* Show Gift Button only if canClaimGift === true */}
+                {privileges.canClaimGift && (
                   <button
                     onClick={() => handleClaim("gift")}
-                    disabled={verifiedUser.hasClaimedGift || !privileges.canClaimGift}
+                    disabled={verifiedUser.hasClaimedGift}
                     className={`w-full px-4 py-2 rounded shadow ${
-                      verifiedUser.hasClaimedGift || !privileges.canClaimGift
+                      verifiedUser.hasClaimedGift
                         ? "bg-gray-400 cursor-not-allowed"
                         : "bg-yellow-600 hover:bg-yellow-700 text-white"
                     }`}
