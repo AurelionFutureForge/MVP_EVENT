@@ -19,7 +19,7 @@ exports.registerUser = async (req, res) => {
       return res.status(400).json({ message: "User with this email already registered for this event!" });
     }
 
-    // Fetch the event to get the role privileges
+    // Fetch the event to get the role privileges and eventId
     const event = await Event.findOne({ companyName, eventName });
     if (!event) {
       console.log("Event not found:", { companyName, eventName });  // Debugging line
@@ -45,6 +45,7 @@ exports.registerUser = async (req, res) => {
     const newUser = new User({
       name,
       email,
+      eventId: event._id, // Add the eventId here
       eventName,
       companyName,
       place,

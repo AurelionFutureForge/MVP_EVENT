@@ -4,6 +4,7 @@ const userSchema = new mongoose.Schema(
   {
     name: { type: String, required: true },
     email: { type: String, required: true },
+    eventId: { type: mongoose.Schema.Types.ObjectId, ref: "Event", required: true }, // link to Event model
     eventName: { type: String, required: true },
     companyName: { type: String, required: true },
     place: { type: String, required: true },
@@ -12,9 +13,12 @@ const userSchema = new mongoose.Schema(
     contact: { type: String, required: true },
     role: { type: String, required: true },
     qrCode: { type: String },
+    hasEntered: { type: Boolean, default: false },
+    hasClaimedLunch: { type: Boolean, default: false },
+    hasClaimedGift: { type: Boolean, default: false },
   },
   {
-    strict: false, // allows adding dynamic fields (like hasEntered, hasClaimedLunch, etc.)
+    strict: false,
     timestamps: true,
   }
 );
