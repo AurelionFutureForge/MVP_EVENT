@@ -60,19 +60,19 @@ function AdminScanner() {
         { qrCode },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-  
+
       if (response.data.status === "success") {
         setVerifiedUser(response.data.user);
         setPrivileges(response.data.privileges);
-  
+
         const message = response.data.message;
-  
+
         if (message === "Entry already claimed!") {
           toast(message, { icon: '⚠️', style: { background: '#fff3cd', color: '#856404' } }); // yellow toast
         } else {
           toast.success(message); // green toast
         }
-  
+
       } else {
         toast.error(response.data.message);
       }
@@ -80,7 +80,6 @@ function AdminScanner() {
       toast.error("Invalid QR Code or already used!");
     }
   };
-  
 
   const handleClaim = async (type) => {
     if (!scanResult) return toast.error("Scan a QR Code first!");
@@ -127,9 +126,9 @@ function AdminScanner() {
                 {verifiedUser.name} ({verifiedUser.role})
               </h3>
 
-              {verifiedUser.role === "Speaker" && (
-                <div className="mt-4 space-y-3">
-                  {/* Claim Lunch Button */}
+              <div className="mt-4 space-y-3">
+                {/* Conditionally render Lunch Button */}
+                {privileges.canClaimLunch !== undefined && (
                   <button
                     onClick={() => handleClaim("lunch")}
                     disabled={verifiedUser.hasClaimedLunch || !privileges.canClaimLunch}
@@ -141,8 +140,10 @@ function AdminScanner() {
                   >
                     {verifiedUser.hasClaimedLunch ? "Lunch Claimed" : "Claim Lunch"}
                   </button>
+                )}
 
-                  {/* Claim Gift Button */}
+                {/* Conditionally render Gift Button */}
+                {privileges.canClaimGift !== undefined && (
                   <button
                     onClick={() => handleClaim("gift")}
                     disabled={verifiedUser.hasClaimedGift || !privileges.canClaimGift}
@@ -154,8 +155,8 @@ function AdminScanner() {
                   >
                     {verifiedUser.hasClaimedGift ? "Gift Claimed" : "Claim Gift"}
                   </button>
-                </div>
-              )}
+                )}
+              </div>
 
               {/* Scan Next QR Button */}
               <button
