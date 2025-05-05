@@ -12,6 +12,7 @@ function AdminScanner() {
   const [scannerActive, setScannerActive] = useState(false);
   const [privileges, setPrivileges] = useState({});
   const [lastScanned, setLastScanned] = useState({ text: null, timestamp: 0 });
+  const [isProcessing, setIsProcessing] = useState(false);
   const BASE_URL = import.meta.env.VITE_BACKEND_URL;
 
   const startScanner = () => {
@@ -26,13 +27,13 @@ function AdminScanner() {
 
     scanner.render(
       async (decodedText) => {
+        if (isProcessing) return; // Ignore if already processing
+        setIsProcessing(true);
+
         const now = Date.now();
-        if (
-          decodedText === lastScanned.text &&
-          now - lastScanned.timestamp < 3000
-        ) {
-          
+        if (decodedText === lastScanned.text && now - lastScanned.timestamp < 3000) {
           console.log("Duplicate scan ignored:", decodedText);
+          setIsProcessing(false);
           return;
         }
 
@@ -43,6 +44,7 @@ function AdminScanner() {
         await verifyQRCode(decodedText);
         scanner.clear(); // Stop scanner after first scan
         setScannerActive(false);
+        setIsProcessing(false);
       },
       (error) => {
         if (error.name !== "NotFoundException") console.error(error);
@@ -123,6 +125,7 @@ function AdminScanner() {
     setVerifiedUser(null);
     setPrivileges({});
     setLastScanned({ text: null, timestamp: 0 });
+    setIsProcessing(false);
     startScanner();
   };
 
