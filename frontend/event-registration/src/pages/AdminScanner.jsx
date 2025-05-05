@@ -11,8 +11,9 @@ function AdminScanner() {
   const [verifiedUser, setVerifiedUser] = useState(null);
   const [scannerActive, setScannerActive] = useState(false);
   const [privileges, setPrivileges] = useState({});
-  const [lastScanned, setLastScanned] = useState({ text: null, timestamp: 0 });
-  const [isProcessing, setIsProcessing] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false); // New state to prevent multiple scans
+  const [lastScanned, setLastScanned] = useState({ text: "", timestamp: 0 }); // To track last scanned QR
+
   const BASE_URL = import.meta.env.VITE_BACKEND_URL;
 
   const startScanner = () => {
@@ -27,10 +28,12 @@ function AdminScanner() {
 
     scanner.render(
       async (decodedText) => {
-        if (isProcessing) return; // Ignore if already processing
-        setIsProcessing(true);
+        if (isProcessing) return; // Prevent double execution at start
+        setIsProcessing(true); // Block immediately
 
         const now = Date.now();
+
+        // Duplicate check after blocking other scans
         if (decodedText === lastScanned.text && now - lastScanned.timestamp < 3000) {
           console.log("Duplicate scan ignored:", decodedText);
           setIsProcessing(false);
@@ -124,8 +127,7 @@ function AdminScanner() {
     setScanResult(null);
     setVerifiedUser(null);
     setPrivileges({});
-    setLastScanned({ text: null, timestamp: 0 });
-    setIsProcessing(false);
+    setLastScanned({ text: "", timestamp: 0 });
     startScanner();
   };
 
