@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import {toast} from "react-hot-toast";
 
 export default function EventCreation() {
   const [events, setEvents] = useState([]);
@@ -47,7 +48,7 @@ export default function EventCreation() {
   const handleCopyLink = (event) => {
     const registrationLink = `${window.location.origin}/register/${encodeURIComponent(event.companyName)}/${encodeURIComponent(event.eventName)}`;
     navigator.clipboard.writeText(registrationLink);
-    alert('Link copied to clipboard!');
+    toast.success('Link copied to clipboard!');
   };
 
   return (
