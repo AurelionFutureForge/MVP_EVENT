@@ -4,7 +4,7 @@ const userSchema = new mongoose.Schema(
   {
     name: { type: String, required: true },
     email: { type: String, required: true },
-    eventId: { type: mongoose.Schema.Types.ObjectId, ref: "Event", required: true }, // link to Event model
+    eventId: { type: mongoose.Schema.Types.ObjectId, ref: "Event", required: true },
     eventName: { type: String, required: true },
     companyName: { type: String, required: true },
     place: { type: String, required: true },
@@ -14,8 +14,10 @@ const userSchema = new mongoose.Schema(
     role: { type: String, required: true },
     qrCode: { type: String },
     hasEntered: { type: Boolean, default: false },
-    hasClaimedLunch: { type: Boolean, default: false },
-    hasClaimedGift: { type: Boolean, default: false },
+
+    // Optional fields — only added if privilege applies
+    hasClaimedLunch: { type: Boolean, default: undefined },
+    hasClaimedGift: { type: Boolean, default: undefined },
   },
   {
     strict: false,

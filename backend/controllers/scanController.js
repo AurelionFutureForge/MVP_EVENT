@@ -1,5 +1,5 @@
 const User = require("../models/User");
-const Event = require("../models/Event"); // Don't forget this import
+const Event = require("../models/Event");
 
 // VERIFY QR CODE
 exports.verifyQRCode = async (req, res) => {
@@ -17,9 +17,9 @@ exports.verifyQRCode = async (req, res) => {
 
     console.log("User found:", user);
 
-    // Fetching the event and role privileges dynamically
+    // Fetch event and role privileges dynamically
     const event = await Event.findById(user.eventId);
-    const role = event.eventRoles.find((role) => role.name === user.role);
+    const role = event?.eventRoles.find(r => r.name === user.role);
 
     if (!role) {
       return res.status(404).json({ status: "error", message: "Role not found for user!" });
@@ -27,8 +27,8 @@ exports.verifyQRCode = async (req, res) => {
 
     const privileges = {
       canClaimEntry: !user.hasEntered,
-      canClaimLunch: role.privileges.lunch && !user.hasClaimedLunch, // Check if lunch is allowed for the user's role
-      canClaimGift: role.privileges.gift && !user.hasClaimedGift // Check if gift is allowed for the user's role
+      canClaimLunch: role.privileges.lunch ? !user.hasClaimedLunch : false,   // Safe even if hasClaimedLunch is undefined
+      canClaimGift: role.privileges.gift ? !user.hasClaimedGift : false       // Safe even if hasClaimedGift is undefined
     };
 
     console.log("Privileges calculated:", privileges);
@@ -39,6 +39,7 @@ exports.verifyQRCode = async (req, res) => {
       user,
       privileges
     });
+
   } catch (error) {
     console.error("Error verifying QR Code:", error);
     res.status(500).json({ status: "error", message: "Server error" });
@@ -54,27 +55,26 @@ exports.claimEntry = async (req, res) => {
     const user = await User.findOne({ qrCode: new RegExp(`^${qrCode.trim()}$`, "i") });
 
     if (!user) {
-      console.log("No user found for QR Code:", qrCode.trim());
       return res.status(404).json({ status: "error", message: "Invalid QR Code!" });
     }
 
     if (user.hasEntered) {
-      console.log("Entry already claimed for user:", user);
       return res.status(403).json({ status: "error", message: "Entry already claimed!" });
     }
 
     user.hasEntered = true;
     await user.save();
-    console.log("Entry successfully claimed for user:", user);
 
+    console.log("Entry successfully claimed for user:", user);
     return res.json({ status: "success", message: "Entry claimed successfully!", user });
+
   } catch (error) {
     console.error("Error claiming entry:", error);
     res.status(500).json({ status: "error", message: "Server error" });
   }
 };
 
-// CLAIM LUNCH (Fixed)
+// CLAIM LUNCH (Safe for missing field)
 exports.claimLunch = async (req, res) => {
   const { qrCode } = req.body;
   console.log("Claiming lunch for QR Code:", qrCode.trim());
@@ -83,49 +83,33 @@ exports.claimLunch = async (req, res) => {
     const user = await User.findOne({ qrCode: new RegExp(`^${qrCode.trim()}$`, "i") });
 
     if (!user) {
-      console.log("No user found for QR Code:", qrCode.trim());
       return res.status(404).json({ status: "error", message: "Invalid QR Code!" });
     }
 
-    if (!user.eventId) {
-      console.log("User is not associated with an event:", user);
-      return res.status(400).json({ status: "error", message: "User is not associated with any event!" });
-    }
-
     const event = await Event.findById(user.eventId);
+    const role = event?.eventRoles.find(r => r.name === user.role);
 
-    if (!event) {
-      console.log("Event not found for user:", user);
-      return res.status(404).json({ status: "error", message: "Event not found!" });
-    }
-
-    const role = event.eventRoles.find((role) => role.name === user.role);
-    console.log("Role for user:", role);
-
-    // Ensure role exists and check for lunch privilege
     if (!role || !role.privileges.lunch) {
-      console.log("User is not allowed to claim lunch:", user);
       return res.status(403).json({ status: "error", message: "You can't claim lunch!" });
     }
 
     if (user.hasClaimedLunch) {
-      console.log("Lunch already claimed for user:", user);
       return res.status(403).json({ status: "error", message: "Lunch already claimed!" });
     }
 
-    user.hasClaimedLunch = true;
+    user.hasClaimedLunch = true;  // If field didn't exist before, Mongo will create it now
     await user.save();
 
     console.log("Lunch successfully claimed for user:", user);
-
     return res.json({ status: "success", message: "Lunch claimed successfully!", user });
+
   } catch (error) {
     console.error("Error claiming lunch:", error);
     res.status(500).json({ status: "error", message: "Server error" });
   }
 };
 
-// CLAIM GIFT (Fixed)
+// CLAIM GIFT (Safe for missing field)
 exports.claimGift = async (req, res) => {
   const { qrCode } = req.body;
   console.log("Claiming gift for QR Code:", qrCode.trim());
@@ -134,42 +118,26 @@ exports.claimGift = async (req, res) => {
     const user = await User.findOne({ qrCode: new RegExp(`^${qrCode.trim()}$`, "i") });
 
     if (!user) {
-      console.log("No user found for QR Code:", qrCode.trim());
       return res.status(404).json({ status: "error", message: "Invalid QR Code!" });
     }
 
-    if (!user.eventId) {
-      console.log("User is not associated with an event:", user);
-      return res.status(400).json({ status: "error", message: "User is not associated with any event!" });
-    }
-
     const event = await Event.findById(user.eventId);
+    const role = event?.eventRoles.find(r => r.name === user.role);
 
-    if (!event) {
-      console.log("Event not found for user:", user);
-      return res.status(404).json({ status: "error", message: "Event not found!" });
-    }
-
-    const role = event.eventRoles.find((role) => role.name === user.role);
-    console.log("Role for user:", role);
-
-    // Ensure role exists and check for gift privilege
     if (!role || !role.privileges.gift) {
-      console.log("User is not allowed to claim gift:", user);
       return res.status(403).json({ status: "error", message: "You can't claim gift!" });
     }
 
     if (user.hasClaimedGift) {
-      console.log("Gift already claimed for user:", user);
       return res.status(403).json({ status: "error", message: "Gift already claimed!" });
     }
 
-    user.hasClaimedGift = true;
+    user.hasClaimedGift = true;  // If field didn't exist before, Mongo will create it now
     await user.save();
 
     console.log("Gift successfully claimed for user:", user);
-
     return res.json({ status: "success", message: "Gift claimed successfully!", user });
+
   } catch (error) {
     console.error("Error claiming gift:", error);
     res.status(500).json({ status: "error", message: "Server error" });
