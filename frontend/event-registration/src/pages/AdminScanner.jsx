@@ -55,7 +55,7 @@ function AdminScanner() {
   const verifyQRCode = async (qrCode) => {
     try {
       const token = localStorage.getItem("adminToken");
-      console.log("admin token:",token)
+      console.log("admin token:", token);
       const response = await axios.post(
         `${BASE_URL}/scan/verify`,
         { qrCode },
@@ -64,7 +64,7 @@ function AdminScanner() {
 
       if (response.data.status === "success") {
         setVerifiedUser(response.data.user);
-        setPrivileges(response.data.privileges); // Set privileges dynamically based on user and event
+        setPrivileges(response.data.privileges);
         toast.success(response.data.message);
       } else {
         toast.error(response.data.message);
@@ -92,7 +92,7 @@ function AdminScanner() {
       }));
       setPrivileges((prev) => ({
         ...prev,
-        [`canClaim${type.charAt(0).toUpperCase() + type.slice(1)}`]: false, // Disable the claim option after it's claimed
+        [`canClaim${type.charAt(0).toUpperCase() + type.slice(1)}`]: false,
       }));
     } catch (error) {
       toast.error(error.response?.data?.message || "Error processing request");
@@ -102,8 +102,8 @@ function AdminScanner() {
   const handleScanNext = () => {
     setScanResult(null);
     setVerifiedUser(null);
-    setPrivileges({}); // Reset privileges
-    startScanner(); // Restart scanner
+    setPrivileges({});
+    startScanner();
   };
 
   return (
@@ -121,31 +121,31 @@ function AdminScanner() {
 
               {verifiedUser.role === "Speaker" && (
                 <div className="mt-4 space-y-3">
-                  {privileges.canClaimLunch && (
-                    <button
-                      onClick={() => handleClaim("lunch")}
-                      className={`w-full px-4 py-2 rounded shadow ${
-                        privileges.canClaimLunch
-                          ? "bg-green-600 hover:bg-green-700 text-white"
-                          : "bg-gray-400 cursor-not-allowed"
-                      }`}
-                    >
-                      {verifiedUser.hasClaimedLunch ? "Lunch Claimed" : "Claim Lunch"}
-                    </button>
-                  )}
+                  {/* Claim Lunch Button */}
+                  <button
+                    onClick={() => handleClaim("lunch")}
+                    disabled={verifiedUser.hasClaimedLunch || !privileges.canClaimLunch}
+                    className={`w-full px-4 py-2 rounded shadow ${
+                      verifiedUser.hasClaimedLunch || !privileges.canClaimLunch
+                        ? "bg-gray-400 cursor-not-allowed"
+                        : "bg-green-600 hover:bg-green-700 text-white"
+                    }`}
+                  >
+                    {verifiedUser.hasClaimedLunch ? "Lunch Claimed" : "Claim Lunch"}
+                  </button>
 
-                  {privileges.canClaimGift && (
-                    <button
-                      onClick={() => handleClaim("gift")}
-                      className={`w-full px-4 py-2 rounded shadow ${
-                        privileges.canClaimGift
-                          ? "bg-yellow-600 hover:bg-yellow-700 text-white"
-                          : "bg-gray-400 cursor-not-allowed"
-                      }`}
-                    >
-                      {verifiedUser.hasClaimedGift ? "Gift Claimed" : "Claim Gift"}
-                    </button>
-                  )}
+                  {/* Claim Gift Button */}
+                  <button
+                    onClick={() => handleClaim("gift")}
+                    disabled={verifiedUser.hasClaimedGift || !privileges.canClaimGift}
+                    className={`w-full px-4 py-2 rounded shadow ${
+                      verifiedUser.hasClaimedGift || !privileges.canClaimGift
+                        ? "bg-gray-400 cursor-not-allowed"
+                        : "bg-yellow-600 hover:bg-yellow-700 text-white"
+                    }`}
+                  >
+                    {verifiedUser.hasClaimedGift ? "Gift Claimed" : "Claim Gift"}
+                  </button>
                 </div>
               )}
 
