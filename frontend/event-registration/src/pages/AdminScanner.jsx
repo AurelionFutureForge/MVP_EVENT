@@ -11,6 +11,7 @@ function AdminScanner() {
   const [verifiedUser, setVerifiedUser] = useState(null);
   const [scannerActive, setScannerActive] = useState(false);
   const [privileges, setPrivileges] = useState({});
+  const [lastScanned, setLastScanned] = useState({ text: null, timestamp: 0 });
   const BASE_URL = import.meta.env.VITE_BACKEND_URL;
 
   const startScanner = () => {
@@ -25,7 +26,19 @@ function AdminScanner() {
 
     scanner.render(
       async (decodedText) => {
+        const now = Date.now();
+        if (
+          decodedText === lastScanned.text &&
+          now - lastScanned.timestamp < 3000
+        ) {
+          // Ignore duplicate within 3 seconds
+          console.log("Duplicate scan ignored:", decodedText);
+          return;
+        }
+
         console.log("Scanned QR Code:", decodedText);
+        setLastScanned({ text: decodedText, timestamp: now });
+
         setScanResult(decodedText);
         await verifyQRCode(decodedText);
         scanner.clear(); // Stop scanner after first scan
@@ -109,6 +122,7 @@ function AdminScanner() {
     setScanResult(null);
     setVerifiedUser(null);
     setPrivileges({});
+    setLastScanned({ text: null, timestamp: 0 });
     startScanner();
   };
 
@@ -126,7 +140,6 @@ function AdminScanner() {
               </h3>
 
               <div className="mt-4 space-y-3">
-                {/* Show Lunch Button only if canClaimLunch === true */}
                 {privileges.canClaimLunch && (
                   <button
                     onClick={() => handleClaim("lunch")}
@@ -141,7 +154,6 @@ function AdminScanner() {
                   </button>
                 )}
 
-                {/* Show Gift Button only if canClaimGift === true */}
                 {privileges.canClaimGift && (
                   <button
                     onClick={() => handleClaim("gift")}
@@ -157,7 +169,6 @@ function AdminScanner() {
                 )}
               </div>
 
-              {/* Scan Next QR Button */}
               <button
                 onClick={handleScanNext}
                 className="mt-4 w-full px-4 py-2 rounded bg-blue-500 hover:bg-blue-600 text-white shadow"
