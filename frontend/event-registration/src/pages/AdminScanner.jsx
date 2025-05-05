@@ -61,11 +61,18 @@ function AdminScanner() {
         { qrCode },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-
+  
       if (response.data.status === "success") {
         setVerifiedUser(response.data.user);
         setPrivileges(response.data.privileges);
-        toast.success(response.data.message);
+  
+        // === Enhanced toast logic ===
+        if (response.data.message.includes("Entry auto-claimed")) {
+          toast.success("Entry claimed automatically!");
+        } else {
+          toast.success("QR Code verified!");
+        }
+  
       } else {
         toast.error(response.data.message);
       }
@@ -73,6 +80,7 @@ function AdminScanner() {
       toast.error("Invalid QR Code or already used!");
     }
   };
+  
 
   const handleClaim = async (type) => {
     if (!scanResult) return toast.error("Scan a QR Code first!");
