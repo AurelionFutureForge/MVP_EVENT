@@ -4,10 +4,11 @@ const Event = require("../models/Event"); // Don't forget this import
 // VERIFY QR CODE
 exports.verifyQRCode = async (req, res) => {
   const { qrCode } = req.body;
-  console.log("Searching for QR Code:", qrCode.trim());
+  const trimmedQR = qrCode.trim();
+  console.log("Searching for QR Code:", trimmedQR);
 
   try {
-    const user = await User.findOne({ qrCode: new RegExp(`^${qrCode.trim()}$`, "i") });
+    const user = await User.findOne({ qrCode: trimmedQR }).collation({ locale: 'en', strength: 2 });
 
     if (!user) {
       console.log("No matching user found in DB");
