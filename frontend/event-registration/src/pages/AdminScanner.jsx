@@ -55,17 +55,24 @@ function AdminScanner() {
   const verifyQRCode = async (qrCode) => {
     try {
       const token = localStorage.getItem("adminToken");
-      console.log("admin token:", token);
       const response = await axios.post(
         `${BASE_URL}/scan/verify`,
         { qrCode },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-
+  
       if (response.data.status === "success") {
         setVerifiedUser(response.data.user);
         setPrivileges(response.data.privileges);
-        toast.success(response.data.message);
+  
+        const message = response.data.message;
+  
+        if (message === "Entry already claimed!") {
+          toast(message, { icon: '⚠️', style: { background: '#fff3cd', color: '#856404' } }); // yellow toast
+        } else {
+          toast.success(message); // green toast
+        }
+  
       } else {
         toast.error(response.data.message);
       }
@@ -73,6 +80,7 @@ function AdminScanner() {
       toast.error("Invalid QR Code or already used!");
     }
   };
+  
 
   const handleClaim = async (type) => {
     if (!scanResult) return toast.error("Scan a QR Code first!");
