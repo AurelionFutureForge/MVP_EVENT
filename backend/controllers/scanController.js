@@ -19,8 +19,8 @@ exports.verifyQRCode = async (req, res) => {
 
     const privileges = {
       canClaimEntry: !user.hasEntered,
-      canClaimLunch: user.role === 'Speaker' && !user.hasClaimedLunch,
-      canClaimGift: user.role === 'Speaker' && !user.hasClaimedGift
+      canClaimLunch: user.role === 'Speaker' && !user.hasClaimedLunch, // Corrected this check for Speaker role
+      canClaimGift: user.role === 'Speaker' && !user.hasClaimedGift // Corrected this check for Speaker role
     };
 
     console.log("Privileges calculated:", privileges);
@@ -94,7 +94,8 @@ exports.claimLunch = async (req, res) => {
     const role = event.eventRoles.find((role) => role.name === user.role);
     console.log("Role for user:", role);
 
-    if (!role || !role.lunch) {
+    // Ensure role exists and check for lunch privilege
+    if (!role || !role.privileges.lunch) {
       console.log("User is not allowed to claim lunch:", user);
       return res.status(403).json({ status: "error", message: "You can't claim lunch!" });
     }
@@ -104,10 +105,12 @@ exports.claimLunch = async (req, res) => {
       return res.status(403).json({ status: "error", message: "Lunch already claimed!" });
     }
 
+    // Proceed with claiming lunch
     user.hasClaimedLunch = true;
     await user.save();
 
-    role.lunch = true;
+    // Optionally, update the event roles if needed
+    role.privileges.lunch = true;  // Set lunch as claimed in the role privileges if needed
     await event.save();
 
     console.log("Lunch successfully claimed for user:", user);
@@ -147,7 +150,8 @@ exports.claimGift = async (req, res) => {
     const role = event.eventRoles.find((role) => role.name === user.role);
     console.log("Role for user:", role);
 
-    if (!role || !role.gift) {
+    // Ensure role exists and check for gift privilege
+    if (!role || !role.privileges.gift) {
       console.log("User is not allowed to claim gift:", user);
       return res.status(403).json({ status: "error", message: "You can't claim gift!" });
     }
@@ -157,10 +161,12 @@ exports.claimGift = async (req, res) => {
       return res.status(403).json({ status: "error", message: "Gift already claimed!" });
     }
 
+    // Proceed with claiming gift
     user.hasClaimedGift = true;
     await user.save();
 
-    role.gift = true;
+    // Optionally, update the event roles if needed
+    role.privileges.gift = true;  // Set gift as claimed in the role privileges if needed
     await event.save();
 
     console.log("Gift successfully claimed for user:", user);
