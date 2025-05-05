@@ -55,6 +55,7 @@ function AdminScanner() {
   const verifyQRCode = async (qrCode) => {
     try {
       const token = localStorage.getItem("adminToken");
+      console.log("admin token:",token)
       const response = await axios.post(
         `${BASE_URL}/scan/verify`,
         { qrCode },
