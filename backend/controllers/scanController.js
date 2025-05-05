@@ -1,6 +1,7 @@
 const User = require("../models/User");
+const Event = require("../models/Event"); // Don't forget this import
 
-// Modify `verifyQRCode` to include the user's privileges
+// VERIFY QR CODE
 exports.verifyQRCode = async (req, res) => {
   const { qrCode } = req.body;
   console.log("Searching for QR Code:", qrCode.trim());
@@ -15,7 +16,6 @@ exports.verifyQRCode = async (req, res) => {
 
     console.log("User found:", user);
 
-    // Send privileges dynamically based on the role and status (hasEntered, hasClaimedLunch, hasClaimedGift)
     const privileges = {
       canClaimEntry: !user.hasEntered,
       canClaimLunch: user.role === 'Speaker' && !user.hasClaimedLunch,
@@ -26,7 +26,7 @@ exports.verifyQRCode = async (req, res) => {
       status: "success",
       message: "QR Code Verified!",
       user,
-      privileges // Send privileges to the frontend
+      privileges
     });
   } catch (error) {
     console.error("Error verifying QR Code:", error);
@@ -34,7 +34,7 @@ exports.verifyQRCode = async (req, res) => {
   }
 };
 
-
+//  CLAIM ENTRY
 exports.claimEntry = async (req, res) => {
   const { qrCode } = req.body;
 
@@ -51,6 +51,7 @@ exports.claimEntry = async (req, res) => {
 
     user.hasEntered = true;
     await user.save();
+
     return res.json({ status: "success", message: "Entry claimed successfully!", user });
   } catch (error) {
     console.error("Error claiming entry:", error);
@@ -58,7 +59,7 @@ exports.claimEntry = async (req, res) => {
   }
 };
 
-// Update the event roles dynamically when claiming lunch or gift
+// CLAIM LUNCH (Fixed)
 exports.claimLunch = async (req, res) => {
   const { qrCode } = req.body;
 
@@ -69,9 +70,16 @@ exports.claimLunch = async (req, res) => {
       return res.status(404).json({ status: "error", message: "Invalid QR Code!" });
     }
 
-    const event = await Event.findById(user.eventId); // Assuming the user has an eventId reference
+    if (!user.eventId) {
+      return res.status(400).json({ status: "error", message: "User is not associated with any event!" });
+    }
 
-    // Check if the user's role is 'Speaker'
+    const event = await Event.findById(user.eventId);
+
+    if (!event) {
+      return res.status(404).json({ status: "error", message: "Event not found!" });
+    }
+
     const role = event.eventRoles.find((role) => role.name === user.role);
 
     if (!role || !role.lunch) {
@@ -82,12 +90,10 @@ exports.claimLunch = async (req, res) => {
       return res.status(403).json({ status: "error", message: "Lunch already claimed!" });
     }
 
-    // Mark lunch as claimed
     user.hasClaimedLunch = true;
     await user.save();
 
-    // Update event role claim status
-    role.lunch = true; // Mark that lunch has been claimed for this role
+    role.lunch = true;
     await event.save();
 
     return res.json({ status: "success", message: "Lunch claimed successfully!", user });
@@ -97,6 +103,7 @@ exports.claimLunch = async (req, res) => {
   }
 };
 
+//  CLAIM GIFT (Fixed)
 exports.claimGift = async (req, res) => {
   const { qrCode } = req.body;
 
@@ -107,9 +114,16 @@ exports.claimGift = async (req, res) => {
       return res.status(404).json({ status: "error", message: "Invalid QR Code!" });
     }
 
-    const event = await Event.findById(user.eventId); // Assuming the user has an eventId reference
+    if (!user.eventId) {
+      return res.status(400).json({ status: "error", message: "User is not associated with any event!" });
+    }
 
-    // Check if the user's role is 'Speaker'
+    const event = await Event.findById(user.eventId);
+
+    if (!event) {
+      return res.status(404).json({ status: "error", message: "Event not found!" });
+    }
+
     const role = event.eventRoles.find((role) => role.name === user.role);
 
     if (!role || !role.gift) {
@@ -120,12 +134,10 @@ exports.claimGift = async (req, res) => {
       return res.status(403).json({ status: "error", message: "Gift already claimed!" });
     }
 
-    // Mark gift as claimed
     user.hasClaimedGift = true;
     await user.save();
 
-    // Update event role claim status
-    role.gift = true; // Mark that gift has been claimed for this role
+    role.gift = true;
     await event.save();
 
     return res.json({ status: "success", message: "Gift claimed successfully!", user });
