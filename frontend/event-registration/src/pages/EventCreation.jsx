@@ -139,12 +139,35 @@ export default function EventCreation() {
                 <p>{event.companyName}</p>
                 <p>{event.place} - {event.time}</p>
                 <p>{new Date(event.date).toLocaleDateString()}</p>
-                <button
-                  onClick={() => handleRegister(event)}
-                  className="mt-3 text-blue-500 hover:text-blue-600"
-                >
-                  Register Now
-                </button>
+
+                {/* Register Now Button and Link to Copy */}
+                <div className="mt-4 space-y-2">
+                  <button
+                    onClick={() => handleRegister(event)}
+                    className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                  >
+                    Register Now
+                  </button>
+
+                  {/* Sharable Link */}
+                  <div className="flex items-center justify-center space-x-2 mt-2">
+                    <input
+                      type="text"
+                      readOnly
+                      value={`${window.location.origin}/register/${encodeURIComponent(event.companyName)}/${encodeURIComponent(event.eventName)}`}
+                      className="w-full p-2 border rounded text-sm text-gray-600 bg-gray-100"
+                    />
+                    <button
+                      onClick={() => {
+                        navigator.clipboard.writeText(`${window.location.origin}/register/${encodeURIComponent(event.companyName)}/${encodeURIComponent(event.eventName)}`);
+                        alert('Link copied to clipboard!');
+                      }}
+                      className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700 text-sm"
+                    >
+                      Copy
+                    </button>
+                  </div>
+                </div>
               </div>
             ))
           )}
@@ -253,16 +276,14 @@ export default function EventCreation() {
               value={eventDetails.date}
             />
 
-            {/* Error message */}
-            {error && <p className="text-red-500">{error}</p>}
+            {error && <p className="text-red-600">{error}</p>}
 
-            {/* Submit Button */}
             <button
               onClick={handleSubmit}
-              className="w-full px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg shadow hover:bg-blue-700 transition"
               disabled={loading}
+              className="w-full py-3 mt-4 bg-blue-600 text-white font-semibold rounded-lg shadow hover:bg-blue-700"
             >
-              {loading ? 'Creating Event...' : 'Submit'}
+              {loading ? 'Creating...' : 'Create Event'}
             </button>
           </div>
         )}
