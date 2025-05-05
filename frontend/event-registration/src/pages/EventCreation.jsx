@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import {toast} from "react-hot-toast";
 
 export default function EventCreation() {
   const [events, setEvents] = useState([]);
@@ -12,7 +11,7 @@ export default function EventCreation() {
     place: '',
     time: '',
     date: '',
-    eventRoles: [],
+    eventRoles: [], // Array to hold selected roles with privileges
   });
 
   const [loading, setLoading] = useState(false);
@@ -21,6 +20,7 @@ export default function EventCreation() {
 
   const BASE_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
 
+  // Fetch existing events when the component mounts
   useEffect(() => {
     const fetchEvents = async () => {
       try {
@@ -34,6 +34,72 @@ export default function EventCreation() {
     fetchEvents();
   }, []);
 
+  // Handle form field changes
+  const handleChange = (e) => {
+    const { name, value, checked } = e.target;
+
+    if (name === "eventRoles") {
+      const roleName = value;
+      setEventDetails((prevDetails) => {
+        // Toggle role selection
+        const updatedRoles = prevDetails.eventRoles.some(role => role.name === roleName)
+          ? prevDetails.eventRoles.filter(role => role.name !== roleName)
+          : [...prevDetails.eventRoles, { name: roleName, lunch: false, gift: false }];
+        return { ...prevDetails, eventRoles: updatedRoles };
+      });
+    } else if (name.includes('_')) {
+      // Handle changes for lunch and gift checkboxes (e.g., 'Speaker_lunch' or 'Speaker_gift')
+      const [roleName, privilege] = name.split("_"); // 'Speaker_lunch' -> ['Speaker', 'lunch']
+      setEventDetails((prevDetails) => {
+        const updatedRoles = prevDetails.eventRoles.map(role => 
+          role.name === roleName ? { ...role, [privilege]: checked } : role
+        );
+        return { ...prevDetails, eventRoles: updatedRoles };
+      });
+    } else {
+      setEventDetails({ ...eventDetails, [name]: value });
+    }
+  };
+
+  // Validate input fields
+  const validateForm = () => {
+    if (!eventDetails.companyName || !eventDetails.eventName || !eventDetails.place || !eventDetails.time || !eventDetails.date || eventDetails.eventRoles.length === 0) {
+      setError("All fields are required, including at least one role.");
+      return false;
+    }
+    setError(""); // Clear error if valid
+    return true;
+  };
+
+  // Handle form submission for new event
+  const handleSubmit = async () => {
+    if (!validateForm()) return;
+
+    setLoading(true);
+    try {
+      // Log event details for debugging
+      console.log("Sending Event Details:", eventDetails);
+
+      // Sending data to backend with correctly formatted date
+      const response = await axios.post(`${BASE_URL}/events/create-event`, {
+        ...eventDetails,
+        date: new Date(eventDetails.date).toISOString().split('T')[0], // Ensure correct format (YYYY-MM-DD)
+      });
+
+      if (response.status === 201) {
+        setEvents([...events, response.data.event]);
+        setShowForm(false);
+        setEventDetails({ companyName: '', eventName: '', place: '', time: '', date: '', eventRoles: [] });
+      }
+    } catch (error) {
+      console.error("Error creating event:", error.response?.data || error.message);
+      setError("Failed to create event. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Navigate to registration page with event details
   const handleRegister = (event) => {
     navigate(`/register/${event.companyName}/${event.eventName}`, {
       state: {
@@ -48,8 +114,9 @@ export default function EventCreation() {
   const handleCopyLink = (event) => {
     const registrationLink = `${window.location.origin}/register/${encodeURIComponent(event.companyName)}/${encodeURIComponent(event.eventName)}`;
     navigator.clipboard.writeText(registrationLink);
-    toast.success('Link copied to clipboard!');
+    alert('Link copied to clipboard!');
   };
+
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-r from-blue-500 to-purple-600">
@@ -80,7 +147,7 @@ export default function EventCreation() {
                 <p>{event.place} - {event.time}</p>
                 <p>{new Date(event.date).toLocaleDateString()}</p>
 
-                {/* Register Now Button and Copy Link Button */}
+                {/* Register Now Button and Link to Copy */}
                 <div className="mt-4 space-x-4 flex justify-center">
                   <button
                     onClick={() => handleRegister(event)}
@@ -120,7 +187,7 @@ export default function EventCreation() {
               name="companyName"
               placeholder="Company Name"
               className="w-full p-3 mb-4 border rounded-lg shadow-sm"
-              onChange={(e) => setEventDetails({ ...eventDetails, companyName: e.target.value })}
+              onChange={handleChange}
               value={eventDetails.companyName}
             />
             <input
@@ -128,50 +195,85 @@ export default function EventCreation() {
               name="eventName"
               placeholder="Event Name"
               className="w-full p-3 mb-4 border rounded-lg shadow-sm"
-              onChange={(e) => setEventDetails({ ...eventDetails, eventName: e.target.value })}
+              onChange={handleChange}
               value={eventDetails.eventName}
             />
+
+            {/* Select Roles with Lunch and Gift options */}
+            <div className="mb-6">
+              <h5 className="text-lg font-semibold mb-2">Select Roles</h5>
+              <div className="p-4 border rounded-lg shadow-md bg-white">
+                {['Speaker', 'Visitor', 'Delegate'].map((role) => (
+                  <div key={role} className="mb-3">
+                    <label className="flex items-center space-x-3">
+                      <input
+                        type="checkbox"
+                        name="eventRoles"
+                        value={role}
+                        onChange={handleChange}
+                        checked={eventDetails.eventRoles.some(r => r.name === role)}
+                        className="form-checkbox text-blue-600"
+                      />
+                      <span className="text-gray-700">{role}</span>
+                    </label>
+                    {/* Lunch and Gift Privileges */}
+                    {eventDetails.eventRoles.some(r => r.name === role) && (
+                      <div className="flex items-center space-x-4 ml-6">
+                        <label className="text-gray-600">
+                          <input
+                            type="checkbox"
+                            name={`${role}_lunch`}
+                            onChange={handleChange}
+                            checked={eventDetails.eventRoles.find(r => r.name === role)?.lunch || false}
+                            className="form-checkbox text-green-600"
+                          />
+                          Lunch
+                        </label>
+                        <label className="text-gray-600">
+                          <input
+                            type="checkbox"
+                            name={`${role}_gift`}
+                            onChange={handleChange}
+                            checked={eventDetails.eventRoles.find(r => r.name === role)?.gift || false}
+                            className="form-checkbox text-purple-600"
+                          />
+                          Gift
+                        </label>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Additional Input Fields */}
             <input
               type="text"
               name="place"
               placeholder="Place"
               className="w-full p-3 mb-4 border rounded-lg shadow-sm"
-              onChange={(e) => setEventDetails({ ...eventDetails, place: e.target.value })}
+              onChange={handleChange}
               value={eventDetails.place}
             />
             <input
               type="time"
               name="time"
               className="w-full p-3 mb-4 border rounded-lg shadow-sm"
-              onChange={(e) => setEventDetails({ ...eventDetails, time: e.target.value })}
+              onChange={handleChange}
               value={eventDetails.time}
             />
             <input
               type="date"
               name="date"
               className="w-full p-3 mb-4 border rounded-lg shadow-sm"
-              onChange={(e) => setEventDetails({ ...eventDetails, date: e.target.value })}
+              onChange={handleChange}
               value={eventDetails.date}
             />
 
             {error && <p className="text-red-600">{error}</p>}
 
             <button
-              onClick={async () => {
-                setLoading(true);
-                try {
-                  const response = await axios.post(`${BASE_URL}/events/create-event`, eventDetails);
-                  if (response.status === 201) {
-                    setEvents([...events, response.data.event]);
-                    setShowForm(false);
-                    setEventDetails({ companyName: '', eventName: '', place: '', time: '', date: '', eventRoles: [] });
-                  }
-                } catch (error) {
-                  setError('Failed to create event. Please try again.');
-                } finally {
-                  setLoading(false);
-                }
-              }}
+              onClick={handleSubmit}
               disabled={loading}
               className="w-full py-3 mt-4 bg-blue-600 text-white font-semibold rounded-lg shadow hover:bg-blue-700"
             >
