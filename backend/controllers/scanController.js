@@ -1,7 +1,8 @@
 const User = require("../models/User");
 const Event = require("../models/Event");
 
-// VERIFY QR CODE
+// VERIFY QR CODE — Auto-claims entry if not already done
+// VERIFY QR CODE — Auto-claims entry if not already done, with error for already claimed entry
 exports.verifyQRCode = async (req, res) => {
   const { qrCode } = req.body;
   const trimmedQR = qrCode.trim();
@@ -25,17 +26,28 @@ exports.verifyQRCode = async (req, res) => {
       return res.status(404).json({ status: "error", message: "Role not found for user!" });
     }
 
+    // Check if entry has already been claimed
+    if (user.hasEntered) {
+      console.log("Entry already claimed for user:", user.name);
+      return res.status(403).json({ status: "error", message: "Entry already claimed!" });
+    }
+
+    // Auto-claim entry if not already claimed
+    user.hasEntered = true;
+    await user.save();
+    console.log("Entry auto-claimed for user:", user.name);
+
     const privileges = {
-      canClaimEntry: !user.hasEntered,
-      canClaimLunch: role.privileges.lunch ? !user.hasClaimedLunch : false,   // Safe even if hasClaimedLunch is undefined
-      canClaimGift: role.privileges.gift ? !user.hasClaimedGift : false       // Safe even if hasClaimedGift is undefined
+      canClaimEntry: !user.hasEntered, // Will be false now (entry claimed)
+      canClaimLunch: role.privileges.lunch ? !user.hasClaimedLunch : false,
+      canClaimGift: role.privileges.gift ? !user.hasClaimedGift : false
     };
 
     console.log("Privileges calculated:", privileges);
 
     return res.json({
       status: "success",
-      message: "QR Code Verified!",
+      message: "QR Code Verified & Entry auto-claimed!",
       user,
       privileges
     });
@@ -45,6 +57,8 @@ exports.verifyQRCode = async (req, res) => {
     res.status(500).json({ status: "error", message: "Server error" });
   }
 };
+
+
 
 // CLAIM ENTRY
 exports.claimEntry = async (req, res) => {
