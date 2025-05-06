@@ -56,7 +56,6 @@ const getAllUsers = async (req, res) => {
 };
 
 
-
 const registerAdmin = async (req, res) => {
   try {
     const { email, password, companyName } = req.body;
@@ -82,11 +81,19 @@ const registerAdmin = async (req, res) => {
 
     await newAdmin.save();
 
-    res.status(201).json({ message: "Admin registered successfully" });
+    // Generate JWT token after successful registration
+    const token = jwt.sign(
+      { adminId: newAdmin._id }, // Payload
+      process.env.JWT_SECRET, // Secret key
+      { expiresIn: '1d' } // Set token expiration time (1 day)
+    );
+
+    // Send back the token and success message
+    res.status(201).json({ message: "Admin registered successfully", token });
+
   } catch (error) {
     res.status(500).json({ message: "Error registering admin", error });
   }
 };
-
 
 module.exports = { adminLogin, getAllUsers, registerAdmin };

@@ -15,18 +15,23 @@ function AdminRegister() {
   const handleRegister = async (e) => {
     e.preventDefault();
     setLoading(true);
-
+  
     try {
       const response = await axios.post(`${BASE_URL}/admin/register`, { email, password, companyName });
+  
+      // Store the JWT token in localStorage after successful registration
+      localStorage.setItem("admin_token", response.data.token);
+  
       toast.success("Admin registered successfully!");
-      navigate("/create-event"); // Redirect to login page
+      navigate("/create-event"); // Redirect to create event page
     } catch (error) {
       toast.error(error.response?.data?.message || "Something went wrong");
     } finally {
       setLoading(false);
     }
   };
-
+  
+  
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-r from-blue-500 to-indigo-600 p-6">
       <div className="bg-white p-8 shadow-xl rounded-lg w-full max-w-md transform transition-all duration-300 hover:shadow-2xl">
