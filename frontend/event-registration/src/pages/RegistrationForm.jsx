@@ -5,7 +5,7 @@ import axios from "axios";
 
 function RegistrationForm() {
   const location = useLocation();
-  const { place, time, date, eventRoles } = location.state || {}; // Receiving roles through location.state
+  const { place, time, date } = location.state || {};
   const { companyName, eventName } = useParams();
 
   const BASE_URL = import.meta.env.VITE_BACKEND_URL;
@@ -17,54 +17,52 @@ function RegistrationForm() {
     companyName: companyName || "",
     place: place || "",
     time: time || "",
-    date: date || "", // Storing the date
+    date: date || "",
     contact: "",
-    role: "Visitor", // Default role
+    role: "Visitor",
     paymentCompleted: false,
   });
 
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [event, setEvent] = useState(null);
-  const [roles, setRoles] = useState([]);  // Store roles dynamically from backend
+  const [roles, setRoles] = useState([]);
   const navigate = useNavigate();
 
-  // Fetch event details when component mounts
+  // Fetch event details
   useEffect(() => {
     const fetchEvent = async () => {
       try {
         const response = await axios.get(`${BASE_URL}/events/${companyName}/${eventName}`);
-        setEvent(response.data);  // Set event data
+        setEvent(response.data);
         setFormData((prev) => ({
           ...prev,
           place: response.data.place,
           time: response.data.time,
           date: response.data.date,
         }));
-  
-        // Store roles dynamically from the event data
+
         setRoles(response.data.eventRoles || []);
-  
-        // Log the roles to check if they are fetched correctly
+
         console.log("Fetched roles:", response.data.eventRoles);
-  
-        // Set the first available role if roles are provided
+
+        // FIXED: Set first available role using roleName
         if (response.data.eventRoles?.length > 0) {
           setFormData((prev) => ({
             ...prev,
-            role: response.data.eventRoles[0].name,  // Set the first available role by default
+            role: response.data.eventRoles[0].roleName,
           }));
         }
       } catch (error) {
         console.error("Error fetching event:", error);
         toast.error("Event not found!");
-        navigate("/");  // Navigate to homepage if event not found
+        navigate("/");
       }
     };
-  
+
     fetchEvent();
   }, [companyName, eventName, BASE_URL, navigate]);
-  
+
   const validate = (isPayment = false) => {
     let tempErrors = {};
     if (!formData.name.trim()) tempErrors.name = "Name is required";
@@ -108,21 +106,20 @@ function RegistrationForm() {
 
     setLoading(true);
     try {
-      // Dynamically adding the privileges of the selected role
-      const selectedRole = event.eventRoles.find((role) => role.name === formData.role);
+      // FIXED: Match role by roleName
+      const selectedRole = event.eventRoles.find((role) => role.roleName === formData.role);
       const privileges = selectedRole ? selectedRole.privileges : [];
 
-      const dataToSend = { 
-        ...formData, 
+      const dataToSend = {
+        ...formData,
         claimedPrivileges: privileges.map((privilege) => ({
           privilegeName: privilege.name,
-          claimed: false,  // Default as not claimed
+          claimed: false,
         })),
       };
 
       const response = await axios.post(`${BASE_URL}/users/register`, dataToSend);
 
-      // Log response for debugging
       console.log("Backend response:", response);
 
       if (!response.data || !response.data.qrCode) {
