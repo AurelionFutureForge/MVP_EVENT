@@ -18,7 +18,7 @@ export default function EventCreation() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [newRole, setNewRole] = useState('');
-  const [privileges, setPrivileges] = useState({ lunch: false, gift: false });
+  const [rolePrivileges, setRolePrivileges] = useState(''); // To hold dynamic privileges input
   const navigate = useNavigate();
 
   const BASE_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
@@ -44,7 +44,7 @@ export default function EventCreation() {
       setEventDetails((prevDetails) => {
         const updatedRoles = prevDetails.eventRoles.some(role => role.name === roleName)
           ? prevDetails.eventRoles.filter(role => role.name !== roleName)
-          : [...prevDetails.eventRoles, { name: roleName, lunch: false, gift: false }];
+          : [...prevDetails.eventRoles, { name: roleName, privileges: [] }];
         return { ...prevDetails, eventRoles: updatedRoles };
       });
     } else if (name.includes('_')) {
@@ -62,15 +62,17 @@ export default function EventCreation() {
 
   const handleAddRole = () => {
     if (newRole.trim()) {
+      const privilegesArray = rolePrivileges.split(',').map(privilege => privilege.trim()).filter(privilege => privilege);
+
       setEventDetails((prevDetails) => ({
         ...prevDetails,
         eventRoles: [
           ...prevDetails.eventRoles,
-          { name: newRole.trim(), lunch: privileges.lunch, gift: privileges.gift }
+          { name: newRole.trim(), privileges: privilegesArray }
         ]
       }));
       setNewRole('');
-      setPrivileges({ lunch: false, gift: false });
+      setRolePrivileges(''); // Reset privileges input
     }
   };
 
@@ -177,26 +179,13 @@ export default function EventCreation() {
                 onChange={(e) => setNewRole(e.target.value)}
                 className="w-full p-3 mb-2 border rounded-lg shadow-sm"
               />
-              <div className="flex items-center space-x-4 mb-4">
-                <label>
-                  <input
-                    type="checkbox"
-                    checked={privileges.lunch}
-                    onChange={(e) => setPrivileges({ ...privileges, lunch: e.target.checked })}
-                    className="form-checkbox text-green-600"
-                  />
-                  Lunch
-                </label>
-                <label>
-                  <input
-                    type="checkbox"
-                    checked={privileges.gift}
-                    onChange={(e) => setPrivileges({ ...privileges, gift: e.target.checked })}
-                    className="form-checkbox text-purple-600"
-                  />
-                  Gift
-                </label>
-              </div>
+              <input
+                type="text"
+                placeholder="Privileges (comma separated)"
+                value={rolePrivileges}
+                onChange={(e) => setRolePrivileges(e.target.value)}
+                className="w-full p-3 mb-2 border rounded-lg shadow-sm"
+              />
               <button
                 onClick={handleAddRole}
                 className="w-full py-2 mt-2 bg-blue-600 text-white font-semibold rounded-lg shadow hover:bg-blue-700"
@@ -210,7 +199,9 @@ export default function EventCreation() {
               {eventDetails.eventRoles.map((role, index) => (
                 <div key={index} className="mb-3">
                   <span className="font-semibold">{role.name}</span> - 
-                  {role.lunch && <span>Lunch</span>} {role.gift && <span>Gift</span>}
+                  {role.privileges && role.privileges.length > 0 
+                    ? role.privileges.join(', ') 
+                    : 'No privileges'}
                 </div>
               ))}
             </div>
