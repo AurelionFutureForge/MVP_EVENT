@@ -9,15 +9,17 @@ const userSchema = new mongoose.Schema(
     companyName: { type: String, required: true },
     place: { type: String, required: true },
     time: { type: String, required: true },
-    date: { type: String, required: true },
+    date: { type: Date, required: true },  // Use Date type
     contact: { type: String, required: true },
     role: { type: String, required: true },
     qrCode: { type: String },
     hasEntered: { type: Boolean, default: false },
 
-    // Optional fields — only added if privilege applies
-    hasClaimedLunch: { type: Boolean, default: undefined },
-    hasClaimedGift: { type: Boolean, default: undefined },
+    // Dynamic claims for privileges
+    claimedPrivileges: [{
+      privilegeName: { type: String },  // E.g., 'Lunch', 'Gift', etc.
+      claimed: { type: Boolean, default: false }  // Whether this privilege has been claimed
+    }],
   },
   {
     strict: false,

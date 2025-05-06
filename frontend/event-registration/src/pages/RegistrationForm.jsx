@@ -26,6 +26,7 @@ function RegistrationForm() {
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [event, setEvent] = useState(null);
+  const [roles, setRoles] = useState([]);  // Store roles dynamically from backend
   const navigate = useNavigate();
 
   // Fetch event details when component mounts
@@ -40,7 +41,10 @@ function RegistrationForm() {
           time: response.data.time,
           date: response.data.date,
         }));
-
+        
+        // Store roles dynamically from the event data
+        setRoles(response.data.eventRoles || []);
+        
         // Set the first available role if roles are provided
         if (response.data.eventRoles?.length > 0) {
           setFormData((prev) => ({
@@ -101,7 +105,18 @@ function RegistrationForm() {
 
     setLoading(true);
     try {
-      const { paymentCompleted, ...dataToSend } = formData;
+      // Dynamically adding the privileges of the selected role
+      const selectedRole = event.eventRoles.find((role) => role.name === formData.role);
+      const privileges = selectedRole ? selectedRole.privileges : [];
+
+      const dataToSend = { 
+        ...formData, 
+        claimedPrivileges: privileges.map((privilege) => ({
+          privilegeName: privilege.name,
+          claimed: false,  // Default as not claimed
+        })),
+      };
+
       const response = await axios.post(`${BASE_URL}/users/register`, dataToSend);
 
       // Log response for debugging
@@ -175,8 +190,8 @@ function RegistrationForm() {
             className="w-full border border-gray-300 px-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-400"
             disabled={formData.paymentCompleted}
           >
-            {event?.eventRoles?.length > 0 ? (
-              event.eventRoles.map((role) => (
+            {roles.length > 0 ? (
+              roles.map((role) => (
                 <option key={role._id} value={role.name}>
                   {role.name}
                 </option>

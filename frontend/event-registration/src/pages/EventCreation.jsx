@@ -110,6 +110,16 @@ export default function EventCreation() {
     }
   };
 
+  const handleRegister = (companyName, eventName) => {
+    navigate(`/register/${companyName}/${eventName}`);
+  };
+
+  const handleCopyLink = (companyName, eventName) => {
+    const registrationLink = `${window.location.origin}/register/${encodeURIComponent(companyName)}/${encodeURIComponent(eventName)}`;
+    navigator.clipboard.writeText(registrationLink);
+    toast.success('Link copied to clipboard!');
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-r from-blue-500 to-purple-600">
       <nav className="bg-blue-600 p-4 shadow-md">
@@ -135,6 +145,20 @@ export default function EventCreation() {
                 <p>{event.companyName}</p>
                 <p>{event.place} - {event.time}</p>
                 <p>{new Date(event.date).toLocaleDateString()}</p>
+                <div className="mt-4 space-x-4 flex justify-center">
+                  <button
+                    onClick={() => handleRegister(event.companyName, event.eventName)}
+                    className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                  >
+                    Register Now
+                  </button>
+                  <button
+                    onClick={() => handleCopyLink(event.companyName, event.eventName)}
+                    className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+                  >
+                    Copy Link
+                  </button>
+                </div>
               </div>
             ))
           )}

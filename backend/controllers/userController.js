@@ -27,7 +27,7 @@ exports.registerUser = async (req, res) => {
     }
 
     // Find the matching role privileges from eventRoles
-    const selectedRole = event.eventRoles.find(r => r.name === role);
+    const selectedRole = event.eventRoles.find(r => r.roleName === role); // Adjusted based on dynamic role
     if (!selectedRole) {
       console.log("Role not found in event:", role);
       return res.status(400).json({ message: "Selected role not found in this event!" });
@@ -35,7 +35,7 @@ exports.registerUser = async (req, res) => {
 
     const privileges = selectedRole.privileges;
 
-    // Always include hasEntered (entry is mandatory for all)
+    // Prepare the user data for registration
     const newUserData = {
       name,
       email,
@@ -44,21 +44,22 @@ exports.registerUser = async (req, res) => {
       companyName,
       place,
       time,
-      date: new Date(date).toISOString().split("T")[0], // YYYY-MM-DD
+      date: new Date(date).toISOString().split("T")[0], // Format to YYYY-MM-DD
       contact,
       role,
-      hasEntered: false
+      hasEntered: false,  // Entry status can remain default
+      claimedPrivileges: []  // Initialize empty claimedPrivileges array
     };
 
-    // Conditionally add hasClaimedLunch and hasClaimedGift based on privileges
-    if (privileges.lunch) {
-      newUserData.hasClaimedLunch = false;
-    }
-    if (privileges.gift) {
-      newUserData.hasClaimedGift = false;
-    }
+    // Dynamically add privileges to the user's claimedPrivileges array
+    privileges.forEach(privilege => {
+      newUserData.claimedPrivileges.push({
+        privilegeName: privilege.name,  // Name of the privilege
+        claimed: false,  // Set as false by default (not claimed yet)
+      });
+    });
 
-    // Create the new user
+    // Create the new user with dynamic claimedPrivileges
     const newUser = new User(newUserData);
     await newUser.save();
 
