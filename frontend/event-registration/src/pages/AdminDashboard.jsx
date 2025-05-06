@@ -106,13 +106,20 @@ function AdminDashboard() {
 
   const privilegeStats = getPrivilegeStats();
 
+  const handleLogout = () => {
+    localStorage.removeItem("adminToken");
+    localStorage.removeItem("adminCompany");
+    toast.success("Logged out successfully!");
+    navigate("/admin/login");
+  };
+
   return (
     <div className="min-h-screen bg-gray-100 p-6 flex flex-col items-center">
       <div className="bg-white p-6 shadow-xl rounded-2xl w-full max-w-7xl">
         <h2 className="text-4xl font-extrabold text-gray-800 mb-2 text-center">Admin Dashboard</h2>
         <p className="text-center text-lg mb-6 text-gray-600">Company: <span className="font-semibold text-blue-600">{companyName}</span></p>
 
-        {/*  Event Summary */}
+        {/* Event Summary */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-6">
           <SummaryCard title="Total Registrations" value={totalRegistrations} color="blue" />
           <SummaryCard title="Total Entries" value={totalEntries} color="green" />
@@ -161,6 +168,13 @@ function AdminDashboard() {
               className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition shadow"
             >
               Download PDF
+            </button>
+
+            <button
+              onClick={handleLogout}
+              className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition shadow"
+            >
+              Logout
             </button>
           </div>
         </div>
