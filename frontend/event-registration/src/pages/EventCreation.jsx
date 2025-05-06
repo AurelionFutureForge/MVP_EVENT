@@ -32,7 +32,6 @@ export default function EventCreation() {
         console.error("Error fetching events:", error);
       }
     };
-
     fetchEvents();
   }, []);
 
@@ -46,7 +45,11 @@ export default function EventCreation() {
       const privilegesArray = rolePrivileges
         .split(',')
         .map(privilege => privilege.trim())
-        .filter(privilege => privilege);
+        .filter(privilege => privilege)
+        .map(privilege => ({
+          name: privilege,
+          claimable: true  // default claimable to true
+        }));
 
       setEventDetails((prevDetails) => ({
         ...prevDetails,
@@ -82,15 +85,10 @@ export default function EventCreation() {
 
     setLoading(true);
     try {
-      // Sanitize roles + privileges before sending
       const sanitizedRoles = eventDetails.eventRoles.map(role => ({
         roleName: role.roleName.trim(),
-        privileges: role.privileges
-          .map(p => p.trim())
-          .filter(p => p !== '')
+        privileges: role.privileges.filter(p => p.name && p.name.trim() !== '')
       }));
-
-      console.log("Sending sanitized Event Details:", { ...eventDetails, eventRoles: sanitizedRoles });
 
       const response = await axios.post(`${BASE_URL}/events/create-event`, {
         ...eventDetails,
@@ -202,7 +200,7 @@ export default function EventCreation() {
                 <div key={index} className="flex justify-between items-center mb-2 p-2 border rounded-lg bg-gray-100">
                   <div>
                     <span className="font-semibold">{role.roleName}</span> - 
-                    {role.privileges.length > 0 ? ` ${role.privileges.join(', ')}` : ' No privileges'}
+                    {role.privileges.length > 0 ? ` ${role.privileges.map(p => p.name).join(', ')}` : ' No privileges'}
                   </div>
                   <button
                     onClick={() => handleDeleteRole(index)}
