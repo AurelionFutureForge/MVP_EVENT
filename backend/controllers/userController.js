@@ -194,6 +194,10 @@ const sendSuccessEmail = async (name, email, eventName, companyName, place, time
 
     // Find user and retrieve privileges
     const user = await User.findOne({ email }); // Use email as the query key
+    const event = await Event.findById(user.eventId);  // Get the event based on the user
+
+    // Find the role the user is assigned and retrieve the available privileges (those that are claimable and not yet claimed)
+    const userRole = event.eventRoles.find(r => r.roleName === user.role);
     const availablePrivileges = userRole ? userRole.privileges.filter(priv => priv.claimable && !priv.claimed) : [];
 
     // Convert Base64 QR image to buffer
@@ -244,11 +248,11 @@ const sendSuccessEmail = async (name, email, eventName, companyName, place, time
             <a href="https://mvp-event.vercel.app/register/${companyName}/${eventName}" style="padding: 10px 20px; background-color: #4CAF50; color: white; text-decoration: none; border-radius: 5px;">Click here to register</a>
         </div>
 
-        <!-- Privileges Section -->
+        <!-- Available Privileges Section -->
         <div style="background: #f9f9f9; padding: 20px; border-top: 1px solid #ddd;">
-          <h3>🎉 Available Privileges</h3>
+          <h3>🎉 Available Privileges:</h3>
           <ul>
-           ${availablePrivilegesList}
+            ${availablePrivilegesList}
           </ul>
         </div>
 
@@ -277,7 +281,7 @@ const sendSuccessEmail = async (name, email, eventName, companyName, place, time
     };
 
     await transporter.sendMail(mailOptions);
-    console.log("Success email sent with PDF, QR code, and privileges to:", email);
+    console.log("Success email sent with PDF, QR code, and available privileges to:", email);
   } catch (error) {
     console.error("Error sending email:", error);
   }
