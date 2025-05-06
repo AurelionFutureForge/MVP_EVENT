@@ -20,7 +20,7 @@ const App = () => {
         <Route path="/admin/scanner" element={<ProtectedRoute> <AdminScanner /> </ProtectedRoute>} />
         <Route path="/admin/register" element={<AdminRegister />} />
         <Route path='/admin/login' element={<AdminLogin />} />
-        <Route path='/admin/dashboard' element={<AdminDashboard />} />
+        <Route path='/admin/dashboard' element={<ProtectedRoute> <AdminDashboard /> </ ProtectedRoute>} />
         <Route path='/create-event' element={<EventCreation />} />
       </Routes>
     </div>
