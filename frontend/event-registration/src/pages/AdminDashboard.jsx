@@ -165,7 +165,7 @@ function AdminDashboard() {
           </div>
         </div>
 
-        {/* 📋 Users Table */}
+        {/* Users Table */}
         <div className="overflow-x-auto rounded-lg shadow">
           <table className="w-full border-collapse">
             <thead>
@@ -213,7 +213,7 @@ function AdminDashboard() {
   );
 }
 
-// 📊 Summary Card component
+// Summary Card component
 function SummaryCard({ title, value, color }) {
   const colorMap = {
     blue: "bg-blue-100 text-blue-900",
