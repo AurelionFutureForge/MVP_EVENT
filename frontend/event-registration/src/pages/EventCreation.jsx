@@ -42,16 +42,21 @@ export default function EventCreation() {
     if (name === "eventRoles") {
       const roleName = value;
       setEventDetails((prevDetails) => {
-        const updatedRoles = prevDetails.eventRoles.some(role => role.name === roleName)
-          ? prevDetails.eventRoles.filter(role => role.name !== roleName)
-          : [...prevDetails.eventRoles, { name: roleName, privileges: [] }];
+        const updatedRoles = prevDetails.eventRoles.some(role => role.roleName === roleName)
+          ? prevDetails.eventRoles.filter(role => role.roleName !== roleName)
+          : [...prevDetails.eventRoles, { roleName, privileges: [] }];
         return { ...prevDetails, eventRoles: updatedRoles };
       });
     } else if (name.includes('_')) {
-      const [roleName, privilege] = name.split("_"); 
+      const [roleName, privilege] = name.split("_");
       setEventDetails((prevDetails) => {
         const updatedRoles = prevDetails.eventRoles.map(role => 
-          role.name === roleName ? { ...role, [privilege]: checked } : role
+          role.roleName === roleName ? { 
+            ...role, 
+            privileges: role.privileges.includes(privilege) 
+              ? role.privileges.filter(p => p !== privilege)
+              : [...role.privileges, privilege] 
+          } : role
         );
         return { ...prevDetails, eventRoles: updatedRoles };
       });
@@ -68,7 +73,7 @@ export default function EventCreation() {
         ...prevDetails,
         eventRoles: [
           ...prevDetails.eventRoles,
-          { name: newRole.trim(), privileges: privilegesArray }
+          { roleName: newRole.trim(), privileges: privilegesArray }
         ]
       }));
       setNewRole('');
@@ -198,7 +203,7 @@ export default function EventCreation() {
               <h5 className="text-lg font-semibold mb-2">Selected Roles</h5>
               {eventDetails.eventRoles.map((role, index) => (
                 <div key={index} className="mb-3">
-                  <span className="font-semibold">{role.name}</span> - 
+                  <span className="font-semibold">{role.roleName}</span> - 
                   {role.privileges && role.privileges.length > 0 
                     ? role.privileges.join(', ') 
                     : 'No privileges'}
