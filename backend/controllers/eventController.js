@@ -1,6 +1,5 @@
 const Event = require('../models/Event');
 
-// Create a new event
 const createEvent = async (req, res) => {
   try {
     console.log("Incoming Request Body:", req.body);
@@ -28,25 +27,35 @@ const createEvent = async (req, res) => {
     }
 
     for (const role of eventRoles) {
-      if (!role.name || typeof role.lunch !== 'boolean' || typeof role.gift !== 'boolean') {
-        return res.status(400).json({ msg: 'Each role must have name, lunch, and gift as booleans' });
+      if (!role.roleName || typeof role.roleName !== 'string') {
+        return res.status(400).json({ msg: 'Each role must have a valid roleName' });
+      }
+      if (!Array.isArray(role.privileges) || role.privileges.length === 0) {
+        return res.status(400).json({ msg: `Role '${role.roleName}' must have at least one privilege` });
+      }
+
+      for (const privilege of role.privileges) {
+        if (!privilege.name || typeof privilege.name !== 'string') {
+          return res.status(400).json({ msg: `Each privilege in role '${role.roleName}' must have a valid name` });
+        }
+        if (typeof privilege.claimable !== 'boolean') {
+          return res.status(400).json({ msg: `Privilege '${privilege.name}' in role '${role.roleName}' must have claimable as boolean` });
+        }
       }
     }
 
-    // Map eventRoles to include privileges with entry=true always
     const processedRoles = eventRoles.map(role => ({
-      name: role.name,
-      privileges: {
-        entry: true,            // Always true
-        lunch: !!role.lunch,    // Ensure boolean
-        gift: !!role.gift
-      }
+      roleName: role.roleName.trim(),
+      privileges: role.privileges.map(priv => ({
+        name: priv.name.trim(),
+        claimable: priv.claimable
+      }))
     }));
 
     const newEvent = new Event({
-      companyName: trimmedCompanyName,  // Use trimmed value
-      eventName: trimmedEventName,      // Use trimmed value
-      eventRoles: processedRoles,       // Corrected here
+      companyName: trimmedCompanyName,
+      eventName: trimmedEventName,
+      eventRoles: processedRoles,
       place, 
       time, 
       date: formattedDate.toISOString().split("T")[0] // Save only YYYY-MM-DD
@@ -59,6 +68,7 @@ const createEvent = async (req, res) => {
     res.status(500).json({ msg: 'Server error', error: error.message });
   }
 };
+
 
 // Get all events
 const getEvents = async (req, res) => {
