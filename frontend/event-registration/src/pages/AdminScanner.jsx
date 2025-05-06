@@ -9,12 +9,9 @@ function AdminScanner() {
   const [scannerInstance, setScannerInstance] = useState(null);
   const [scanResult, setScanResult] = useState(null);
   const [verifiedUser, setVerifiedUser] = useState(null);
-  const [scannerActive, setScannerActive] = useState(false);
-  const [privileges, setPrivileges] = useState({});
   const [lastScanned, setLastScanned] = useState({ text: "", timestamp: 0 });
 
-  const isProcessingRef = useRef(false); // useRef to block instantly
-
+  const isProcessingRef = useRef(false);
   const BASE_URL = import.meta.env.VITE_BACKEND_URL;
 
   const startScanner = () => {
@@ -31,11 +28,9 @@ function AdminScanner() {
       async (decodedText) => {
         const now = Date.now();
 
-        // 1. Block re-entry instantly
         if (isProcessingRef.current) return;
         isProcessingRef.current = true;
 
-        // 2. Ignore duplicate scan within 3s
         if (decodedText === lastScanned.text && now - lastScanned.timestamp < 3000) {
           console.log("Duplicate scan ignored:", decodedText);
           isProcessingRef.current = false;
@@ -44,12 +39,9 @@ function AdminScanner() {
 
         console.log("Scanned QR Code:", decodedText);
         setLastScanned({ text: decodedText, timestamp: now });
-
         setScanResult(decodedText);
 
-        // 3. IMMEDIATELY clear scanner before processing to stop camera & fires
         await scanner.clear();
-        setScannerActive(false);
 
         await verifyQRCode(decodedText);
 
@@ -61,7 +53,6 @@ function AdminScanner() {
     );
 
     setScannerInstance(scanner);
-    setScannerActive(true);
   };
 
   useEffect(() => {
@@ -87,10 +78,8 @@ function AdminScanner() {
 
       if (response.data.status === "success") {
         setVerifiedUser(response.data.user);
-        setPrivileges(response.data.privileges);
 
         const message = response.data.message;
-
         if (message === "Entry already claimed!") {
           toast(message, { icon: '⚠️', style: { background: '#fff3cd', color: '#856404' } });
         } else {
@@ -104,25 +93,26 @@ function AdminScanner() {
     }
   };
 
-  const handleClaim = async (type) => {
+  const handleClaim = async (privilegeName) => {
     if (!scanResult) return toast.error("Scan a QR Code first!");
 
     try {
       const token = localStorage.getItem("adminToken");
       const response = await axios.post(
-        `${BASE_URL}/scan/claim-${type}`,
-        { qrCode: scanResult },
+        `${BASE_URL}/scan/claim`,
+        { qrCode: scanResult, privilegeName },
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
       toast.success(response.data.message);
+
       setVerifiedUser((prev) => ({
         ...prev,
-        [`hasClaimed${type.charAt(0).toUpperCase() + type.slice(1)}`]: true,
-      }));
-      setPrivileges((prev) => ({
-        ...prev,
-        [`canClaim${type.charAt(0).toUpperCase() + type.slice(1)}`]: false,
+        claimedPrivileges: prev.claimedPrivileges.map((priv) =>
+          priv.privilegeName === privilegeName
+            ? { ...priv, claimed: true }
+            : priv
+        ),
       }));
     } catch (error) {
       toast.error(error.response?.data?.message || "Error processing request");
@@ -132,7 +122,6 @@ function AdminScanner() {
   const handleScanNext = () => {
     setScanResult(null);
     setVerifiedUser(null);
-    setPrivileges({});
     setLastScanned({ text: "", timestamp: 0 });
     isProcessingRef.current = false;
     startScanner();
@@ -152,33 +141,22 @@ function AdminScanner() {
               </h3>
 
               <div className="mt-4 space-y-3">
-                {privileges.canClaimLunch && (
+                {verifiedUser.claimedPrivileges.map((priv) => (
                   <button
-                    onClick={() => handleClaim("lunch")}
-                    disabled={verifiedUser.hasClaimedLunch}
+                    key={priv.privilegeName}
+                    onClick={() => handleClaim(priv.privilegeName)}
+                    disabled={priv.claimed}
                     className={`w-full px-4 py-2 rounded shadow ${
-                      verifiedUser.hasClaimedLunch
+                      priv.claimed
                         ? "bg-gray-400 cursor-not-allowed"
                         : "bg-green-600 hover:bg-green-700 text-white"
                     }`}
                   >
-                    {verifiedUser.hasClaimedLunch ? "Lunch Claimed" : "Claim Lunch"}
+                    {priv.claimed
+                      ? `${priv.privilegeName} Claimed`
+                      : `Claim ${priv.privilegeName}`}
                   </button>
-                )}
-
-                {privileges.canClaimGift && (
-                  <button
-                    onClick={() => handleClaim("gift")}
-                    disabled={verifiedUser.hasClaimedGift}
-                    className={`w-full px-4 py-2 rounded shadow ${
-                      verifiedUser.hasClaimedGift
-                        ? "bg-gray-400 cursor-not-allowed"
-                        : "bg-yellow-600 hover:bg-yellow-700 text-white"
-                    }`}
-                  >
-                    {verifiedUser.hasClaimedGift ? "Gift Claimed" : "Claim Gift"}
-                  </button>
-                )}
+                ))}
               </div>
 
               <button
