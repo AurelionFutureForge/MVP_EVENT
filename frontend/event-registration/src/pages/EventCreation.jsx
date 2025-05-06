@@ -205,7 +205,7 @@ export default function EventCreation() {
               />
               <input
                 type="text"
-                placeholder="Privileges (comma separated)"
+                placeholder="Privileges (comma separated) Eg:lunch,gift..."
                 value={rolePrivileges}
                 onChange={(e) => setRolePrivileges(e.target.value)}
                 className="w-full p-3 mb-2 border rounded-lg shadow-sm"
