@@ -8,7 +8,7 @@ import AdminDashboard from './pages/AdminDashboard';
 import Home from './pages/Home';
 import EventCreation from './pages/EventCreation';
 import AdminRegister from './pages/AdminRegister'
-import ProtectedRoute from "./ProtectedRoute";
+import ProtectedRoute from './pages/ProtectedRoute';
 
 const App = () => {
   return (
