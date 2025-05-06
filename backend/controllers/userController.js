@@ -189,22 +189,12 @@ const sendSuccessEmail = async (name, email, eventName, companyName, place, time
       },
     });
 
-    let ticketClass = "";
-    let paymentStatus = "";
+    let ticketClass = role;
+    let paymentStatus = "will be added soon";
 
-    if (role === "Visitor") {
-      ticketClass = "VISITORS REGISTRATION (PAID ENTRY)";
-      paymentStatus = "Payment Received";
-    } else if (role === "Speaker") {
-      ticketClass = "SPEAKER REGISTRATION (FREE ENTRY)";
-      paymentStatus = "No Payment Required";
-    } else if (role === "Delegate") {
-      ticketClass = "DELEGATE REGISTRATION (FREE ENTRY)";
-      paymentStatus = "No Payment Required";
-    } else {
-      ticketClass = "UNKNOWN ROLE";
-      paymentStatus = "? Payment Status Unknown";
-    }
+    // Find user and retrieve privileges
+    const user = await User.findOne({ email }); // Use email as the query key
+    const privileges = user.claimedPrivileges.filter(priv => priv.claimed); // Filter for privileges that are claimed
 
     // Convert Base64 QR image to buffer
     const base64Data = qrCodeImage.replace(/^data:image\/png;base64,/, "");
@@ -212,6 +202,9 @@ const sendSuccessEmail = async (name, email, eventName, companyName, place, time
 
     // Read the generated PDF file
     const pdfBuffer = fs.readFileSync(pdfPath);
+
+    // Format privileges for email
+    const privilegesList = privileges.length > 0 ? privileges.map(priv => `<li>${priv.privilegeName}</li>`).join('') : "<li>No privileges claimed yet.</li>";
 
     const mailOptions = {
       from: "amthemithun@gmail.com",
@@ -251,6 +244,14 @@ const sendSuccessEmail = async (name, email, eventName, companyName, place, time
             <a href="https://mvp-event.vercel.app/register/${companyName}/${eventName}" style="padding: 10px 20px; background-color: #4CAF50; color: white; text-decoration: none; border-radius: 5px;">Click here to register</a>
         </div>
 
+        <!-- Privileges Section -->
+        <div style="background: #f9f9f9; padding: 20px; border-top: 1px solid #ddd;">
+          <h3>🎉 Privileges Granted:</h3>
+          <ul>
+            ${privilegesList}
+          </ul>
+        </div>
+
         <!-- QR Code Section -->
         <div style="text-align: center; padding: 30px; border-top: 1px solid #ddd;">
           <h3>📲 Scan this QR Code at Entry</h3>
@@ -276,7 +277,7 @@ const sendSuccessEmail = async (name, email, eventName, companyName, place, time
     };
 
     await transporter.sendMail(mailOptions);
-    console.log("Success email sent with PDF and QR code to:", email);
+    console.log("Success email sent with PDF, QR code, and privileges to:", email);
   } catch (error) {
     console.error("Error sending email:", error);
   }
