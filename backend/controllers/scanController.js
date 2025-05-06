@@ -18,7 +18,7 @@ exports.verifyQRCode = async (req, res) => {
     console.log("User found:", user);
 
     const event = await Event.findById(user.eventId);
-    const role = event?.eventRoles.find(r => r.name === user.role);
+    const role = event?.eventRoles.find(r => r.roleName === user.role);
 
     if (!role) {
       return res.status(404).json({ status: "error", message: "Role not found for user!" });
@@ -32,8 +32,8 @@ exports.verifyQRCode = async (req, res) => {
       user.hasEntered = true;
       await user.save();
       entryJustClaimed = true;
-      entryMessage = "Entry auto-claimed!";
-      console.log("Entry auto-claimed for user:", user.name);
+      entryMessage = "Entry claimed!";
+      console.log("Entry claimed for user:", user.name);
     } else {
       entryMessage = "Entry already claimed!";
       console.log("Entry was already claimed for user:", user.name);
@@ -74,7 +74,7 @@ exports.claimPrivilege = async (req, res) => {
     }
 
     const event = await Event.findById(user.eventId);
-    const role = event?.eventRoles.find(r => r.name === user.role);
+    const role = event?.eventRoles.find(r => r.roleName === user.role);
 
     if (!role) {
       return res.status(404).json({ status: "error", message: "Role not found!" });
