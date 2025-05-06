@@ -56,7 +56,7 @@ function AdminDashboard() {
       user.contact,
       user.hasEntered ? "Entered" : "Not Entered",
       user.claimedPrivileges
-        .map(p => `${p.name} (${p.claimed ? "Yes" : "No"})`)
+        .map(p => `${p.privilegeName} (${p.claimed ? "Yes" : "No"})`)
         .join(", ")
     ]);
 
@@ -92,12 +92,12 @@ function AdminDashboard() {
     const privilegeMap = {};
     users.forEach(user => {
       user.claimedPrivileges.forEach(priv => {
-        if (!privilegeMap[priv.name]) {
-          privilegeMap[priv.name] = { claimed: 0, total: 0 };
+        if (!privilegeMap[priv.privilegeName]) {
+          privilegeMap[priv.privilegeName] = { claimed: 0, total: 0 };
         }
-        privilegeMap[priv.name].total++;
+        privilegeMap[priv.privilegeName].total++;
         if (priv.claimed) {
-          privilegeMap[priv.name].claimed++;
+          privilegeMap[priv.privilegeName].claimed++;
         }
       });
     });
@@ -112,7 +112,7 @@ function AdminDashboard() {
         <h2 className="text-4xl font-extrabold text-gray-800 mb-2 text-center">Admin Dashboard</h2>
         <p className="text-center text-lg mb-6 text-gray-600">Company: <span className="font-semibold text-blue-600">{companyName}</span></p>
 
-        {/* 📊 Event Summary */}
+        {/*  Event Summary */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-6">
           <SummaryCard title="Total Registrations" value={totalRegistrations} color="blue" />
           <SummaryCard title="Total Entries" value={totalEntries} color="green" />
@@ -126,7 +126,7 @@ function AdminDashboard() {
           ))}
         </div>
 
-        {/* 🛠️ Actions */}
+        {/* Actions */}
         <div className="flex flex-col md:flex-row md:justify-between gap-3 mb-4">
           <div className="flex flex-col md:flex-row gap-2 w-full md:w-auto">
             <input
@@ -195,7 +195,7 @@ function AdminDashboard() {
                   <td className="p-3 flex flex-wrap justify-center gap-1">
                     {user.claimedPrivileges.map((priv, i) => (
                       <span key={i} className={`px-2 py-1 text-xs rounded-full ${priv.claimed ? 'bg-green-200 text-green-800' : 'bg-red-200 text-red-800'}`}>
-                        {priv.name} {priv.claimed ? "✅" : "❌"}
+                        {priv.privilegeName} {priv.claimed ? "✅" : "❌"}
                       </span>
                     ))}
                   </td>
