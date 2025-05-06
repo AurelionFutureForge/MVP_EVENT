@@ -194,7 +194,7 @@ const sendSuccessEmail = async (name, email, eventName, companyName, place, time
 
     // Find user and retrieve privileges
     const user = await User.findOne({ email }); // Use email as the query key
-    const privileges = user.claimedPrivileges.filter(priv => priv.claimed); // Filter for privileges that are claimed
+    const availablePrivileges = userRole ? userRole.privileges.filter(priv => priv.claimable && !priv.claimed) : [];
 
     // Convert Base64 QR image to buffer
     const base64Data = qrCodeImage.replace(/^data:image\/png;base64,/, "");
@@ -204,7 +204,7 @@ const sendSuccessEmail = async (name, email, eventName, companyName, place, time
     const pdfBuffer = fs.readFileSync(pdfPath);
 
     // Format privileges for email
-    const privilegesList = privileges.length > 0 ? privileges.map(priv => `<li>${priv.privilegeName}</li>`).join('') : "<li>No privileges claimed yet.</li>";
+    const availablePrivilegesList = availablePrivileges.length > 0 ? availablePrivileges.map(priv => `<li>${priv.name}</li>`).join('') : "<li>No available privileges.</li>";
 
     const mailOptions = {
       from: "amthemithun@gmail.com",
@@ -246,9 +246,9 @@ const sendSuccessEmail = async (name, email, eventName, companyName, place, time
 
         <!-- Privileges Section -->
         <div style="background: #f9f9f9; padding: 20px; border-top: 1px solid #ddd;">
-          <h3>🎉 Privileges Granted:</h3>
+          <h3>🎉 Available Privileges</h3>
           <ul>
-            ${privilegesList}
+           ${availablePrivilegesList}
           </ul>
         </div>
 
