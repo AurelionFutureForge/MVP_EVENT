@@ -41,10 +41,13 @@ function RegistrationForm() {
           time: response.data.time,
           date: response.data.date,
         }));
-        
+  
         // Store roles dynamically from the event data
         setRoles(response.data.eventRoles || []);
-        
+  
+        // Log the roles to check if they are fetched correctly
+        console.log("Fetched roles:", response.data.eventRoles);
+  
         // Set the first available role if roles are provided
         if (response.data.eventRoles?.length > 0) {
           setFormData((prev) => ({
@@ -58,10 +61,10 @@ function RegistrationForm() {
         navigate("/");  // Navigate to homepage if event not found
       }
     };
-
+  
     fetchEvent();
   }, [companyName, eventName, BASE_URL, navigate]);
-
+  
   const validate = (isPayment = false) => {
     let tempErrors = {};
     if (!formData.name.trim()) tempErrors.name = "Name is required";
@@ -192,8 +195,8 @@ function RegistrationForm() {
           >
             {roles.length > 0 ? (
               roles.map((role) => (
-                <option key={role._id} value={role.name}>
-                  {role.name}
+                <option key={role._id} value={role.roleName}>
+                  {role.roleName}
                 </option>
               ))
             ) : (
