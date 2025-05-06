@@ -82,10 +82,19 @@ export default function EventCreation() {
 
     setLoading(true);
     try {
-      console.log("Sending Event Details:", eventDetails);
+      // Sanitize roles + privileges before sending
+      const sanitizedRoles = eventDetails.eventRoles.map(role => ({
+        roleName: role.roleName.trim(),
+        privileges: role.privileges
+          .map(p => p.trim())
+          .filter(p => p !== '')
+      }));
+
+      console.log("Sending sanitized Event Details:", { ...eventDetails, eventRoles: sanitizedRoles });
 
       const response = await axios.post(`${BASE_URL}/events/create-event`, {
         ...eventDetails,
+        eventRoles: sanitizedRoles,
         date: new Date(eventDetails.date).toISOString().split('T')[0],
       });
 
