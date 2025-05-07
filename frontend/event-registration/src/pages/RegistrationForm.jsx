@@ -95,45 +95,38 @@ function RegistrationForm() {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    if (!validate()) return;
+  if (!validate()) return;
 
-    if (formData.role === "select") {
-      toast.error("Please select a valid role.");
-      return;
+  if (formData.role === "select") {
+    toast.error("Please select a valid role.");
+    return;
+  }
+
+  setLoading(true);
+  try {
+    const dataToSend = {
+      ...formData,
+    };
+
+    const response = await axios.post(`${BASE_URL}/users/register`, dataToSend);
+
+    console.log("Backend response:", response);
+
+    if (!response.data || !response.data.qrCode) {
+      throw new Error("QR Code not received");
     }
 
-    setLoading(true);
-    try {
-      // Match role by roleName
-      const selectedRole = event.eventRoles.find((role) => role.roleName === formData.role);
-      const privileges = selectedRole ? selectedRole.privileges : [];
+    toast.success("Registration successful!");
+    navigate("/success", { state: response.data });
+  } catch (error) {
+    toast.error("Registration failed. Try again.");
+    console.error("Error:", error);
+  }
+  setLoading(false);
+};
 
-      const dataToSend = {
-        ...formData,
-        claimedPrivileges: privileges.map((privilege) => ({
-          privilegeName: privilege.name,
-          claimed: false,
-        })),
-      };
-
-      const response = await axios.post(`${BASE_URL}/users/register`, dataToSend);
-
-      console.log("Backend response:", response);
-
-      if (!response.data || !response.data.qrCode) {
-        throw new Error("QR Code not received");
-      }
-
-      toast.success("Registration successful!");
-      navigate("/success", { state: response.data });
-    } catch (error) {
-      toast.error("Registration failed. Try again.");
-      console.error("Error:", error);
-    }
-    setLoading(false);
-  };
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-gradient-to-r from-blue-500 to-purple-600 p-4">
