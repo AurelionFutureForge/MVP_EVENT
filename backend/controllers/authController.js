@@ -117,15 +117,41 @@ const createPrivilege = async (req, res) => {
 
 // Assign privilege to users under the role
 const assignPrivilegeToUsers = async (req, res) => {
-  const { companyName, eventName, roleName, privileges } = req.body;
+  const { companyName, roleName, privileges } = req.body;
 
-  if (!companyName || !eventName || !roleName || !privileges.length) {
-    return res.status(400).json({ message: "Company, event, role and privileges are required" });
+  if (!companyName || !roleName || !privileges.length) {
+    return res.status(400).json({ message: "Company, role, and privileges are required" });
   }
 
   try {
+    // Fetch the event data using companyName
+    const event = await Event.findOne({ companyName });
+
+    if (!event) {
+      return res.status(404).json({ message: "Event not found for this company" });
+    }
+
+    const eventName = event.eventName;  // Get the eventName from the fetched event
+
+    // Fetch users for the specific company and role
     const users = await User.find({ companyName, eventName, role: roleName });
 
+    // Create and save privileges in the Privilege collection
+    for (const priv of privileges) {
+      const newPrivilege = new Privilege({
+        companyName,
+        eventName,
+        roleName,
+        privileges: [{
+          privilegeName: priv.privilegeName,
+          email: priv.email,
+          password: priv.password
+        }]
+      });
+      await newPrivilege.save();
+    }
+
+    // Assign privileges to users
     for (let user of users) {
       const existing = user.privileges.map(p => p.privilegeName);
       const newPrivileges = privileges.filter(
@@ -136,11 +162,13 @@ const assignPrivilegeToUsers = async (req, res) => {
       await user.save();
     }
 
-    res.status(200).json({ message: "Privileges assigned to users successfully" });
+    res.status(200).json({ message: "Privileges assigned to users and saved successfully" });
   } catch (error) {
     res.status(500).json({ message: "Server error while assigning privileges" });
   }
 };
+
+
 
 const getRoles = async (req, res) => {
   try {

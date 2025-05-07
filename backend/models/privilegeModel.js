@@ -6,11 +6,12 @@ const privilegeSchema = new mongoose.Schema({
   roleName: { type: String, required: true },
   privileges: [
     {
-      privilegeName: { type: String, required: true }
+      privilegeName: { type: String, required: true },
+      email: { type: String, required: true },
+      password: { type: String, required: true }
     }
-  ],
-  email: { type: String, required: true },
-  password: { type: String, required: true }
+  ]
 }, { timestamps: true });
 
 module.exports = mongoose.model('Privilege', privilegeSchema);
+;
