@@ -39,7 +39,6 @@ exports.registerUser = async (req, res) => {
       contact,
       role,
       hasEntered: false,  // Entry status can remain default
-      claimedPrivileges: []  // No privileges, keep it empty
     };
 
     // Create the new user without privileges

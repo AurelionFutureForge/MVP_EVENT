@@ -106,8 +106,16 @@ function RegistrationForm() {
 
     setLoading(true);
     try {
+      // FIXED: Match role by roleName
+      const selectedRole = event.eventRoles.find((role) => role.roleName === formData.role);
+      const privileges = selectedRole ? selectedRole.privileges : [];
+
       const dataToSend = {
         ...formData,
+        claimedPrivileges: privileges.map((privilege) => ({
+          privilegeName: privilege.name,
+          claimed: false,
+        })),
       };
 
       const response = await axios.post(`${BASE_URL}/users/register`, dataToSend);
@@ -185,7 +193,7 @@ function RegistrationForm() {
             {roles.length > 0 ? (
               roles.map((role) => (
                 <option key={role._id} value={role.roleName}>
-                  {role.roleName} - {role.description} {/* Display role name and description */}
+                  {role.roleName} - {role.description} {/* Added description */}
                 </option>
               ))
             ) : (
