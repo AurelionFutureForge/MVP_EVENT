@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+
 const userSchema = new mongoose.Schema(
   {
     name: { type: String, required: true },
@@ -13,7 +14,17 @@ const userSchema = new mongoose.Schema(
     role: { type: String, required: true },
     qrCode: { type: String },
     hasEntered: { type: Boolean, default: false },
-    privileges: [{ privilegeName: { type: String }, default: [] }]  
+
+    // Privileges array with default []
+    privileges: {
+      type: [
+        {
+          privilegeName: { type: String, required: true },
+          claim: { type: Boolean, default: false }
+        }
+      ],
+      default: []
+    }
   },
   {
     strict: false,

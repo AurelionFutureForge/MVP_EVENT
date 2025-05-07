@@ -151,12 +151,15 @@ const assignPrivilegeToUsers = async (req, res) => {
       await newPrivilege.save();
     }
 
-    // Assign privileges to users
+    // Assign privileges to users with claim: false
     for (let user of users) {
       const existing = user.privileges.map(p => p.privilegeName);
-      const newPrivileges = privileges.filter(
-        p => !existing.includes(p.privilegeName)
-      );
+      const newPrivileges = privileges
+        .filter(p => !existing.includes(p.privilegeName))
+        .map(p => ({
+          privilegeName: p.privilegeName,
+          claim: false  // Add claim: false here
+        }));
 
       user.privileges.push(...newPrivileges);
       await user.save();
@@ -167,7 +170,6 @@ const assignPrivilegeToUsers = async (req, res) => {
     res.status(500).json({ message: "Server error while assigning privileges" });
   }
 };
-
 
 
 const getRoles = async (req, res) => {
