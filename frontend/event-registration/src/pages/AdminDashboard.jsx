@@ -27,7 +27,9 @@ function AdminDashboard() {
           headers: { Authorization: `Bearer ${token}` },
         });
 
-        const filteredUsers = response.data.filter(user => user.companyName === companyName);
+        const filteredUsers = response.data.filter(
+          (user) => user.companyName === companyName
+        );
         setUsers(filteredUsers);
       } catch (error) {
         toast.error("Failed to fetch users. Please try again.");
@@ -56,8 +58,13 @@ function AdminDashboard() {
       user.role,
       user.contact,
       user.privileges && user.privileges.length > 0
-        ? user.privileges.map(p => `${p.privilegeName} (${p.claim ? 'Claimed' : 'Not Claimed'})`).join(", ")
-        : "No privileges assigned"
+        ? user.privileges
+            .map(
+              (p) =>
+                `${p.privilegeName} (${p.claim ? "Claimed" : "Not Claimed"})`
+            )
+            .join(", ")
+        : "No privileges assigned",
     ]);
 
     autoTable(pdf, {
@@ -76,16 +83,38 @@ function AdminDashboard() {
 
   const getFilteredUsers = () => {
     return users.filter((user) => {
-      const matchesSearch = user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                            user.email.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesSearch =
+        user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        user.email.toLowerCase().includes(searchTerm.toLowerCase());
       const matchesRole = roleFilter === "All" || user.role === roleFilter;
       return matchesSearch && matchesRole;
     });
   };
 
+  const getPrivilegeSummary = () => {
+    const summary = {};
+
+    users.forEach((user) => {
+      if (user.privileges && user.privileges.length > 0) {
+        user.privileges.forEach((priv) => {
+          const name = priv.privilegeName;
+          if (!summary[name]) {
+            summary[name] = { claimed: 0, total: 0 };
+          }
+          summary[name].total += 1;
+          if (priv.claim) {
+            summary[name].claimed += 1;
+          }
+        });
+      }
+    });
+
+    return summary;
+  };
+
   const totalRegistrations = users.length;
-  const totalEntries = users.filter(user => user.hasEntered).length;
-  const uniqueRoles = [...new Set(users.map(u => u.role))];
+  const totalEntries = users.filter((user) => user.hasEntered).length;
+  const uniqueRoles = [...new Set(users.map((u) => u.role))];
 
   const handleLogout = () => {
     localStorage.removeItem("adminToken");
@@ -97,13 +126,39 @@ function AdminDashboard() {
   return (
     <div className="min-h-screen bg-gray-100 p-6 flex flex-col items-center">
       <div className="bg-white p-6 shadow-xl rounded-2xl w-full max-w-7xl">
-        <h2 className="text-4xl font-extrabold text-gray-800 mb-2 text-center">Admin Dashboard</h2>
-        <p className="text-center text-lg mb-6 text-gray-600">Company: <span className="font-semibold text-blue-600">{companyName}</span></p>
+        <h2 className="text-4xl font-extrabold text-gray-800 mb-2 text-center">
+          Admin Dashboard
+        </h2>
+        <p className="text-center text-lg mb-6 text-gray-600">
+          Company:{" "}
+          <span className="font-semibold text-blue-600">{companyName}</span>
+        </p>
 
         {/* Event Summary */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-6">
           <SummaryCard title="Total Registrations" value={totalRegistrations} color="blue" />
           <SummaryCard title="Total Entries" value={totalEntries} color="green" />
+        </div>
+
+        {/* Privilege Summary */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+          {Object.entries(getPrivilegeSummary()).map(([privName, data], idx) => {
+            const color =
+              data.claimed === data.total
+                ? "green"
+                : data.claimed > 0
+                ? "yellow"
+                : "red";
+
+            return (
+              <SummaryCard
+                key={idx}
+                title={`${privName}`}
+                value={`${data.claimed} / ${data.total} Claimed`}
+                color={color}
+              />
+            );
+          })}
         </div>
 
         {/* Actions */}
@@ -123,7 +178,9 @@ function AdminDashboard() {
             >
               <option value="All">All Roles</option>
               {uniqueRoles.map((role, idx) => (
-                <option key={idx} value={role}>{role}</option>
+                <option key={idx} value={role}>
+                  {role}
+                </option>
               ))}
             </select>
           </div>
@@ -166,7 +223,10 @@ function AdminDashboard() {
             </thead>
             <tbody>
               {getFilteredUsers().map((user, index) => (
-                <tr key={index} className="text-center border-b hover:bg-gray-100 transition text-sm">
+                <tr
+                  key={index}
+                  className="text-center border-b hover:bg-gray-100 transition text-sm"
+                >
                   <td className="p-3">{user.name}</td>
                   <td className="p-3">{user.email}</td>
                   <td className="p-3">{user.role}</td>
@@ -175,8 +235,14 @@ function AdminDashboard() {
                     {user.privileges && user.privileges.length > 0 ? (
                       <ul className="text-left space-y-1">
                         {user.privileges.map((priv, idx) => (
-                          <li key={idx} className="flex items-center gap-1 text-xs">
-                            <span className="font-semibold">{priv.privilegeName}</span> — 
+                          <li
+                            key={idx}
+                            className="flex items-center gap-1 text-xs"
+                          >
+                            <span className="font-semibold">
+                              {priv.privilegeName}
+                            </span>{" "}
+                            —{" "}
                             {priv.claim ? (
                               <span className="text-green-600">Claimed</span>
                             ) : (
@@ -186,7 +252,9 @@ function AdminDashboard() {
                         ))}
                       </ul>
                     ) : (
-                      <span className="text-gray-500 text-xs italic">No privileges assigned</span>
+                      <span className="text-gray-500 text-xs italic">
+                        No privileges assigned
+                      </span>
                     )}
                   </td>
                 </tr>
@@ -195,7 +263,9 @@ function AdminDashboard() {
           </table>
 
           {getFilteredUsers().length === 0 && (
-            <p className="text-center text-gray-500 py-4 text-sm">No matching users found.</p>
+            <p className="text-center text-gray-500 py-4 text-sm">
+              No matching users found.
+            </p>
           )}
         </div>
       </div>
