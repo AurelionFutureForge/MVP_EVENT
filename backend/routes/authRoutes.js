@@ -16,7 +16,7 @@ router.get('/roles', authenticateAdmin, getRoles);
 
 router.post('/privileges', authenticateAdmin, createPrivilege);
 
-router.put('/assign-privileges', authenticateAdmin, assignPrivilegeToUsers);
+router.put('/assign-privileges',authenticateAdmin, assignPrivilegeToUsers);
 
 
 
