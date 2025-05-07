@@ -30,7 +30,7 @@ function Home() {
           <Link to="/admin/register" className="px-6 py-3 bg-white text-blue-600 font-semibold rounded-lg shadow hover:bg-gray-100 transition">
             Create Event
           </Link> 
-          <Link to="/privilege-login" className="px-6 py-3 bg-white text-blue-600 font-semibold rounded-lg shadow hover:bg-gray-100 transition">
+          <Link to="/privilege-login" className="px-6 py-3 bg-blue-700 text-white font-semibold rounded-lg shadow hover:bg-blue-800 transition">
             Scan the Privilege
           </Link> 
         </div>
