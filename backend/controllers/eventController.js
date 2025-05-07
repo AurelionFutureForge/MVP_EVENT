@@ -30,26 +30,14 @@ const createEvent = async (req, res) => {
       if (!role.roleName || typeof role.roleName !== 'string') {
         return res.status(400).json({ msg: 'Each role must have a valid roleName' });
       }
-      if (!Array.isArray(role.privileges) || role.privileges.length === 0) {
-        return res.status(400).json({ msg: `Role '${role.roleName}' must have at least one privilege` });
-      }
-
-      for (const privilege of role.privileges) {
-        if (!privilege.name || typeof privilege.name !== 'string') {
-          return res.status(400).json({ msg: `Each privilege in role '${role.roleName}' must have a valid name` });
-        }
-        if (typeof privilege.claimable !== 'boolean') {
-          return res.status(400).json({ msg: `Privilege '${privilege.name}' in role '${role.roleName}' must have claimable as boolean` });
-        }
+      if (!role.roleDescription || typeof role.roleDescription !== 'string') {
+        return res.status(400).json({ msg: `Role '${role.roleName}' must have a valid roleDescription` });
       }
     }
 
     const processedRoles = eventRoles.map(role => ({
       roleName: role.roleName.trim(),
-      privileges: role.privileges.map(priv => ({
-        name: priv.name.trim(),
-        claimable: priv.claimable
-      }))
+      roleDescription: role.roleDescription.trim()  // Now handling roleDescription
     }));
 
     const newEvent = new Event({
@@ -68,7 +56,6 @@ const createEvent = async (req, res) => {
     res.status(500).json({ msg: 'Server error', error: error.message });
   }
 };
-
 
 // Get all events
 const getEvents = async (req, res) => {
@@ -118,4 +105,3 @@ const getEventByDetails = async (req, res) => {
 };
 
 module.exports = { createEvent, getEvents, getEventByDetails };
-

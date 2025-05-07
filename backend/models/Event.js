@@ -1,19 +1,16 @@
 const mongoose = require('mongoose');
 
-const privilegeSchema = new mongoose.Schema({
-  name: { type: String, required: true },
-  claimable: { type: Boolean, required: true }
-});
-
+// Updated Role Schema without Privileges
 const roleSchema = new mongoose.Schema({
   roleName: { type: String, required: true },
-  privileges: [privilegeSchema]   // An array of dynamic privileges
+  roleDescription: { type: String, required: true }   // New roleDescription
 });
 
+// Event Schema
 const eventSchema = new mongoose.Schema({
   companyName: { type: String, required: true },
   eventName: { type: String, required: true },
-  eventRoles: [roleSchema],       // Array of roles
+  eventRoles: [roleSchema],       // Array of roles with descriptions
   place: { type: String, required: true },
   time: { type: String, required: true },
   date: { type: String, required: true }
