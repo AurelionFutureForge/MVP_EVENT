@@ -1,4 +1,3 @@
-// src/pages/Admin/ManageAccess.jsx
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { toast } from "react-hot-toast";
@@ -22,7 +21,7 @@ function ManageAccess() {
           headers: { Authorization: `Bearer ${token}` },
           params: { companyName },
         });
-        setRoles(response.data.roles);
+        setRoles(response.data.roles);  // Setting the fetched roles
       } catch (error) {
         toast.error("Failed to fetch roles");
       }
@@ -87,8 +86,8 @@ function ManageAccess() {
             className="w-full border rounded px-3 py-2 focus:ring-2 focus:ring-blue-400"
           >
             <option value="">-- Select Role --</option>
-            {roles.map((role, idx) => (
-              <option key={idx} value={role.roleName}>{role.roleName}</option>
+            {roles && roles.map((role, idx) => (
+              <option key={idx} value={role}>{role}</option>
             ))}
           </select>
         </div>

@@ -3,6 +3,7 @@ const bcrypt = require("bcryptjs");
 const Admin = require("../models/Admin");
 const User = require("../models/User");
 const Privilege = require('../models/privilegeModel');
+const Event = require("../models/Event");
 
 
 // Admin login function
@@ -142,24 +143,28 @@ const assignPrivilegeToUsers = async (req, res) => {
 };
 
 const getRoles = async (req, res) => {
-  const adminCompanyName = req.admin.companyName;
-
   try {
-    const events = await Event.find({ companyName: adminCompanyName });
+    const adminCompanyName = req.admin.companyName;
 
-    const rolesList = [];
-    events.forEach(event => {
-      event.eventRoles.forEach(roleObj => {
-        rolesList.push(roleObj.roleName); // Only include roleName
-      });
-    });
+    // Find the event by companyName and project only roleName
+    const event = await Event.findOne(
+      { companyName: adminCompanyName },
+      { "eventRoles.roleName": 1, _id: 0 }  // Only fetch roleName
+    );
 
-    res.status(200).json(rolesList); // Send only role names
+    if (!event) {
+      return res.status(404).json({ message: "Event not found for this company" });
+    }
+
+    // Extract roleName only from eventRoles array
+    const roles = event.eventRoles.map(role => role.roleName);
+
+    res.json({ roles });
   } catch (error) {
-    res.status(500).json({ message: "Error fetching roles" });
+    console.error("Error in getRoles:", error.message);
+    res.status(500).json({ message: "Server Error" });
   }
 };
-
 
 
 module.exports = { adminLogin, getAllUsers, registerAdmin, createPrivilege, assignPrivilegeToUsers, getRoles };
