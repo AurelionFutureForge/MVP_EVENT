@@ -57,7 +57,7 @@ function ManageAccess() {
     const token = localStorage.getItem("adminToken");
 
     try {
-      await axios.post(`${BASE_URL}/admin/assign-privileges`, {
+      await axios.put(`${BASE_URL}/admin/assign-privileges`, {
         companyName,
         roleName: selectedRole,
         privileges,
