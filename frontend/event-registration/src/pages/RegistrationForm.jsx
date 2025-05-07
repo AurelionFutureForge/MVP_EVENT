@@ -193,7 +193,7 @@ function RegistrationForm() {
             {roles.length > 0 ? (
               roles.map((role) => (
                 <option key={role._id} value={role.roleName}>
-                  {role.roleName} - {role.description} {/* Added description */}
+                  {role.roleName} - {role.roleDescription} {/* Added description */}
                 </option>
               ))
             ) : (
