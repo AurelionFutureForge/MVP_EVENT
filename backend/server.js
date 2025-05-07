@@ -8,6 +8,7 @@ const authRoutes = require("./routes/authRoutes");
 const userRoutes = require("./routes/userRoutes");
 const scanRoutes = require("./routes/scanRoutes");
 const eventRoutes = require("./routes/eventRoutes");
+const privilegeRoutes = require('./routes/privilegeRoutes');
 
 const app = express();
 app.use(express.json());
@@ -26,6 +27,7 @@ app.use("/admin", authRoutes);
 app.use("/users", userRoutes);
 app.use("/scan", scanRoutes);
 app.use("/events", eventRoutes);
+app.use('/privilege',privilegeRoutes);
 
 // Connect DB + start server
 mongoose.connect(process.env.MONGO_URI)

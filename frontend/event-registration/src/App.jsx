@@ -11,6 +11,7 @@ import AdminRegister from './pages/AdminRegister'
 import ProtectedRoute from './pages/ProtectedRoute';
 import PotectedEventRoute from './pages/ProtectedEventRoute';
 import ManageAccess from './pages/ManageAccess';
+import PrivilegeLogin from './pages/PrivilegeLogin';
 
 const App = () => {
   return (
@@ -25,6 +26,7 @@ const App = () => {
         <Route path='/admin/dashboard' element={<ProtectedRoute> <AdminDashboard /> </ ProtectedRoute>} />
         <Route path='/create-event' element={<PotectedEventRoute> <EventCreation />  </PotectedEventRoute>} />
         <Route path='/admin/manage-access' element={<ManageAccess />} />
+        <Rout pat='/privilege-login' element={<PrivilegeLogin />} />
       </Routes>
     </div>
   );
