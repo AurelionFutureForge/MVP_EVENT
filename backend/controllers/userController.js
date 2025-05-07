@@ -19,23 +19,14 @@ exports.registerUser = async (req, res) => {
       return res.status(400).json({ message: "User with this email already registered for this event!" });
     }
 
-    // Fetch the event to get the role privileges and eventId
+    // Fetch the event to get the eventId
     const event = await Event.findOne({ companyName, eventName });
     if (!event) {
       console.log("Event not found:", { companyName, eventName });
       return res.status(404).json({ message: "Event not found!" });
     }
 
-    // Find the matching role privileges from eventRoles
-    const selectedRole = event.eventRoles.find(r => r.roleName === role); // Adjusted based on dynamic role
-    if (!selectedRole) {
-      console.log("Role not found in event:", role);
-      return res.status(400).json({ message: "Selected role not found in this event!" });
-    }
-
-    const privileges = selectedRole.privileges;
-
-    // Prepare the user data for registration
+    // Prepare the user data for registration (no privileges anymore)
     const newUserData = {
       name,
       email,
@@ -48,18 +39,10 @@ exports.registerUser = async (req, res) => {
       contact,
       role,
       hasEntered: false,  // Entry status can remain default
-      claimedPrivileges: []  // Initialize empty claimedPrivileges array
+      claimedPrivileges: []  // No privileges, keep it empty
     };
 
-    // Dynamically add privileges to the user's claimedPrivileges array
-    privileges.forEach(privilege => {
-      newUserData.claimedPrivileges.push({
-        privilegeName: privilege.name,  // Name of the privilege
-        claimed: false,  // Set as false by default (not claimed yet)
-      });
-    });
-
-    // Create the new user with dynamic claimedPrivileges
+    // Create the new user without privileges
     const newUser = new User(newUserData);
     await newUser.save();
 
@@ -95,6 +78,7 @@ exports.registerUser = async (req, res) => {
     res.status(500).json({ message: "Error registering user", error: error.message });
   }
 };
+
 
 // Function to generate PDF dynamically
 const generateTicketPDF = async (name, email, eventName, companyName, place, time, date, role, ticketID, qrCodeImage, pdfPath) => {

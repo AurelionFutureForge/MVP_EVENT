@@ -14,12 +14,6 @@ const userSchema = new mongoose.Schema(
     role: { type: String, required: true },
     qrCode: { type: String },
     hasEntered: { type: Boolean, default: false },
-
-    // Dynamic claims for privileges
-    claimedPrivileges: [{
-      privilegeName: { type: String },  // E.g., 'Lunch', 'Gift', etc.
-      claimed: { type: Boolean, default: false }  // Whether this privilege has been claimed
-    }],
   },
   {
     strict: false,
