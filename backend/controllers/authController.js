@@ -142,7 +142,7 @@ const assignPrivilegeToUsers = async (req, res) => {
 };
 
 const getRoles = async (req, res) => {
-  const adminCompanyName = req.admin.companyName;  // From verified JWT
+  const adminCompanyName = req.admin.companyName;
 
   try {
     const events = await Event.find({ companyName: adminCompanyName });
@@ -150,18 +150,16 @@ const getRoles = async (req, res) => {
     const rolesList = [];
     events.forEach(event => {
       event.eventRoles.forEach(roleObj => {
-        rolesList.push({
-          eventName: event.eventName,
-          roleName: roleObj.roleName,
-          roleDescription: roleObj.roleDescription
-        });
+        rolesList.push(roleObj.roleName); // Only include roleName
       });
     });
 
-    res.status(200).json(rolesList);
+    res.status(200).json(rolesList); // Send only role names
   } catch (error) {
     res.status(500).json({ message: "Error fetching roles" });
   }
 };
+
+
 
 module.exports = { adminLogin, getAllUsers, registerAdmin, createPrivilege, assignPrivilegeToUsers, getRoles };

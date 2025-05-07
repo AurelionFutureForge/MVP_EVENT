@@ -18,7 +18,7 @@ function ManageAccess() {
     const fetchRoles = async () => {
       try {
         const token = localStorage.getItem("adminToken");
-        const response = await axios.get(`${BASE_URL}/admin/event-roles`, {
+        const response = await axios.get(`${BASE_URL}/admin/roles`, {
           headers: { Authorization: `Bearer ${token}` },
           params: { companyName },
         });
