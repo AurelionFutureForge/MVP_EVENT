@@ -39,7 +39,6 @@ exports.registerUser = async (req, res) => {
       contact,
       role,
       privileges,  // Save the privileges assigned to the user
-      hasEntered: false,  // Entry status can remain default
     };
 
     // Create the new user with privileges

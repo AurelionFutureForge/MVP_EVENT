@@ -48,13 +48,17 @@ function AdminDashboard() {
     pdf.setFontSize(18);
     pdf.text("Registered Users", 14, 20);
 
-    const headers = [["Name", "Email", "Role", "Contact", "Entry Status"]];
+    const headers = [["Name", "Email", "Role", "Contact", "Entry Status", "Privileges"]];
+
     const data = filteredUsers.map((user) => [
       user.name,
       user.email,
       user.role,
       user.contact,
       user.hasEntered ? "Entered" : "Not Entered",
+      user.privileges && user.privileges.length > 0
+        ? user.privileges.map(p => `${p.privilegeName} (${p.claim ? 'Claimed' : 'Not Claimed'})`).join(", ")
+        : "No privileges assigned"
     ]);
 
     autoTable(pdf, {
@@ -127,13 +131,6 @@ function AdminDashboard() {
 
           <div className="flex gap-2 justify-end w-full md:w-auto">
             <button
-              onClick={() => navigate("/admin/scanner")}
-              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition shadow"
-            >
-              Scan QR Code
-            </button>
-
-            <button
               onClick={downloadPDF}
               className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition shadow"
             >
@@ -166,6 +163,7 @@ function AdminDashboard() {
                 <th className="p-3">Role</th>
                 <th className="p-3">Contact</th>
                 <th className="p-3">Entry</th>
+                <th className="p-3">Privileges</th>
               </tr>
             </thead>
             <tbody>
@@ -180,6 +178,24 @@ function AdminDashboard() {
                       <span className="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">Entered</span>
                     ) : (
                       <span className="bg-red-100 text-red-800 px-2 py-1 rounded-full text-xs font-medium">Not Entered</span>
+                    )}
+                  </td>
+                  <td className="p-3">
+                    {user.privileges && user.privileges.length > 0 ? (
+                      <ul className="text-left space-y-1">
+                        {user.privileges.map((priv, idx) => (
+                          <li key={idx} className="flex items-center gap-1 text-xs">
+                            <span className="font-semibold">{priv.privilegeName}</span> — 
+                            {priv.claim ? (
+                              <span className="text-green-600">Claimed</span>
+                            ) : (
+                              <span className="text-red-600">Not Claimed</span>
+                            )}
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <span className="text-gray-500 text-xs italic">No privileges assigned</span>
                     )}
                   </td>
                 </tr>
