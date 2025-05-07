@@ -190,7 +190,7 @@ function RegistrationForm() {
             className="w-full border border-gray-300 px-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-400"
             disabled={formData.paymentCompleted}
           >
-            {roles.length > 0 ? (
+            { roles && roles.length > 0 ? (
               roles.map((role) => (
                 <option key={role._id} value={role.roleName}>
                   {role.roleName} - {role.roleDescription} {/* Added description */}
