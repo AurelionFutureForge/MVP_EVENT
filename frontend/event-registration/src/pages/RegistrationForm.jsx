@@ -34,6 +34,7 @@ function RegistrationForm() {
     const fetchEvent = async () => {
       try {
         const response = await axios.get(`${BASE_URL}/events/${companyName}/${eventName}`);
+        console.log("Fetched event:", response.data); // Log the whole response
         setEvent(response.data);
         setFormData((prev) => ({
           ...prev,
@@ -42,15 +43,14 @@ function RegistrationForm() {
           date: response.data.date,
         }));
 
-        setRoles(response.data.eventRoles || []);
+        const eventRoles = response.data.eventRoles || [];
+        setRoles(eventRoles);
+        console.log("Fetched roles:", eventRoles); // Log fetched roles
 
-        console.log("Fetched roles:", response.data.eventRoles);
-
-        // FIXED: Set first available role using roleName
-        if (response.data.eventRoles?.length > 0) {
+        if (eventRoles.length > 0) {
           setFormData((prev) => ({
             ...prev,
-            role: response.data.eventRoles[0].roleName,
+            role: eventRoles[0].roleName,
           }));
         }
       } catch (error) {
@@ -106,7 +106,7 @@ function RegistrationForm() {
 
     setLoading(true);
     try {
-      // FIXED: Match role by roleName
+      // Match role by roleName
       const selectedRole = event.eventRoles.find((role) => role.roleName === formData.role);
       const privileges = selectedRole ? selectedRole.privileges : [];
 
@@ -190,7 +190,7 @@ function RegistrationForm() {
             className="w-full border border-gray-300 px-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-400"
             disabled={formData.paymentCompleted}
           >
-            { roles && roles.length > 0 ? (
+            {Array.isArray(roles) && roles.length > 0 ? (
               roles.map((role) => (
                 <option key={role._id} value={role.roleName}>
                   {role.roleName} - {role.roleDescription} {/* Added description */}
