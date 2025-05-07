@@ -48,14 +48,13 @@ function AdminDashboard() {
     pdf.setFontSize(18);
     pdf.text("Registered Users", 14, 20);
 
-    const headers = [["Name", "Email", "Role", "Contact", "Entry Status", "Privileges"]];
+    const headers = [["Name", "Email", "Role", "Contact", "Privileges"]];
 
     const data = filteredUsers.map((user) => [
       user.name,
       user.email,
       user.role,
       user.contact,
-      user.hasEntered ? "Entered" : "Not Entered",
       user.privileges && user.privileges.length > 0
         ? user.privileges.map(p => `${p.privilegeName} (${p.claim ? 'Claimed' : 'Not Claimed'})`).join(", ")
         : "No privileges assigned"
@@ -162,7 +161,6 @@ function AdminDashboard() {
                 <th className="p-3">Email</th>
                 <th className="p-3">Role</th>
                 <th className="p-3">Contact</th>
-                <th className="p-3">Entry</th>
                 <th className="p-3">Privileges</th>
               </tr>
             </thead>
@@ -173,13 +171,6 @@ function AdminDashboard() {
                   <td className="p-3">{user.email}</td>
                   <td className="p-3">{user.role}</td>
                   <td className="p-3">{user.contact}</td>
-                  <td className="p-3">
-                    {user.hasEntered ? (
-                      <span className="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">Entered</span>
-                    ) : (
-                      <span className="bg-red-100 text-red-800 px-2 py-1 rounded-full text-xs font-medium">Not Entered</span>
-                    )}
-                  </td>
                   <td className="p-3">
                     {user.privileges && user.privileges.length > 0 ? (
                       <ul className="text-left space-y-1">
