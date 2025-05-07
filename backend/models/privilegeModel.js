@@ -14,4 +14,3 @@ const privilegeSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 module.exports = mongoose.model('Privilege', privilegeSchema);
-;
