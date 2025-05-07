@@ -61,7 +61,7 @@ function AdminDashboard() {
         ? user.privileges
             .map(
               (p) =>
-                `${p.privilegeName} (${p.claim ? "Claimed" : "Not Claimed"})`
+                `${p.privilegeName.toUpperCase()} (${p.claim ? "Claimed" : "Not Claimed"})`
             )
             .join(", ")
         : "No privileges assigned",
@@ -97,7 +97,7 @@ function AdminDashboard() {
     users.forEach((user) => {
       if (user.privileges && user.privileges.length > 0) {
         user.privileges.forEach((priv) => {
-          const name = priv.privilegeName;
+          const name = priv.privilegeName.toUpperCase();
           if (!summary[name]) {
             summary[name] = { claimed: 0, total: 0 };
           }
@@ -113,7 +113,6 @@ function AdminDashboard() {
   };
 
   const totalRegistrations = users.length;
-  const totalEntries = users.filter((user) => user.hasEntered).length;
   const uniqueRoles = [...new Set(users.map((u) => u.role))];
 
   const handleLogout = () => {
@@ -137,7 +136,6 @@ function AdminDashboard() {
         {/* Event Summary */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-6">
           <SummaryCard title="Total Registrations" value={totalRegistrations} color="blue" />
-          <SummaryCard title="Total Entries" value={totalEntries} color="green" />
         </div>
 
         {/* Privilege Summary */}
@@ -153,7 +151,7 @@ function AdminDashboard() {
             return (
               <SummaryCard
                 key={idx}
-                title={`${privName}`}
+                title={privName} // Already uppercased in getPrivilegeSummary
                 value={`${data.claimed} / ${data.total} Claimed`}
                 color={color}
               />
@@ -240,7 +238,7 @@ function AdminDashboard() {
                             className="flex items-center gap-1 text-xs"
                           >
                             <span className="font-semibold">
-                              {priv.privilegeName}
+                              {priv.privilegeName.toUpperCase()}
                             </span>{" "}
                             —{" "}
                             {priv.claim ? (
