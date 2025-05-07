@@ -3,8 +3,7 @@ const bcrypt = require("bcryptjs");
 const Admin = require("../models/Admin");
 const User = require("../models/User");
 const Privilege = require('../models/Privilege');
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
+
 
 // Admin login function
 const adminLogin = async (req, res) => {
