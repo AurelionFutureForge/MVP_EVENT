@@ -5,7 +5,7 @@ import { FaCheckCircle, FaEnvelope, FaHome, FaQrcode, FaUser, FaCalendarAlt, FaM
 function SuccessPage() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { name, email, eventName, companyName, place, time, qrCode } = location.state || {};
+  const { name, email, eventName, companyName, place, time, date, qrCode } = location.state || {};
   const [showConfetti, setShowConfetti] = useState(false);
 
   useEffect(() => {
@@ -40,7 +40,7 @@ function SuccessPage() {
             <FaCalendarAlt className="mr-2 text-purple-500" /> {eventName}
           </p>
           <p className="flex items-center justify-center mt-2">
-            <FaClock className="mr-2 text-yellow-500" /> March 15 - 16, 2025 | {time} (IST)
+            <FaClock className="mr-2 text-yellow-500" /> {date} | {time} (IST)
           </p>
           <p className="flex items-center justify-center mt-2">
             <FaMapMarkerAlt className="mr-2 text-pink-500" /> {place}

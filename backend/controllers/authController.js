@@ -2,7 +2,9 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const Admin = require("../models/Admin");
 const User = require("../models/User");
-
+const Privilege = require('../models/Privilege');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 
 // Admin login function
 const adminLogin = async (req, res) => {
@@ -96,4 +98,80 @@ const registerAdmin = async (req, res) => {
   }
 };
 
-module.exports = { adminLogin, getAllUsers, registerAdmin };
+const manageAccess = async (req, res) => {
+  const { email, password, role, privileges, companyName, eventName } = req.body;
+
+  try {
+    // Check if the user already exists
+    const existingUser = await User.findOne({ email, companyName });
+    if (existingUser) {
+      return res.status(400).json({ message: "User already exists under this company." });
+    }
+
+    // Fetch the privileges for the role
+    const rolePrivileges = await Privilege.findOne({ eventName, companyName, role });
+    if (!rolePrivileges) {
+      return res.status(404).json({ message: "No privileges found for this role." });
+    }
+
+    // Hash the password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Create the new user
+    const newUser = new User({
+      email,
+      password: hashedPassword,
+      role,
+      companyName,
+      eventName,
+      privileges: privileges.map((privilege) => ({
+        privilegeName: privilege,
+        claimed: false,
+      })),
+    });
+
+    await newUser.save();
+
+    res.status(201).json({ message: "User access granted successfully!", user: newUser });
+  } catch (error) {
+    console.error("Error managing access:", error);
+    res.status(500).json({ message: "Error managing access.", error: error.message });
+  }
+};
+
+// adminController.js (add this to your admin controller)
+const getAccessGrants = async (req, res) => {
+  const { companyName } = req.params;
+
+  try {
+    // Get users belonging to this company
+    const users = await User.find({ companyName });
+
+    res.status(200).json({ users });
+  } catch (error) {
+    console.error("Error fetching access grants:", error);
+    res.status(500).json({ message: "Error fetching access grants.", error: error.message });
+  }
+};
+
+
+// adminController.js
+const revokeAccess = async (req, res) => {
+  const { userId } = req.params;
+
+  try {
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found." });
+    }
+
+    await user.remove();
+    res.status(200).json({ message: "Access revoked successfully!" });
+  } catch (error) {
+    console.error("Error revoking access:", error);
+    res.status(500).json({ message: "Error revoking access.", error: error.message });
+  }
+};
+
+
+module.exports = { adminLogin, getAllUsers, registerAdmin, manageAccess, getAccessGrants, revokeAccess};

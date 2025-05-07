@@ -8,7 +8,7 @@ const Event = require("../models/Event");   // ADD this import at the top if not
 
 // Register User
 exports.registerUser = async (req, res) => {
-  const { name, email, eventName, companyName, place, time, date, contact, role } = req.body;
+  const { name, email, eventName, companyName, place, time, date, contact, role, privileges } = req.body;  // Added privileges
   console.log("Received registration request with body:", req.body);
 
   try {
@@ -26,7 +26,7 @@ exports.registerUser = async (req, res) => {
       return res.status(404).json({ message: "Event not found!" });
     }
 
-    // Prepare the user data for registration (no privileges anymore)
+    // Prepare the user data for registration (including privileges)
     const newUserData = {
       name,
       email,
@@ -38,10 +38,11 @@ exports.registerUser = async (req, res) => {
       date: new Date(date).toISOString().split("T")[0], // Format to YYYY-MM-DD
       contact,
       role,
+      privileges,  // Save the privileges assigned to the user
       hasEntered: false,  // Entry status can remain default
     };
 
-    // Create the new user without privileges
+    // Create the new user with privileges
     const newUser = new User(newUserData);
     await newUser.save();
 
@@ -69,7 +70,8 @@ exports.registerUser = async (req, res) => {
       name: newUser.name,
       email: newUser.email,
       eventName: newUser.eventName,
-      qrCode: qrCodeImage
+      qrCode: qrCodeImage,
+      privileges: newUser.privileges  // Include the privileges in the response
     });
 
   } catch (error) {
@@ -77,6 +79,7 @@ exports.registerUser = async (req, res) => {
     res.status(500).json({ message: "Error registering user", error: error.message });
   }
 };
+
 
 
 // Function to generate PDF dynamically
@@ -179,9 +182,6 @@ const sendSuccessEmail = async (name, email, eventName, companyName, place, time
     const user = await User.findOne({ email }); // Use email as the query key
     const event = await Event.findById(user.eventId);  // Get the event based on the user
 
-    // Find the role the user is assigned and retrieve the available privileges (those that are claimable and not yet claimed)
-    const userRole = event.eventRoles.find(r => r.roleName === user.role);
-    const availablePrivileges = userRole ? userRole.privileges.filter(priv => priv.claimable && !priv.claimed) : [];
 
     // Convert Base64 QR image to buffer
     const base64Data = qrCodeImage.replace(/^data:image\/png;base64,/, "");
@@ -189,9 +189,6 @@ const sendSuccessEmail = async (name, email, eventName, companyName, place, time
 
     // Read the generated PDF file
     const pdfBuffer = fs.readFileSync(pdfPath);
-
-    // Format privileges for email
-    const availablePrivilegesList = availablePrivileges.length > 0 ? availablePrivileges.map(priv => `<li>${priv.name}</li>`).join('') : "<li>No available privileges.</li>";
 
     const mailOptions = {
       from: "amthemithun@gmail.com",
@@ -229,14 +226,6 @@ const sendSuccessEmail = async (name, email, eventName, companyName, place, time
 
         <div style="text-align: center; padding: 20px;">
             <a href="https://mvp-event.vercel.app/register/${companyName}/${eventName}" style="padding: 10px 20px; background-color: #4CAF50; color: white; text-decoration: none; border-radius: 5px;">Click here to register</a>
-        </div>
-
-        <!-- Available Privileges Section -->
-        <div style="background: #f9f9f9; padding: 20px; border-top: 1px solid #ddd;">
-          <h3>🎉 Available Privileges:</h3>
-          <ul>
-            ${availablePrivilegesList}
-          </ul>
         </div>
 
         <!-- QR Code Section -->
