@@ -13,7 +13,7 @@ const userSchema = new mongoose.Schema(
     role: { type: String, required: true },
     qrCode: { type: String },
     hasEntered: { type: Boolean, default: false },
-    privileges: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Privilege', default: [] }]  // New privileges field
+    privileges: [{ privilegeName: { type: String }, default: [] }]  
   },
   {
     strict: false,

@@ -2,7 +2,7 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const Admin = require("../models/Admin");
 const User = require("../models/User");
-const Privilege = require('../models/Privilege');
+const Privilege = require('../models/privilegeModel');
 
 
 // Admin login function
@@ -97,80 +97,71 @@ const registerAdmin = async (req, res) => {
   }
 };
 
-const manageAccess = async (req, res) => {
-  const { email, password, role, privileges, companyName, eventName } = req.body;
+const createPrivilege = async (req, res) => {
+  const { companyName, eventName, roleName, privileges, email, password } = req.body;
+
+  if (!companyName || !eventName || !roleName || !privileges.length || !email || !password) {
+    return res.status(400).json({ message: "All fields are required" });
+  }
 
   try {
-    // Check if the user already exists
-    const existingUser = await User.findOne({ email, companyName });
-    if (existingUser) {
-      return res.status(400).json({ message: "User already exists under this company." });
+    const newPrivilege = new Privilege({ companyName, eventName, roleName, privileges, email, password });
+    await newPrivilege.save();
+
+    res.status(201).json({ message: "Privilege created successfully" });
+  } catch (error) {
+    res.status(500).json({ message: "Server error while creating privilege" });
+  }
+};
+
+// Assign privilege to users under the role
+const assignPrivilegeToUsers = async (req, res) => {
+  const { companyName, eventName, roleName, privileges } = req.body;
+
+  if (!companyName || !eventName || !roleName || !privileges.length) {
+    return res.status(400).json({ message: "Company, event, role and privileges are required" });
+  }
+
+  try {
+    const users = await User.find({ companyName, eventName, role: roleName });
+
+    for (let user of users) {
+      const existing = user.privileges.map(p => p.privilegeName);
+      const newPrivileges = privileges.filter(
+        p => !existing.includes(p.privilegeName)
+      );
+
+      user.privileges.push(...newPrivileges);
+      await user.save();
     }
 
-    // Fetch the privileges for the role
-    const rolePrivileges = await Privilege.findOne({ eventName, companyName, role });
-    if (!rolePrivileges) {
-      return res.status(404).json({ message: "No privileges found for this role." });
-    }
+    res.status(200).json({ message: "Privileges assigned to users successfully" });
+  } catch (error) {
+    res.status(500).json({ message: "Server error while assigning privileges" });
+  }
+};
 
-    // Hash the password
-    const hashedPassword = await bcrypt.hash(password, 10);
+const getRoles = async (req, res) => {
+  const adminCompanyName = req.admin.companyName;  // From verified JWT
 
-    // Create the new user
-    const newUser = new User({
-      email,
-      password: hashedPassword,
-      role,
-      companyName,
-      eventName,
-      privileges: privileges.map((privilege) => ({
-        privilegeName: privilege,
-        claimed: false,
-      })),
+  try {
+    const events = await Event.find({ companyName: adminCompanyName });
+
+    const rolesList = [];
+    events.forEach(event => {
+      event.eventRoles.forEach(roleObj => {
+        rolesList.push({
+          eventName: event.eventName,
+          roleName: roleObj.roleName,
+          roleDescription: roleObj.roleDescription
+        });
+      });
     });
 
-    await newUser.save();
-
-    res.status(201).json({ message: "User access granted successfully!", user: newUser });
+    res.status(200).json(rolesList);
   } catch (error) {
-    console.error("Error managing access:", error);
-    res.status(500).json({ message: "Error managing access.", error: error.message });
+    res.status(500).json({ message: "Error fetching roles" });
   }
 };
 
-// adminController.js (add this to your admin controller)
-const getAccessGrants = async (req, res) => {
-  const { companyName } = req.params;
-
-  try {
-    // Get users belonging to this company
-    const users = await User.find({ companyName });
-
-    res.status(200).json({ users });
-  } catch (error) {
-    console.error("Error fetching access grants:", error);
-    res.status(500).json({ message: "Error fetching access grants.", error: error.message });
-  }
-};
-
-
-// adminController.js
-const revokeAccess = async (req, res) => {
-  const { userId } = req.params;
-
-  try {
-    const user = await User.findById(userId);
-    if (!user) {
-      return res.status(404).json({ message: "User not found." });
-    }
-
-    await user.remove();
-    res.status(200).json({ message: "Access revoked successfully!" });
-  } catch (error) {
-    console.error("Error revoking access:", error);
-    res.status(500).json({ message: "Error revoking access.", error: error.message });
-  }
-};
-
-
-module.exports = { adminLogin, getAllUsers, registerAdmin, manageAccess, getAccessGrants, revokeAccess};
+module.exports = { adminLogin, getAllUsers, registerAdmin, createPrivilege, assignPrivilegeToUsers, getRoles };

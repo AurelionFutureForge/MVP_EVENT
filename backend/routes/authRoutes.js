@@ -1,5 +1,5 @@
 const express = require("express");
-const { adminLogin, getAllUsers, registerAdmin,manageAccess,getAccessGrants,revokeAccess } = require("../controllers/authController"); // Ensure functions are correctly imported
+const { adminLogin, getAllUsers, registerAdmin, getRoles, createPrivilege, assignPrivilegeToUsers } = require("../controllers/authController"); // Ensure functions are correctly imported
 const { authenticateAdmin } = require("../middleware/authMiddleware");
 
 const router = express.Router();
@@ -12,12 +12,13 @@ router.get("/users", authenticateAdmin, getAllUsers); // Ensure correct function
 
 router.post("/register", registerAdmin);
 
-router.post('/manage-access', manageAccess);
+router.get('/roles', authenticateAdmin, getRoles);
 
-// Get list of access grants for the admin's company
-router.get('/access-grants/:companyName', getAccessGrants);
+router.post('/privileges', authenticateAdmin, createPrivilege);
 
-// Revoke access for a specific user
-router.delete('/revoke-access/:userId', revokeAccess);
+router.put('/assign-privileges', authenticateAdmin, assignPrivilegeToUsers);
+
+
+
 
 module.exports = router;

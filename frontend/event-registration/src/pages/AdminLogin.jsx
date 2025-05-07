@@ -6,32 +6,34 @@ import { toast } from "react-hot-toast";
 function AdminLogin() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);  
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
- 
+
   const BASE_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    setLoading(true);  
+    setLoading(true);
 
     try {
+      // Send login request to the backend
       const response = await axios.post(`${BASE_URL}/admin/login`, { email, password });
 
-      // Store the admin token in localStorage
+      // Store the admin token and company name in localStorage
       localStorage.setItem("adminToken", response.data.token);
-
-      // Store the company name as well
       localStorage.setItem("adminCompany", response.data.admin.companyName);
 
+      // Success message
       toast.success("Login Successful!");
 
-      // Redirect to the dashboard (now it can use the company context too)
+      // Redirect to the dashboard after login
       navigate("/admin/dashboard");
+
     } catch (error) {
+      // Handle invalid credentials
       toast.error("Invalid Credentials!");
     } finally {
-      setLoading(false);  
+      setLoading(false); // Stop loading animation
     }
   };
 
@@ -50,7 +52,7 @@ function AdminLogin() {
               onChange={(e) => setEmail(e.target.value)}
               required
               placeholder="Enter your email"
-              disabled={loading}   
+              disabled={loading}
             />
           </div>
 
@@ -63,7 +65,7 @@ function AdminLogin() {
               onChange={(e) => setPassword(e.target.value)}
               required
               placeholder="Enter your password"
-              disabled={loading}   
+              disabled={loading}
             />
           </div>
 
@@ -71,9 +73,9 @@ function AdminLogin() {
             type="submit"
             className={`w-full p-3 rounded-lg font-semibold transition transform hover:scale-105 
             ${loading ? "bg-gray-500 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700 text-white"}`}
-            disabled={loading}   
+            disabled={loading}
           >
-            {loading ? "Logging in..." : "Login"} 
+            {loading ? "Logging in..." : "Login"}
           </button>
         </form>
 

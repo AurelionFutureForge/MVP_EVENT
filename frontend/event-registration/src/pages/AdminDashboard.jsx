@@ -48,16 +48,13 @@ function AdminDashboard() {
     pdf.setFontSize(18);
     pdf.text("Registered Users", 14, 20);
 
-    const headers = [["Name", "Email", "Role", "Contact", "Entry Status", "Privileges"]];
+    const headers = [["Name", "Email", "Role", "Contact", "Entry Status"]];
     const data = filteredUsers.map((user) => [
       user.name,
       user.email,
       user.role,
       user.contact,
       user.hasEntered ? "Entered" : "Not Entered",
-      user.claimedPrivileges
-        .map(p => `${p.privilegeName} (${p.claimed ? "Yes" : "No"})`)
-        .join(", ")
     ]);
 
     autoTable(pdf, {
@@ -87,25 +84,6 @@ function AdminDashboard() {
   const totalEntries = users.filter(user => user.hasEntered).length;
   const uniqueRoles = [...new Set(users.map(u => u.role))];
 
-  // Privilege stats
-  const getPrivilegeStats = () => {
-    const privilegeMap = {};
-    users.forEach(user => {
-      user.claimedPrivileges.forEach(priv => {
-        if (!privilegeMap[priv.privilegeName]) {
-          privilegeMap[priv.privilegeName] = { claimed: 0, total: 0 };
-        }
-        privilegeMap[priv.privilegeName].total++;
-        if (priv.claimed) {
-          privilegeMap[priv.privilegeName].claimed++;
-        }
-      });
-    });
-    return privilegeMap;
-  };
-
-  const privilegeStats = getPrivilegeStats();
-
   const handleLogout = () => {
     localStorage.removeItem("adminToken");
     localStorage.removeItem("adminCompany");
@@ -123,14 +101,6 @@ function AdminDashboard() {
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-6">
           <SummaryCard title="Total Registrations" value={totalRegistrations} color="blue" />
           <SummaryCard title="Total Entries" value={totalEntries} color="green" />
-          {Object.entries(privilegeStats).map(([privilege, stats], i) => (
-            <SummaryCard
-              key={i}
-              title={`${privilege} Claimed`}
-              value={`${stats.claimed}/${stats.total}`}
-              color="purple"
-            />
-          ))}
         </div>
 
         {/* Actions */}
@@ -171,6 +141,13 @@ function AdminDashboard() {
             </button>
 
             <button
+              onClick={() => navigate("/admin/manage-access")}
+              className="bg-yellow-600 text-white px-4 py-2 rounded-lg hover:bg-yellow-700 transition shadow"
+            >
+              Manage Access
+            </button>
+
+            <button
               onClick={handleLogout}
               className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition shadow"
             >
@@ -189,7 +166,6 @@ function AdminDashboard() {
                 <th className="p-3">Role</th>
                 <th className="p-3">Contact</th>
                 <th className="p-3">Entry</th>
-                <th className="p-3">Privileges</th>
               </tr>
             </thead>
             <tbody>
@@ -205,13 +181,6 @@ function AdminDashboard() {
                     ) : (
                       <span className="bg-red-100 text-red-800 px-2 py-1 rounded-full text-xs font-medium">Not Entered</span>
                     )}
-                  </td>
-                  <td className="p-3 flex flex-wrap justify-center gap-1">
-                    {user.claimedPrivileges.map((priv, i) => (
-                      <span key={i} className={`px-2 py-1 text-xs rounded-full ${priv.claimed ? 'bg-green-200 text-green-800' : 'bg-red-200 text-red-800'}`}>
-                        {priv.privilegeName} {priv.claimed ? "✅" : "❌"}
-                      </span>
-                    ))}
                   </td>
                 </tr>
               ))}
@@ -229,16 +198,10 @@ function AdminDashboard() {
 
 // Summary Card component
 function SummaryCard({ title, value, color }) {
-  const colorMap = {
-    blue: "bg-blue-100 text-blue-900",
-    green: "bg-green-100 text-green-900",
-    purple: "bg-purple-100 text-purple-900",
-  };
-
   return (
-    <div className={`${colorMap[color]} p-4 rounded-xl text-center shadow`}>
-      <p className="text-3xl font-bold">{value}</p>
-      <p className="text-sm font-medium">{title}</p>
+    <div className={`bg-${color}-200 p-4 rounded-lg shadow text-center`}>
+      <p className={`text-xl font-bold text-${color}-800`}>{title}</p>
+      <p className={`text-lg text-${color}-600`}>{value}</p>
     </div>
   );
 }
