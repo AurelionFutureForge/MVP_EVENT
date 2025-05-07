@@ -47,30 +47,34 @@ exports.privilegeLogin = async (req, res) => {
   }
 };
 
+
 exports.getPrivilegeUsers = async (req, res) => {
-    const token = req.headers.authorization?.split(" ")[1];
-    if (!token) return res.status(401).json({ message: "Unauthorized. Token missing." });
-  
-    try {
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
-      const { email, privilegeName } = decoded;
-  
-      // Find privilege document containing this email inside privileges array
-      const privilegeDoc = await Privilege.findOne({ "privileges.email": email });
-      if (!privilegeDoc) return res.status(404).json({ message: "Privilege not found." });
-  
-      const { companyName, eventName } = privilegeDoc;
-  
-      // Fetch users who belong to same companyName + eventName + role (role === privilegeName)
-      const users = await User.find({
-        companyName,
-        eventName,
-        role: privilegeName
-      });
-  
-      res.json({ users });
-    } catch (err) {
-      console.error(err);
-      res.status(401).json({ message: "Invalid or expired token." });
-    }
-  };
+  const token = req.headers.authorization?.split(" ")[1];
+  if (!token) return res.status(401).json({ message: "Unauthorized. Token missing." });
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const { email, privilegeName } = decoded;
+
+    // Find privilege document containing this email inside privileges array
+    const privilegeDoc = await Privilege.findOne({
+      "privileges.email": email, // Find the privilege matching the email
+    });
+
+    if (!privilegeDoc) return res.status(404).json({ message: "Privilege not found." });
+
+    const { companyName, eventName } = privilegeDoc;
+
+    // Fetch users who belong to the same companyName, eventName, and role matching privilegeName
+    const users = await User.find({
+      companyName,
+      eventName,
+      "privileges.privilegeName": privilegeName, // Ensure privilegeName matches
+    });
+
+    res.json({ users });
+  } catch (err) {
+    console.error(err);
+    res.status(401).json({ message: "Invalid or expired token." });
+  }
+};
