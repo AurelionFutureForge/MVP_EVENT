@@ -9,7 +9,7 @@ function CreateRegistrationForm() {
   ]);
   const [eventName, setEventName] = useState("");
   const [formLink, setFormLink] = useState(""); // Store the form link
-  const BASE_URL = import.meta.env.VITE_BACKEND_URL;
+  const BASE_URL = "https://mvp-event.vercel.app";
   const companyName = localStorage.getItem("adminCompany");
   const navigate = useNavigate();
 
@@ -62,7 +62,6 @@ function CreateRegistrationForm() {
       setFormLink(link); // Set the form link in state
       localStorage.setItem("eventId", eventId); // Store the eventId
       toast.success("Registration form fields updated successfully!");
-      navigate(`/register/${eventId}`);
     } catch (error) {
       toast.error("Failed to update registration form fields.");
     }
