@@ -1,7 +1,6 @@
 import { useState } from "react";
 import axios from "axios";
 import { toast } from "react-hot-toast";
-import { useNavigate } from "react-router-dom";
 
 function CreateRegistrationForm() {
   const [fields, setFields] = useState([
@@ -11,7 +10,6 @@ function CreateRegistrationForm() {
   const [formLink, setFormLink] = useState(""); // Store the form link
   const BASE_URL = import.meta.env.VITE_BACKEND_URL;
   const companyName = localStorage.getItem("adminCompany");
-  const navigate = useNavigate();
 
   const handleFieldChange = (index, field, value) => {
     const updatedFields = [...fields];
@@ -61,6 +59,11 @@ function CreateRegistrationForm() {
       const link = `https://mvp-event.vercel.app/register/${eventId}`; // Generate the registration form link
       setFormLink(link); // Set the form link in state
       localStorage.setItem("eventId", eventId); // Store the eventId
+
+      // Reset form fields after successful submission
+      setEventName("");
+      setFields([{ fieldName: "", fieldType: "text", options: [], required: false }]);
+
       toast.success("Registration form fields updated successfully!");
     } catch (error) {
       toast.error("Failed to update registration form fields.");
@@ -181,21 +184,12 @@ function CreateRegistrationForm() {
         {/* Displaying the registration form link and copy button */}
         {formLink && (
           <div className="mt-6">
-            <p className="text-lg font-semibold">Your Registration Form Link:</p>
-            <div className="flex items-center mt-2">
-              <input
-                type="text"
-                readOnly
-                value={formLink}
-                className="border rounded px-3 py-2 w-full mr-4"
-              />
-              <button
-                onClick={handleCopyLink}
-                className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700"
-              >
-                Copy Link
-              </button>
-            </div>
+            <button
+              onClick={handleCopyLink}
+              className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 w-full"
+            >
+              Copy Registration Form Link
+            </button>
           </div>
         )}
       </div>
