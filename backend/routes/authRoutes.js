@@ -13,10 +13,6 @@ router.get("/users", authenticateAdmin, getAllUsers); // Ensure correct function
 
 router.post("/register", registerAdmin);
 
-router.post('/privileges', authenticateAdmin, createPrivilege);
-
-router.put('/assign-privileges',authenticateAdmin, assignPrivilegeToUsers);
-
 router.get('/event-privileges', authenticatePrivilege, getEventPrivileges);
 
 router.post('/assign-privileges', authenticatePrivilege, assignPrivileges);
