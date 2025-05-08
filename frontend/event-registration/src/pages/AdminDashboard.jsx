@@ -84,12 +84,12 @@ function AdminDashboard() {
   const getFilteredUsers = () => {
     return users.filter((user) => {
       const matchesSearch =
-        user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        user.email.toLowerCase().includes(searchTerm.toLowerCase());
+        (user.name?.toLowerCase() ?? "").includes(searchTerm.toLowerCase()) ||
+        (user.email?.toLowerCase() ?? "").includes(searchTerm.toLowerCase());
       const matchesRole = roleFilter === "All" || user.role === roleFilter;
       return matchesSearch && matchesRole;
     });
-  };
+  };  
 
   const getPrivilegeSummary = () => {
     const summary = {};
