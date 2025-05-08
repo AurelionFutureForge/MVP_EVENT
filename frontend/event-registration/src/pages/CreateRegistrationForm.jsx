@@ -8,6 +8,7 @@ function CreateRegistrationForm() {
     { fieldName: "", fieldType: "text", options: [], required: false },
   ]);
   const [eventName, setEventName] = useState("");
+  const [formLink, setFormLink] = useState("");
   const BASE_URL = import.meta.env.VITE_BACKEND_URL;
   const companyName = localStorage.getItem("adminCompany");
   const navigate = useNavigate();
@@ -19,7 +20,10 @@ function CreateRegistrationForm() {
   };
 
   const addField = () => {
-    setFields([...fields, { fieldName: "", fieldType: "text", options: [], required: false }]);
+    setFields([
+      ...fields,
+      { fieldName: "", fieldType: "text", options: [], required: false },
+    ]);
   };
 
   const removeField = (index) => {
@@ -30,6 +34,11 @@ function CreateRegistrationForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!eventName || fields.some((field) => !field.fieldName)) {
+      toast.error("Please fill out all required fields.");
+      return;
+    }
 
     const token = localStorage.getItem("adminToken");
 
@@ -46,7 +55,9 @@ function CreateRegistrationForm() {
         }
       );
       const eventId = response.data.eventId;
-      localStorage.setItem('eventId', eventId); 
+      const link = `${BASE_URL}/register/${eventId}`; // Generate the form registration link
+      setFormLink(link); // Store the link in the state
+      localStorage.setItem("eventId", eventId);
       toast.success("Registration form fields updated successfully!");
       navigate(`/register/${eventId}`);
     } catch (error) {
@@ -54,10 +65,19 @@ function CreateRegistrationForm() {
     }
   };
 
+  const handleCopyLink = () => {
+    if (formLink) {
+      navigator.clipboard.writeText(formLink);
+      toast.success("Link copied to clipboard!");
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center p-6">
       <div className="bg-white p-8 rounded-xl shadow-lg w-full max-w-3xl">
-        <h2 className="text-3xl font-bold text-center text-gray-800 mb-6">Create Registration Form</h2>
+        <h2 className="text-3xl font-bold text-center text-gray-800 mb-6">
+          Create Registration Form
+        </h2>
 
         <div>
           <label className="block font-semibold">Event Name</label>
@@ -71,7 +91,9 @@ function CreateRegistrationForm() {
 
           {/* Info Box */}
           <div className="bg-yellow-100 text-yellow-800 border border-yellow-300 rounded p-3 mb-4 text-sm">
-            <strong>Note:</strong> You don't need to create a field for <em>Role</em>. It will be automatically handled from the event roles.
+            <strong>Note:</strong> You don't need to create a field for{" "}
+            <em>Role</em>. It will be automatically handled from the event
+            roles.
           </div>
         </div>
 
@@ -150,6 +172,27 @@ function CreateRegistrationForm() {
         >
           Save Registration Form
         </button>
+
+        {/* Displaying the registration form link and copy button */}
+        {formLink && (
+          <div className="mt-6">
+            <p className="text-lg font-semibold">Your Registration Form Link:</p>
+            <div className="flex items-center mt-2">
+              <input
+                type="text"
+                readOnly
+                value={formLink}
+                className="border rounded px-3 py-2 w-full mr-4"
+              />
+              <button
+                onClick={handleCopyLink}
+                className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700"
+              >
+                Copy Link
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
