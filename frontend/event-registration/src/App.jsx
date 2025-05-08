@@ -9,7 +9,7 @@ import Home from './pages/Home';
 import EventCreation from './pages/EventCreation';
 import AdminRegister from './pages/AdminRegister'
 import ProtectedRoute from './pages/ProtectedRoute';
-import PotectedEventRoute from './pages/ProtectedEventRoute';
+import ProtectedEventRoute from './pages/ProtectedEventRoute';
 import ManageAccess from './pages/ManageAccess';
 import PrivilegeLogin from './pages/PrivilegeLogin';
 import PrivilegeDashboard from './pages/PrivilegeDashboard';
