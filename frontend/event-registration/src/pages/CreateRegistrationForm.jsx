@@ -68,6 +68,11 @@ function CreateRegistrationForm() {
             onChange={(e) => setEventName(e.target.value)}
             className="border rounded px-3 py-2 w-full mb-4"
           />
+
+          {/* Info Box */}
+          <div className="bg-yellow-100 text-yellow-800 border border-yellow-300 rounded p-3 mb-4 text-sm">
+            <strong>Note:</strong> You don't need to create a field for <em>Role</em>. It will be automatically handled from the event roles.
+          </div>
         </div>
 
         {fields.map((field, index) => (
