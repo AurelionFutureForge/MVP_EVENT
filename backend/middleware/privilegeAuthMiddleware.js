@@ -2,6 +2,7 @@ const jwt = require("jsonwebtoken");
 
 exports.authenticatePrivilege = (req, res, next) => {
   const token = req.header("Authorization")?.split(" ")[1];
+  console.log(token);
   
   if (!token) {
     return res.status(401).json({ message: "Access Denied: No token provided" });
@@ -9,6 +10,7 @@ exports.authenticatePrivilege = (req, res, next) => {
 
   try {
     const verified = jwt.verify(token, process.env.JWT_SECRET);
+    console.log("verifies:",verified);
 
     // Ensure the JWT contains email and privilegeName
     if (!verified.email || !verified.privilegeName) {
