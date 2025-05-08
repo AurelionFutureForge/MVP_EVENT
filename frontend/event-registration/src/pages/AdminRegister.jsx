@@ -22,7 +22,7 @@ function AdminRegister() {
       const response = await axios.post(`${BASE_URL}/admin/register`, { email, password, companyName });
   
       // Store token and company details in localStorage (log the user in)
-      localStorage.setItem("admin_reg_Token", response.data.token);
+      localStorage.setItem("admin_token", response.data.token);
       localStorage.setItem("admin_reg_Company", response.data.companyName);
   
       toast.success("Admin registered successfully!");

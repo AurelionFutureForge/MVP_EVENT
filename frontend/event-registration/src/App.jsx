@@ -27,7 +27,7 @@ const App = () => {
         <Route path="/admin/register" element={<AdminRegister />} />
         <Route path='/admin/login' element={<AdminLogin />} />
         <Route path='/admin/dashboard' element={<ProtectedRoute> <AdminDashboard /> </ ProtectedRoute>} />
-        <Route path='/create-event' element={<EventCreation />  } />
+        <Route path='/create-event' element={<ProtectedEventRoute> <EventCreation />  </ProtectedEventRoute>} />
         <Route path='/admin/manage-access' element={<ManageAccess />} />
         <Route path='/privilege-login' element={<PrivilegeLogin />} />
         <Route path="/privilege/dashboard" element={<PrivilegeDashboard />} />
