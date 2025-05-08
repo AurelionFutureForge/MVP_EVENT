@@ -26,7 +26,7 @@ export default function EventCreation() {
 
   const BASE_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
 
-  const loggedInEmail = localStorage.getItem('event_creator_email');
+  const loggedInEmail = localStorage.getItem('adminEmail');
 
   useEffect(() => {
     const fetchEvents = async () => {
