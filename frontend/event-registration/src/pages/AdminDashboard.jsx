@@ -53,10 +53,10 @@ function AdminDashboard() {
     const headers = [["Name", "Email", "Role", "Contact", "Privileges"]];
 
     const data = filteredUsers.map((user) => [
-      user.name,
-      user.email,
-      user.role,
-      user.contact,
+      user.registrationData.name,
+      user.registrationData.email,
+      user.registrationData.role,
+      user.registrationData.contact,
       user.privileges && user.privileges.length > 0
         ? user.privileges
             .map(
@@ -84,12 +84,12 @@ function AdminDashboard() {
   const getFilteredUsers = () => {
     return users.filter((user) => {
       const matchesSearch =
-        (user.name?.toLowerCase() ?? "").includes(searchTerm.toLowerCase()) ||
-        (user.email?.toLowerCase() ?? "").includes(searchTerm.toLowerCase());
-      const matchesRole = roleFilter === "All" || user.role === roleFilter;
+        (user.registrationData.name?.toLowerCase() ?? "").includes(searchTerm.toLowerCase()) ||
+        (user.registrationData.email?.toLowerCase() ?? "").includes(searchTerm.toLowerCase());
+      const matchesRole = roleFilter === "All" || user.registrationData.role === roleFilter;
       return matchesSearch && matchesRole;
     });
-  };  
+  };
 
   const getPrivilegeSummary = () => {
     const summary = {};
@@ -115,7 +115,7 @@ function AdminDashboard() {
   };
 
   const totalRegistrations = users.length;
-  const uniqueRoles = [...new Set(users.map((u) => u.role))];
+  const uniqueRoles = [...new Set(users.map((u) => u.registrationData.role))];
 
   const handleLogout = () => {
     localStorage.removeItem("adminToken");
@@ -234,10 +234,10 @@ function AdminDashboard() {
                   key={index}
                   className="text-center border-b hover:bg-gray-100 transition text-sm"
                 >
-                  <td className="p-3">{user.name}</td>
-                  <td className="p-3">{user.email}</td>
-                  <td className="p-3">{user.role}</td>
-                  <td className="p-3">{user.contact}</td>
+                  <td className="p-3">{user.registrationData.name}</td>
+                  <td className="p-3">{user.registrationData.email}</td>
+                  <td className="p-3">{user.registrationData.role}</td>
+                  <td className="p-3">{user.registrationData.contact}</td>
                   <td className="p-3">
                     {user.privileges && user.privileges.length > 0 ? (
                       <ul className="text-left space-y-1">
