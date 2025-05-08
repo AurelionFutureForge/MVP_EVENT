@@ -23,7 +23,7 @@ function AdminRegister() {
   
       // Store token and company details in localStorage (log the user in)
       localStorage.setItem("admin_token", response.data.token);
-      localStorage.setItem("admin_reg_Company", response.data.companyName);
+      localStorage.setItem("adminCompanyName", response.data.companyName);
   
       toast.success("Admin registered successfully!");
       

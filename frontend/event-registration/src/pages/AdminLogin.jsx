@@ -21,7 +21,7 @@ function AdminLogin() {
 
       // Store the admin token and company name in localStorage
       localStorage.setItem("admin_token", response.data.token);
-      localStorage.setItem("adminCompany", response.data.companyName);
+      localStorage.setItem("adminCompanyName", response.data.companyName);
 
       // Success message
       toast.success("Login Successful!");
