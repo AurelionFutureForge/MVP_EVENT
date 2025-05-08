@@ -1,5 +1,5 @@
 const express = require("express");
-const { adminLogin, getAllUsers, registerAdmin, getRoles, createPrivilege, assignPrivilegeToUsers } = require("../controllers/authController"); // Ensure functions are correctly imported
+const { adminLogin, getAllUsers, registerAdmin, getRoles, createPrivilege, assignPrivilegeToUsers} = require("../controllers/authController"); // Ensure functions are correctly imported
 const { authenticateAdmin } = require("../middleware/authMiddleware");
 
 const router = express.Router();

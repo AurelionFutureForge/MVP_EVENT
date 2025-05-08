@@ -91,7 +91,7 @@ const registerAdmin = async (req, res) => {
     );
 
     // Send back the token and success message
-    res.status(201).json({ message: "Admin registered successfully", token });
+    res.status(201).json({ message: "Admin registered successfully", token, companyName :newAdmin.companyName });
 
   } catch (error) {
     res.status(500).json({ message: "Error registering admin", error });
