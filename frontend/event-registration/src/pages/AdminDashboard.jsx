@@ -61,7 +61,7 @@ function AdminDashboard() {
         ? user.privileges
             .map(
               (p) =>
-                `${p.privilegeName.toUpperCase()} (${p.claim ? "Claimed" : "Not Claimed"})`
+                `${p.name?.toUpperCase()} (${p.claim ? "Claimed" : "Not Claimed"})`
             )
             .join(", ")
         : "No privileges assigned",
@@ -97,7 +97,9 @@ function AdminDashboard() {
     users.forEach((user) => {
       if (user.privileges && user.privileges.length > 0) {
         user.privileges.forEach((priv) => {
-          const name = priv.privilegeName.toUpperCase();
+          const name = priv.name?.toUpperCase();
+          if (!name) return;
+
           if (!summary[name]) {
             summary[name] = { claimed: 0, total: 0 };
           }
@@ -151,7 +153,7 @@ function AdminDashboard() {
             return (
               <SummaryCard
                 key={idx}
-                title={privName} // Already uppercased in getPrivilegeSummary
+                title={privName}
                 value={`${data.claimed} / ${data.total} Claimed`}
                 color={color}
               />
@@ -198,7 +200,6 @@ function AdminDashboard() {
               Manage Access
             </button>
 
-            {/* Create Registration Form Button */}
             <button
               onClick={() => navigate("/create-regform")}
               className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition shadow"
@@ -246,7 +247,7 @@ function AdminDashboard() {
                             className="flex items-center gap-1 text-xs"
                           >
                             <span className="font-semibold">
-                              {priv.privilegeName.toUpperCase()}
+                              {priv.name?.toUpperCase()}
                             </span>{" "}
                             —{" "}
                             {priv.claim ? (
