@@ -114,8 +114,8 @@ export default function EventCreation() {
     }
   };
 
-  const handleEditEvent = (companyName, eventName) => {
-    navigate(`/edit-event/${companyName}/${eventName}`);
+  const handleEditEvent = (eventID) => {
+    navigate(`/edit-event/${eventID}`);
   };
 
   const handleCopyLink = (companyName, eventName) => {
@@ -151,7 +151,7 @@ export default function EventCreation() {
                 <p>{new Date(event.date).toLocaleDateString()}</p>
                 <div className="mt-4 space-x-4 flex justify-center">
                   <button
-                    onClick={() => handleEditEvent(event.companyName, event.eventName)}
+                    onClick={() => handleEditEvent(event._id)} // Pass the event._id here
                     className="px-4 py-2 bg-yellow-600 text-white rounded hover:bg-yellow-700"
                   >
                     Edit Event

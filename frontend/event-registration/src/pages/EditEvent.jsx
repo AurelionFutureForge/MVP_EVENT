@@ -1,11 +1,10 @@
-// src/pages/EditEvent.jsx
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { toast } from "react-hot-toast";
 
 export default function EditEvent() {
-  const { eventId } = useParams();
+  const { eventId } = useParams(); // Get eventId from URL params
   const navigate = useNavigate();
 
   const [eventDetails, setEventDetails] = useState({
@@ -25,17 +24,17 @@ export default function EditEvent() {
 
   const BASE_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
 
-  // Fetch existing event details
+  // Fetch existing event details based on eventId
   useEffect(() => {
     const fetchEvent = async () => {
       try {
         const res = await axios.get(`${BASE_URL}/events/${eventId}`);
         const event = res.data;
 
-        // FIXED: Join privileges array into comma separated string for each role
+        // Prepare roles with privileges in string format (comma separated)
         const rolesWithPrivilegesString = event.eventRoles.map(role => ({
           ...role,
-          privileges: role.privileges.join(', ')
+          privileges: role.privileges.join(', ') // Convert privileges array to a comma-separated string
         }));
 
         setEventDetails({
@@ -55,11 +54,13 @@ export default function EditEvent() {
     fetchEvent();
   }, [eventId]);
 
+  // Handle input changes for general event details
   const handleChange = (e) => {
     const { name, value } = e.target;
     setEventDetails({ ...eventDetails, [name]: value });
   };
 
+  // Add a new role with privileges
   const handleAddRole = () => {
     if (newRole.trim() && roleDescription.trim() && privileges.trim()) {
       setEventDetails(prev => ({
@@ -72,9 +73,12 @@ export default function EditEvent() {
       setNewRole('');
       setRoleDescription('');
       setPrivileges('');
+    } else {
+      toast.error("All fields for role are required.");
     }
   };
 
+  // Delete a role from event roles
   const handleDeleteRole = (index) => {
     setEventDetails(prev => ({
       ...prev,
@@ -82,6 +86,7 @@ export default function EditEvent() {
     }));
   };
 
+  // Validate form before submission
   const validateForm = () => {
     const { companyName, eventName, place, time, date, eventRoles } = eventDetails;
     if (!companyName || !eventName || !place || !time || !date || eventRoles.length === 0) {
@@ -92,22 +97,23 @@ export default function EditEvent() {
     return true;
   };
 
+  // Handle form submission to update the event
   const handleSubmit = async () => {
     if (!validateForm()) return;
 
     setLoading(true);
     try {
-      // FIXED: Split privileges string into array properly
+      // Split privileges string into array properly
       const sanitizedRoles = eventDetails.eventRoles.map(role => ({
         roleName: role.roleName.trim(),
         roleDescription: role.roleDescription.trim(),
-        privileges: role.privileges.split(',').map(p => p.trim()).filter(p => p)
+        privileges: role.privileges.split(',').map(p => p.trim()).filter(p => p) // Convert privileges back to array
       }));
 
       const updatedEvent = {
         ...eventDetails,
         eventRoles: sanitizedRoles,
-        date: new Date(eventDetails.date).toISOString().split('T')[0],
+        date: new Date(eventDetails.date).toISOString().split('T')[0], // Format date correctly
       };
 
       const res = await axios.put(`${BASE_URL}/events/${eventId}`, updatedEvent);
@@ -129,6 +135,7 @@ export default function EditEvent() {
       <h1 className="text-3xl text-white font-bold mb-6 text-center">Edit Event</h1>
 
       <div className="bg-white rounded-lg shadow p-6 max-w-2xl mx-auto">
+        {/* Event Inputs */}
         <input type="text" name="companyName" placeholder="Company Name"
           className="w-full p-3 mb-4 border rounded"
           value={eventDetails.companyName} onChange={handleChange} />
@@ -149,7 +156,7 @@ export default function EditEvent() {
           className="w-full p-3 mb-4 border rounded"
           value={eventDetails.date} onChange={handleChange} />
 
-        {/* Roles */}
+        {/* Roles Section */}
         <div className="mb-6">
           <h5 className="font-semibold mb-2">Add/Edit Roles & Privileges</h5>
           <input type="text" placeholder="Role Name"

@@ -30,7 +30,7 @@ const App = () => {
         <Route path='/admin/manage-access' element={<ManageAccess />} />
         <Route path='/privilege-login' element={<PrivilegeLogin />} />
         <Route path="/privilege/dashboard"  element={<PrivilegeDashboard />} />
-        <Route path='/edit-event/:companyName/:eventName' element={<EditEvent/>} />
+        <Route path='/edit-event/:eventId' element={<EditEvent />} />
       </Routes>
     </div>
   );
