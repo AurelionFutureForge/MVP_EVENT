@@ -1,6 +1,7 @@
 import { useState } from "react";
 import axios from "axios";
 import { toast } from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
 
 function CreateRegistrationForm() {
   const [fields, setFields] = useState([
@@ -9,6 +10,7 @@ function CreateRegistrationForm() {
   const [eventName, setEventName] = useState("");
   const BASE_URL = import.meta.env.VITE_BACKEND_URL;
   const companyName = localStorage.getItem("adminCompany");
+  const navigate = useNavigate();
 
   const handleFieldChange = (index, field, value) => {
     const updatedFields = [...fields];
@@ -46,6 +48,7 @@ function CreateRegistrationForm() {
       const eventId = response.data.eventId;
       localStorage.setItem('eventId', eventId); 
       toast.success("Registration form fields updated successfully!");
+      navigate(`/register/${eventId}`)
     } catch (error) {
       toast.error("Failed to update registration form fields.");
     }
