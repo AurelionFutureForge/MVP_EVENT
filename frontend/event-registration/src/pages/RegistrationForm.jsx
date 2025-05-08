@@ -40,11 +40,12 @@ function RegistrationForm({ eventId: propEventId }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post(`${BASE_URL}/event/register`, {
-        ...formData,
-        eventId: eventId, // Make sure to send eventId along with formData
+      await axios.post(`${BASE_URL}/users/register`, {
+        formData, // send as formData object
+        eventId,
       });
       toast.success("Registration successful!");
+      setFormData({});  // clear form
     } catch (error) {
       toast.error("Registration failed. Please try again.");
     }
@@ -66,6 +67,7 @@ function RegistrationForm({ eventId: propEventId }) {
         </h2>
 
         <form onSubmit={handleSubmit}>
+          {/* Dynamic Registration Fields */}
           {event.registrationFields.map((field, idx) => (
             <div key={idx} className="mb-4">
               <label className="block text-gray-700 font-semibold mb-2">
@@ -124,6 +126,28 @@ function RegistrationForm({ eventId: propEventId }) {
               )}
             </div>
           ))}
+
+          {/* Role Selection (Default Field) */}
+          <div className="mb-4">
+            <label className="block text-gray-700 font-semibold mb-2">
+              Select Role <span className="text-red-600">*</span>
+            </label>
+            {event.eventRoles.map((role, idx) => (
+              <div key={idx} className="flex items-center mb-2">
+                <input
+                  type="radio"
+                  name="role"
+                  value={role.roleName}
+                  checked={formData.role === role.roleName}
+                  onChange={handleChange}
+                  required
+                  className="mr-2"
+                />
+                <span className="font-medium text-gray-800">{role.roleName}</span>
+                <span className="text-gray-500 text-sm ml-2">({role.roleDescription})</span>
+              </div>
+            ))}
+          </div>
 
           <button
             type="submit"
