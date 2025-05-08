@@ -1,3 +1,5 @@
+// EventCreation.jsx
+
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -24,17 +26,33 @@ export default function EventCreation() {
 
   const BASE_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
 
+  const loggedInEmail = localStorage.getItem('event_creator_email');
+
   useEffect(() => {
     const fetchEvents = async () => {
+      if (!loggedInEmail) {
+        toast.error('Please login to view your events');
+        navigate('/event-login');
+        return;
+      }
+
+      const companyName = localStorage.getItem('adminCompanyName');
+      if (!companyName) {
+        toast.error('Company name not found. Please login again.');
+        navigate('/event-login');
+        return;
+      }
+
       try {
-        const response = await axios.get(`${BASE_URL}/events/get-events`);
+        const response = await axios.get(`${BASE_URL}/events/get-events?companyName=${encodeURIComponent(companyName)}`);
         setEvents(response.data);
       } catch (error) {
         console.error("Error fetching events:", error);
       }
     };
+
     fetchEvents();
-  }, []);
+  }, [loggedInEmail, navigate]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -52,10 +70,10 @@ export default function EventCreation() {
         ...prevDetails,
         eventRoles: [
           ...prevDetails.eventRoles,
-          { 
-            roleName: newRole.trim(), 
-            roleDescription: roleDescription.trim(), 
-            privileges: [cleanedPrivilege] 
+          {
+            roleName: newRole.trim(),
+            roleDescription: roleDescription.trim(),
+            privileges: [cleanedPrivilege]
           }
         ]
       }));
@@ -96,6 +114,7 @@ export default function EventCreation() {
 
       const response = await axios.post(`${BASE_URL}/events/create-event`, {
         ...eventDetails,
+        companyEmail: loggedInEmail,
         eventRoles: sanitizedRoles,
         date: new Date(eventDetails.date).toISOString().split('T')[0],
       });
@@ -145,7 +164,7 @@ export default function EventCreation() {
                 <p>{new Date(event.date).toLocaleDateString()}</p>
                 <div className="mt-4 space-x-4 flex justify-center">
                   <button
-                    onClick={() => handleEditEvent(event._id)} // Pass the event._id here
+                    onClick={() => handleEditEvent(event._id)}
                     className="px-4 py-2 bg-yellow-600 text-white rounded hover:bg-yellow-700"
                   >
                     Edit Event

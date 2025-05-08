@@ -80,16 +80,25 @@ const createEvent = async (req, res) => {
   }
 };
 
-// Get all events
+
 const getEvents = async (req, res) => {
+  const companyName = req.query.companyName?.trim(); // get from query param, trim to avoid extra spaces
+
+  if (!companyName) {
+    return res.status(400).json({ msg: 'Company name is required' });
+  }
+
   try {
-    const events = await Event.find();
+    const events = await Event.find({ companyName });
     res.json(events);
   } catch (error) {
     console.error(error);
     res.status(500).json({ msg: 'Server error' });
   }
 };
+
+module.exports = { getEvents };
+
 
 // Get event by company name and event name
 const getEventByDetails = async (req, res) => {
