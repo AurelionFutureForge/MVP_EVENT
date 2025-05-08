@@ -43,7 +43,8 @@ function CreateRegistrationForm() {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
-
+      const eventId = response.data.eventId;
+      localStorage.setItem('eventId', eventId); 
       toast.success("Registration form fields updated successfully!");
     } catch (error) {
       toast.error("Failed to update registration form fields.");

@@ -1,220 +1,138 @@
-import { useState, useEffect } from "react";
-import { useNavigate, useLocation, useParams } from "react-router-dom";
-import { toast } from "react-hot-toast";
+import { useEffect, useState } from "react";
 import axios from "axios";
+import { toast } from "react-hot-toast";
 
-function RegistrationForm() {
-  const location = useLocation();
-  const { place, time, date } = location.state || {};
-  const { companyName, eventName } = useParams();
-
+function RegistrationForm({ eventId: propEventId }) {
+  const [event, setEvent] = useState(null);
+  const [formData, setFormData] = useState({});
+  const [loading, setLoading] = useState(true);
   const BASE_URL = import.meta.env.VITE_BACKEND_URL;
 
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    eventName: eventName || "",
-    companyName: companyName || "",
-    place: place || "",
-    time: time || "",
-    date: date || "",
-    contact: "",
-    role: "Visitor",
-    paymentCompleted: false,
-  });
+  const eventId = propEventId || localStorage.getItem('eventId');
 
-  const [errors, setErrors] = useState({});
-  const [loading, setLoading] = useState(false);
-  const [event, setEvent] = useState(null);
-  const [roles, setRoles] = useState([]);
-  const navigate = useNavigate();
-
-  // Fetch event details
   useEffect(() => {
-    const fetchEvent = async () => {
+    const fetchEventDetails = async () => {
       try {
-        const response = await axios.get(`${BASE_URL}/events/${companyName}/${eventName}`);
-        console.log("Fetched event:", response.data); // Log the whole response
+        const response = await axios.get(`${BASE_URL}/events/${eventId}`);
         setEvent(response.data);
-        setFormData((prev) => ({
-          ...prev,
-          place: response.data.place,
-          time: response.data.time,
-          date: response.data.date,
-        }));
-
-        const eventRoles = response.data.eventRoles || [];
-        setRoles(eventRoles);
-        console.log("Fetched roles:", eventRoles); // Log fetched roles
-
-        if (eventRoles.length > 0) {
-          setFormData((prev) => ({
-            ...prev,
-            role: eventRoles[0].roleName,
-          }));
-        }
+        setLoading(false);
       } catch (error) {
-        console.error("Error fetching event:", error);
-        toast.error("Event not found!");
-        navigate("/");
+        toast.error("Failed to fetch event details. Please try again.");
+        setLoading(false);
       }
     };
 
-    fetchEvent();
-  }, [companyName, eventName, BASE_URL, navigate]);
-
-  const validate = (isPayment = false) => {
-    let tempErrors = {};
-    if (!formData.name.trim()) tempErrors.name = "Name is required";
-    if (!formData.email.trim()) tempErrors.email = "Email is required";
-    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email))
-      tempErrors.email = "Invalid email format";
-    if (!formData.contact.trim()) tempErrors.contact = "Contact number is required";
-    else if (!/^\d{10}$/.test(formData.contact))
-      tempErrors.contact = "Contact number must be 10 digits";
-
-    if (!isPayment && !formData.paymentCompleted) {
-      tempErrors.payment = "Payment is required before registering.";
+    if (eventId) {
+      fetchEventDetails();
+    } else {
+      toast.error("No event selected.");
+      setLoading(false);
     }
-
-    setErrors(tempErrors);
-    return Object.keys(tempErrors).length === 0;
-  };
+  }, [eventId, BASE_URL]);
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
-  const handlePayment = () => {
-    if (!validate(true)) {
-      toast.error("Please correct the errors before proceeding.");
-      return;
-    }
-    toast.success("Payment successful! You can now register.");
-    setFormData((prev) => ({ ...prev, paymentCompleted: true }));
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
   };
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
-
-  if (!validate()) return;
-
-  if (formData.role === "select") {
-    toast.error("Please select a valid role.");
-    return;
-  }
-
-  setLoading(true);
-  try {
-    const dataToSend = {
-      ...formData,
-    };
-
-    const response = await axios.post(`${BASE_URL}/users/register`, dataToSend);
-
-    console.log("Backend response:", response);
-
-    if (!response.data || !response.data.qrCode) {
-      throw new Error("QR Code not received");
+    e.preventDefault();
+    try {
+      const response = await axios.post(`${BASE_URL}/event/register`, {
+        ...formData,
+        eventId: eventId, // Make sure to send eventId along with formData
+      });
+      toast.success("Registration successful!");
+    } catch (error) {
+      toast.error("Registration failed. Please try again.");
     }
+  };
 
-    toast.success("Registration successful!");
-    navigate("/success", { state: response.data });
-  } catch (error) {
-    toast.error("Registration failed. Try again.");
-    console.error("Error:", error);
+  if (loading) {
+    return <div>Loading event details...</div>;
   }
-  setLoading(false);
-};
 
+  if (!event) {
+    return <div>No event found.</div>;
+  }
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gradient-to-r from-blue-500 to-purple-600 p-4">
-      <form onSubmit={handleSubmit} className="bg-white p-8 rounded-lg shadow-xl w-96">
-        <h2 className="text-3xl font-bold text-center text-gray-800 mb-6">
-          {eventName} Registration
+    <div className="min-h-screen bg-gray-100 p-6">
+      <div className="bg-white p-6 shadow-xl rounded-2xl max-w-lg mx-auto">
+        <h2 className="text-4xl font-extrabold text-gray-800 mb-4 text-center">
+          Register for {event.eventName}
         </h2>
 
-        <div className="mb-4">
-          <label className="block text-gray-700 font-medium mb-1">Name</label>
-          <input
-            type="text"
-            name="name"
-            value={formData.name}
-            onChange={handleChange}
-            className="w-full border border-gray-300 px-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-400"
-            disabled={formData.paymentCompleted}
-          />
-          {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name}</p>}
-        </div>
+        <form onSubmit={handleSubmit}>
+          {event.registrationFields.map((field, idx) => (
+            <div key={idx} className="mb-4">
+              <label className="block text-gray-700 font-semibold mb-2">
+                {field.fieldName.charAt(0).toUpperCase() + field.fieldName.slice(1)}{" "}
+                {field.required && <span className="text-red-600">*</span>}
+              </label>
 
-        <div className="mb-4">
-          <label className="block text-gray-700 font-medium mb-1">Email</label>
-          <input
-            type="email"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-            className="w-full border border-gray-300 px-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-400"
-            disabled={formData.paymentCompleted}
-          />
-          {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
-        </div>
+              {field.fieldType === "text" && (
+                <input
+                  type="text"
+                  name={field.fieldName}
+                  value={formData[field.fieldName] || ""}
+                  onChange={handleChange}
+                  required={field.required}
+                  className="border rounded px-4 py-2 w-full"
+                />
+              )}
 
-        <div className="mb-4">
-          <label className="block text-gray-700 font-medium mb-1">Contact No</label>
-          <input
-            type="text"
-            name="contact"
-            value={formData.contact}
-            onChange={handleChange}
-            className="w-full border border-gray-300 px-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-400"
-            disabled={formData.paymentCompleted}
-          />
-          {errors.contact && <p className="text-red-500 text-sm mt-1">{errors.contact}</p>}
-        </div>
+              {field.fieldType === "email" && (
+                <input
+                  type="email"
+                  name={field.fieldName}
+                  value={formData[field.fieldName] || ""}
+                  onChange={handleChange}
+                  required={field.required}
+                  className="border rounded px-4 py-2 w-full"
+                />
+              )}
 
-        <div className="mb-4">
-          <label className="block text-gray-700 font-medium mb-1">Role</label>
-          <select
-            name="role"
-            value={formData.role}
-            onChange={handleChange}
-            className="w-full border border-gray-300 px-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-400"
-            disabled={formData.paymentCompleted}
-          >
-            {Array.isArray(roles) && roles.length > 0 ? (
-              roles.map((role) => (
-                <option key={role._id} value={role.roleName}>
-                  {role.roleName} - {role.roleDescription} {/* Added description */}
-                </option>
-              ))
-            ) : (
-              <option value="select">Please Select</option>
-            )}
-          </select>
-        </div>
+              {field.fieldType === "number" && (
+                <input
+                  type="number"
+                  name={field.fieldName}
+                  value={formData[field.fieldName] || ""}
+                  onChange={handleChange}
+                  required={field.required}
+                  className="border rounded px-4 py-2 w-full"
+                />
+              )}
 
-        {!formData.paymentCompleted ? (
-          <button
-            type="button"
-            onClick={handlePayment}
-            className="w-full bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 transition"
-          >
-            Pay Now
-          </button>
-        ) : (
+              {field.fieldType === "select" && (
+                <select
+                  name={field.fieldName}
+                  value={formData[field.fieldName] || ""}
+                  onChange={handleChange}
+                  required={field.required}
+                  className="border rounded px-4 py-2 w-full"
+                >
+                  <option value="">Select an option</option>
+                  {field.options.map((option, optionIdx) => (
+                    <option key={optionIdx} value={option}>
+                      {option}
+                    </option>
+                  ))}
+                </select>
+              )}
+            </div>
+          ))}
+
           <button
             type="submit"
-            className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition disabled:bg-gray-400"
-            disabled={loading}
+            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition shadow w-full"
           >
-            {loading ? "Registering..." : "Register"}
+            Register
           </button>
-        )}
-
-        {errors.payment && <p className="text-red-500 text-sm mt-2">{errors.payment}</p>}
-      </form>
+        </form>
+      </div>
     </div>
   );
 }

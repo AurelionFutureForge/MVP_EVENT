@@ -228,15 +228,30 @@ const saveRegistrationFields = async (req, res) => {
 
     // Save the registration fields to the event
     event.registrationFields = registrationFields;
-
     await event.save();
 
-    res.status(200).json({ message: "Registration fields saved successfully!" });
+    // Send eventId (_id) along with success message
+    res.status(200).json({ 
+      message: "Registration fields saved successfully!",
+      eventId: event._id   // <-- Send the _id here
+    });
+
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Error saving registration fields" });
   }
 };
 
+const getEventById = async (req, res) => {
+  try {
+    const event = await Event.findById(req.params.eventId);
+    if (!event) {
+      return res.status(404).json({ message: "Event not found" });
+    }
+    res.json(event);
+  } catch (error) {
+    res.status(500).json({ message: "Server error" });
+  }
+};
 
-module.exports = { createEvent, getEvents, getEventByDetails, EditEvents, UpdateEvents, saveRegistrationFields };
+module.exports = { createEvent, getEvents, getEventByDetails, EditEvents, UpdateEvents, saveRegistrationFields, getEventById };
