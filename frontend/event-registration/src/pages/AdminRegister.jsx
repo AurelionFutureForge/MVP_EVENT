@@ -16,17 +16,20 @@ function AdminRegister() {
   const handleRegister = async (e) => {
     e.preventDefault();
     setLoading(true);
-
+  
     try {
       // Register admin and get token and company details
       const response = await axios.post(`${BASE_URL}/admin/register`, { email, password, companyName });
-
+  
       // Store token and company details in localStorage (log the user in)
       localStorage.setItem("adminToken", response.data.token);
       localStorage.setItem("adminCompany", response.data.admin.companyName);
-
+  
       toast.success("Admin registered successfully!");
-
+  
+      // Log to check if navigate works
+      console.log("Navigating to /create-event...");
+      
       // After successful registration, redirect to create-event page
       navigate("/create-event");
     } catch (error) {
@@ -35,6 +38,7 @@ function AdminRegister() {
       setLoading(false);
     }
   };
+  
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-r from-blue-500 to-indigo-600 p-6">
