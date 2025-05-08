@@ -120,7 +120,7 @@ export default function EditEvent() {
 
       if (res.status === 200) {
         toast.success("Event updated successfully!");
-        navigate('/admin/dashboard');
+        navigate('/create-event');
       }
     } catch (err) {
       console.error(err);
