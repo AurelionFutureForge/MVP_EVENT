@@ -200,7 +200,7 @@ function AdminDashboard() {
 
             {/* Create Registration Form Button */}
             <button
-              onClick={() => navigate("/admin/create-regform")}
+              onClick={() => navigate("/create-regform")}
               className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition shadow"
             >
               Create Registration Form
