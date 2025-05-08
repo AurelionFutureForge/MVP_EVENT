@@ -198,6 +198,14 @@ function AdminDashboard() {
               Manage Access
             </button>
 
+            {/* Create Registration Form Button */}
+            <button
+              onClick={() => navigate("/admin/create-regform")}
+              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition shadow"
+            >
+              Create Registration Form
+            </button>
+
             <button
               onClick={handleLogout}
               className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition shadow"
