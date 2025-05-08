@@ -13,6 +13,7 @@ import PotectedEventRoute from './pages/ProtectedEventRoute';
 import ManageAccess from './pages/ManageAccess';
 import PrivilegeLogin from './pages/PrivilegeLogin';
 import PrivilegeDashboard from './pages/PrivilegeDashboard';
+import EditEvent from './pages/EditEvent';
 
 const App = () => {
   return (
@@ -29,6 +30,7 @@ const App = () => {
         <Route path='/admin/manage-access' element={<ManageAccess />} />
         <Route path='/privilege-login' element={<PrivilegeLogin />} />
         <Route path="/privilege/dashboard"  element={<PrivilegeDashboard />} />
+        <Route path='/edit-event/:companyName/:eventName' element={<EditEvent/>} />
       </Routes>
     </div>
   );

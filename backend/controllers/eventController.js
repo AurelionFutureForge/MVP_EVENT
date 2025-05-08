@@ -127,4 +127,83 @@ const getEventByDetails = async (req, res) => {
   }
 };
 
-module.exports = { createEvent, getEvents, getEventByDetails };
+const EditEvents = async (req, res) => {
+  try {
+    const event = await Event.findById(req.params.eventId);
+    if (!event) return res.status(404).json({ msg: "Event not found" });
+    res.json(event);
+  } catch (err) {
+    res.status(500).json({ msg: "Server error" });
+  }
+};
+
+// Update event
+const UpdateEvents = async (req, res) => {
+  try {
+    const { companyName, eventName, eventRoles, place, time, date } = req.body;
+
+    // Validate fields like in createEvent
+    if (!date) {
+      return res.status(400).json({ msg: 'Date is required' });
+    }
+    const formattedDate = new Date(date);
+    if (isNaN(formattedDate.getTime())) { 
+      return res.status(400).json({ msg: 'Invalid date format' });
+    }
+
+    if (!Array.isArray(eventRoles) || eventRoles.length === 0) {
+      return res.status(400).json({ msg: 'At least one role is required' });
+    }
+
+    for (const role of eventRoles) {
+      if (!role.roleName || typeof role.roleName !== 'string') {
+        return res.status(400).json({ msg: 'Each role must have a valid roleName' });
+      }
+      if (!role.roleDescription || typeof role.roleDescription !== 'string') {
+        return res.status(400).json({ msg: `Role '${role.roleName}' must have a valid roleDescription` });
+      }
+
+      if (!Array.isArray(role.privileges) || role.privileges.length === 0) {
+        return res.status(400).json({ msg: `Role '${role.roleName}' must have at least one privilege` });
+      }
+
+      for (const privilege of role.privileges) {
+        if (typeof privilege !== 'string' || !privilege.trim()) {
+          return res.status(400).json({ msg: `Role '${role.roleName}' has invalid privilege values` });
+        }
+      }
+    }
+
+    // Clean the data
+    const trimmedCompanyName = companyName.trim();
+    const trimmedEventName = eventName.trim();
+    const processedRoles = eventRoles.map(role => ({
+      roleName: role.roleName.trim(),
+      roleDescription: role.roleDescription.trim(),
+      privileges: role.privileges.map(p => p.trim())
+    }));
+
+    // Perform the update safely
+    const updatedEvent = await Event.findByIdAndUpdate(
+      req.params.eventId,
+      {
+        companyName: trimmedCompanyName,
+        eventName: trimmedEventName,
+        eventRoles: processedRoles,
+        place,
+        time,
+        date: formattedDate.toISOString().split("T")[0]
+      },
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedEvent) return res.status(404).json({ msg: "Event not found" });
+    res.json(updatedEvent);
+  } catch (err) {
+    console.error("Update error:", err);
+    res.status(500).json({ msg: "Failed to update event", error: err.message });
+  }
+};
+
+
+module.exports = { createEvent, getEvents, getEventByDetails, EditEvents, UpdateEvents };
