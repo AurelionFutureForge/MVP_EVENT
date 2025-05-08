@@ -97,7 +97,6 @@ const getEvents = async (req, res) => {
   }
 };
 
-
 // Get event by company name and event name
 const getEventByDetails = async (req, res) => {
   try {
@@ -212,5 +211,32 @@ const UpdateEvents = async (req, res) => {
   }
 };
 
+const saveRegistrationFields = async (req, res) => {
+  const { companyName, registrationFields } = req.body;
 
-module.exports = { createEvent, getEvents, getEventByDetails, EditEvents, UpdateEvents };
+  if (!companyName || !registrationFields || registrationFields.length === 0) {
+    return res.status(400).json({ message: "Company and fields are required" });
+  }
+
+  try {
+    // Find the event by companyName
+    const event = await Event.findOne({ companyName });
+
+    if (!event) {
+      return res.status(404).json({ message: "Event not found for this company" });
+    }
+
+    // Save the registration fields to the event
+    event.registrationFields = registrationFields;
+
+    await event.save();
+
+    res.status(200).json({ message: "Registration fields saved successfully!" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error saving registration fields" });
+  }
+};
+
+
+module.exports = { createEvent, getEvents, getEventByDetails, EditEvents, UpdateEvents, saveRegistrationFields };

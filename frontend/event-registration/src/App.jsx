@@ -15,6 +15,7 @@ import PrivilegeLogin from './pages/PrivilegeLogin';
 import PrivilegeDashboard from './pages/PrivilegeDashboard';
 import EditEvent from './pages/EditEvent';
 import EventLogin from './pages/EventLogin';
+import CreateRegistrationForm from './pages/CreateRegistrationForm';
 
 const App = () => {
   return (
@@ -33,6 +34,7 @@ const App = () => {
         <Route path="/privilege/dashboard" element={<PrivilegeDashboard />} />
         <Route path='/edit-event/:eventId' element={<EditEvent />} />
         <Route path='/event-login' element={<EventLogin />} />
+        <Route path='/create-regform' element={<ProtectedRoute> <CreateRegistrationForm/> </ ProtectedRoute>} />
       </Routes>
     </div>
   );

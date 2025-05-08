@@ -1,5 +1,5 @@
 const express = require('express');
-const { createEvent, getEvents, getEventByDetails, EditEvents, UpdateEvents } = require("../controllers/eventController");
+const { createEvent, getEvents, getEventByDetails, EditEvents, UpdateEvents, saveRegistrationFields } = require("../controllers/eventController");
 const router = express.Router();
 
 // Create event requires JWT token for authentication
@@ -8,6 +8,7 @@ router.get('/get-events', getEvents);
 router.get('/:companyName/:eventName', getEventByDetails);
 router.get('/:eventId',EditEvents);
 router.put('/:eventId',UpdateEvents);
+router.post("/save-registration-fields", saveRegistrationFields);
 
 
 module.exports = router;
