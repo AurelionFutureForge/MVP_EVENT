@@ -4,10 +4,20 @@ const createEvent = async (req, res) => {
   try {
     console.log("Incoming Request Body:", req.body);
     const { companyName, eventName, eventRoles, place, time, date } = req.body;
+    
 
     // Trim spaces from companyName and eventName to avoid trailing spaces
     const trimmedCompanyName = companyName.trim();
     const trimmedEventName = eventName.trim();
+
+    const existingEvent = await Event.findOne({
+      companyName: { $regex: new RegExp(`^${trimmedCompanyName}$`, 'i') },
+      eventName: { $regex: new RegExp(`^${trimmedEventName}$`, 'i') }
+    });
+    
+    if (existingEvent) {
+      return res.status(400).json({ msg: 'An event with this company and event name already exists' });
+    }
 
     if (!date) {
       return res.status(400).json({ msg: 'Date is required' });
@@ -33,11 +43,24 @@ const createEvent = async (req, res) => {
       if (!role.roleDescription || typeof role.roleDescription !== 'string') {
         return res.status(400).json({ msg: `Role '${role.roleName}' must have a valid roleDescription` });
       }
+
+      // Validate privileges: Must be a non-empty array of strings
+      if (!Array.isArray(role.privileges) || role.privileges.length === 0) {
+        return res.status(400).json({ msg: `Role '${role.roleName}' must have at least one privilege` });
+      }
+
+      for (const privilege of role.privileges) {
+        if (typeof privilege !== 'string' || !privilege.trim()) {
+          return res.status(400).json({ msg: `Role '${role.roleName}' has invalid privilege values` });
+        }
+      }
     }
 
+    // Clean and process roles + privileges
     const processedRoles = eventRoles.map(role => ({
       roleName: role.roleName.trim(),
-      roleDescription: role.roleDescription.trim()  // Now handling roleDescription
+      roleDescription: role.roleDescription.trim(),
+      privileges: role.privileges.map(p => p.trim())   // Clean privilege strings
     }));
 
     const newEvent = new Event({

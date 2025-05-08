@@ -13,12 +13,15 @@ export default function EventCreation() {
     time: '',
     date: '',
     eventRoles: [],
+    eventPrivileges: [], // Added eventPrivileges array
   });
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [newRole, setNewRole] = useState('');
   const [roleDescription, setRoleDescription] = useState('');
+  const [selectedRoleForPrivilege, setSelectedRoleForPrivilege] = useState('');
+  const [newPrivilege, setNewPrivilege] = useState('');
   const navigate = useNavigate();
 
   const BASE_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
@@ -61,6 +64,27 @@ export default function EventCreation() {
     }));
   };
 
+  const handleAddPrivilege = () => {
+    if (selectedRoleForPrivilege && newPrivilege.trim()) {
+      setEventDetails((prevDetails) => ({
+        ...prevDetails,
+        eventPrivileges: [
+          ...prevDetails.eventPrivileges,
+          { roleName: selectedRoleForPrivilege, privilege: newPrivilege.trim() }
+        ]
+      }));
+      setSelectedRoleForPrivilege('');
+      setNewPrivilege('');
+    }
+  };
+
+  const handleDeletePrivilege = (index) => {
+    setEventDetails((prevDetails) => ({
+      ...prevDetails,
+      eventPrivileges: prevDetails.eventPrivileges.filter((_, i) => i !== index)
+    }));
+  };
+
   const validateForm = () => {
     const { companyName, eventName, place, time, date, eventRoles } = eventDetails;
     if (!companyName || !eventName || !place || !time || !date || eventRoles.length === 0) {
@@ -81,9 +105,15 @@ export default function EventCreation() {
         roleDescription: role.roleDescription.trim(),
       }));
 
+      const sanitizedPrivileges = eventDetails.eventPrivileges.map(priv => ({
+        roleName: priv.roleName.trim(),
+        privilege: priv.privilege.trim(),
+      }));
+
       const response = await axios.post(`${BASE_URL}/events/create-event`, {
         ...eventDetails,
         eventRoles: sanitizedRoles,
+        eventPrivileges: sanitizedPrivileges,
         date: new Date(eventDetails.date).toISOString().split('T')[0],
       });
 
@@ -91,7 +121,7 @@ export default function EventCreation() {
         toast.success("Event created successfully!");
         setEvents([...events, response.data.event]);
         setShowForm(false);
-        setEventDetails({ companyName: '', eventName: '', place: '', time: '', date: '', eventRoles: [] });
+        setEventDetails({ companyName: '', eventName: '', place: '', time: '', date: '', eventRoles: [], eventPrivileges: [] });
       }
     } catch (error) {
       console.error("Error creating event:", error.response?.data || error.message);
@@ -185,6 +215,7 @@ export default function EventCreation() {
               value={eventDetails.eventName}
             />
 
+            {/* Role Section */}
             <div className="mb-6">
               <h5 className="text-lg font-semibold mb-2">Add New Role</h5>
               <input
@@ -209,15 +240,46 @@ export default function EventCreation() {
               </button>
             </div>
 
+            {/* Privileges Section */}
             <div className="mb-6">
-              <h5 className="text-lg font-semibold mb-2">Selected Roles</h5>
-              {eventDetails.eventRoles.map((role, index) => (
+              <h5 className="text-lg font-semibold mb-2">Add Privileges</h5>
+              <select
+                value={selectedRoleForPrivilege}
+                onChange={(e) => setSelectedRoleForPrivilege(e.target.value)}
+                className="w-full p-3 mb-2 border rounded-lg shadow-sm"
+              >
+                <option value="">Select Role</option>
+                {eventDetails.eventRoles.map((role, index) => (
+                  <option key={index} value={role.roleName}>
+                    {role.roleName}
+                  </option>
+                ))}
+              </select>
+              <input
+                type="text"
+                placeholder="Privilege (e.g. Entry, Gift)"
+                value={newPrivilege}
+                onChange={(e) => setNewPrivilege(e.target.value)}
+                className="w-full p-3 mb-2 border rounded-lg shadow-sm"
+              />
+              <button
+                onClick={handleAddPrivilege}
+                className="w-full py-2 mt-2 bg-blue-600 text-white font-semibold rounded-lg shadow hover:bg-blue-700"
+              >
+                Add Privilege
+              </button>
+            </div>
+
+            {/* Display Privileges */}
+            <div className="mb-6">
+              <h5 className="text-lg font-semibold mb-2">Selected Privileges</h5>
+              {eventDetails.eventPrivileges.map((privilege, index) => (
                 <div key={index} className="flex justify-between items-center mb-2 p-2 border rounded-lg bg-gray-100">
                   <div>
-                    <span className="font-semibold">{role.roleName}</span> - {role.roleDescription}
+                    <span className="font-semibold">{privilege.roleName}</span> - {privilege.privilege}
                   </div>
                   <button
-                    onClick={() => handleDeleteRole(index)}
+                    onClick={() => handleDeletePrivilege(index)}
                     className="ml-4 text-red-600 hover:text-red-800"
                   >
                     ✕
@@ -226,6 +288,7 @@ export default function EventCreation() {
               ))}
             </div>
 
+            {/* Rest of the form */}
             <input
               type="text"
               name="place"
@@ -234,33 +297,18 @@ export default function EventCreation() {
               onChange={handleChange}
               value={eventDetails.place}
             />
-            <input
-              type="time"
-              name="time"
-              className="w-full p-3 mb-4 border rounded-lg shadow-sm"
-              onChange={handleChange}
-              value={eventDetails.time}
-            />
-            <input
-              type="date"
-              name="date"
-              className="w-full p-3 mb-4 border rounded-lg shadow-sm"
-              onChange={handleChange}
-              value={eventDetails.date}
-            />
-
-            {error && <p className="text-red-600 mb-2">{error}</p>}
-
+            <input type="time" name="time" className="w-full p-3 mb-4 border rounded-lg shadow-sm" onChange={handleChange} value={eventDetails.time} />
+            <input type="date" name="date" className="w-full p-3 mb-4 border rounded-lg shadow-sm" onChange={handleChange} value={eventDetails.date} />
+            {error && <p className="text-red-600 text-sm">{error}</p>}
             <button
               onClick={handleSubmit}
+              className="w-full py-3 mt-4 bg-green-600 text-white font-semibold rounded-lg shadow hover:bg-green-700"
               disabled={loading}
-              className="w-full py-3 mt-4 bg-blue-600 text-white font-semibold rounded-lg shadow hover:bg-blue-700 disabled:opacity-50"
             >
-              {loading ? 'Creating Event...' : 'Create Event'}
+              {loading ? "Submitting..." : "Submit Event"}
             </button>
           </div>
         )}
       </section>
     </div>
-  );
-}
+)};
