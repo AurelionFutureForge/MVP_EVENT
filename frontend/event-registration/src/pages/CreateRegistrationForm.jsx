@@ -34,7 +34,7 @@ function CreateRegistrationForm() {
     const token = localStorage.getItem("adminToken");
 
     try {
-      await axios.post(
+      const response = await axios.post(
         `${BASE_URL}/events/save-registration-fields`,
         {
           companyName,
@@ -48,7 +48,7 @@ function CreateRegistrationForm() {
       const eventId = response.data.eventId;
       localStorage.setItem('eventId', eventId); 
       toast.success("Registration form fields updated successfully!");
-      navigate(`/register/${eventId}`)
+      navigate(`/register/${eventId}`);
     } catch (error) {
       toast.error("Failed to update registration form fields.");
     }
