@@ -19,7 +19,7 @@ export default function EventCreation() {
   const [error, setError] = useState('');
   const [newRole, setNewRole] = useState('');
   const [roleDescription, setRoleDescription] = useState('');
-  const [privilege, setPrivilege] = useState(''); // New state for privilege input
+  const [privilege, setPrivilege] = useState('');
   const navigate = useNavigate();
 
   const BASE_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
@@ -43,13 +43,23 @@ export default function EventCreation() {
 
   const handleAddRole = () => {
     if (newRole.trim() && roleDescription.trim() && privilege.trim()) {
+      const cleanedPrivilege = privilege.split(',')
+        .map(p => p.trim())
+        .filter(p => p.length > 0)
+        .join(',');
+
       setEventDetails((prevDetails) => ({
         ...prevDetails,
         eventRoles: [
           ...prevDetails.eventRoles,
-          { roleName: newRole.trim(), roleDescription: roleDescription.trim(), privileges: [privilege.trim()] }
+          { 
+            roleName: newRole.trim(), 
+            roleDescription: roleDescription.trim(), 
+            privileges: [cleanedPrivilege] 
+          }
         ]
       }));
+
       setNewRole('');
       setRoleDescription('');
       setPrivilege('');
@@ -81,7 +91,7 @@ export default function EventCreation() {
       const sanitizedRoles = eventDetails.eventRoles.map(role => ({
         roleName: role.roleName.trim(),
         roleDescription: role.roleDescription.trim(),
-        privileges: role.privileges.map(priv => priv.trim()),
+        privileges: role.privileges.map(p => p.trim())
       }));
 
       const response = await axios.post(`${BASE_URL}/events/create-event`, {
@@ -206,7 +216,7 @@ export default function EventCreation() {
               />
               <input
                 type="text"
-                placeholder="Privilege"
+                placeholder="Enter privileges (comma-separated)"
                 value={privilege}
                 onChange={(e) => setPrivilege(e.target.value)}
                 className="w-full p-3 mb-2 border rounded-lg shadow-sm"
@@ -224,8 +234,8 @@ export default function EventCreation() {
               {eventDetails.eventRoles.map((role, index) => (
                 <div key={index} className="flex justify-between items-center mb-2 p-2 border rounded-lg bg-gray-100">
                   <div>
-                    <span className="font-semibold">{role.roleName}</span> - {role.roleDescription} - 
-                    {role.privileges.join(', ')}
+                    <span className="font-semibold">{role.roleName}</span> - {role.roleDescription} <br />
+                    <span className="text-sm text-gray-600">Privileges: {role.privileges[0]}</span>
                   </div>
                   <button
                     onClick={() => handleDeleteRole(index)}
