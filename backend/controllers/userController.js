@@ -4,7 +4,6 @@ const QRCode = require("qrcode");
 const fs = require("fs");
 const path = require("path");
 const PDFDocument = require("pdfkit");  
-const RegisteredUser = require('../models/RegisteredUser'); 
 const Event = require("../models/Event");   // ADD this import at the top if not already
 
 // Register User
@@ -276,12 +275,18 @@ exports.registerUser = async (req, res) => {
       return res.status(400).json({ message: 'Invalid role selected' });
     }
 
-    // 3. Save user with registration fields + role + privileges
-    const newUser = new RegisteredUser({
+    // 3. Map privileges to include { name, claim: false }
+    const formattedPrivileges = selectedRole.privileges.map(priv => ({
+      name: priv,
+      claim: false
+    }));
+
+    // 4. Save user with registration fields + role + formatted privileges
+    const newUser = new User({
       eventId: event._id,
       companyName: event.companyName,
       role: selectedRole.roleName,
-      privileges: selectedRole.privileges,
+      privileges: formattedPrivileges,  // <-- now array of objects
       registrationData: formData
     });
 
@@ -293,4 +298,5 @@ exports.registerUser = async (req, res) => {
     res.status(500).json({ message: 'Error registering user' });
   }
 };
+
 
