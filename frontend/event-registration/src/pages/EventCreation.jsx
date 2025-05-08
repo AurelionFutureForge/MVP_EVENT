@@ -118,12 +118,6 @@ export default function EventCreation() {
     navigate(`/edit-event/${eventID}`);
   };
 
-  const handleCopyLink = (companyName, eventName) => {
-    const registrationLink = `${window.location.origin}/register/${encodeURIComponent(companyName)}/${encodeURIComponent(eventName)}`;
-    navigator.clipboard.writeText(registrationLink);
-    toast.success('Link copied to clipboard!');
-  };
-
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-r from-blue-500 to-purple-600">
       <nav className="bg-blue-600 p-4 shadow-md">
@@ -155,12 +149,6 @@ export default function EventCreation() {
                     className="px-4 py-2 bg-yellow-600 text-white rounded hover:bg-yellow-700"
                   >
                     Edit Event
-                  </button>
-                  <button
-                    onClick={() => handleCopyLink(event.companyName, event.eventName)}
-                    className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
-                  >
-                    Copy Link
                   </button>
                 </div>
               </div>
