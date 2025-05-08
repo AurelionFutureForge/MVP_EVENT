@@ -20,10 +20,8 @@ function AdminLogin() {
       const response = await axios.post(`${BASE_URL}/admin/login`, { email, password });
 
       // Store the admin token and company name in localStorage
-      localStorage.setItem("admin_token", response.data.token);
-      localStorage.setItem("adminCompanyName", response.data.companyName);
-      localStorage.setItem("adminEmail", response.data.email);
-  
+      localStorage.setItem("adminToken", response.data.token);
+      localStorage.setItem("adminCompany", response.data.admin.companyName);
 
       // Success message
       toast.success("Login Successful!");

@@ -21,7 +21,7 @@ function EventLogin() {
       const response = await axios.post(`${BASE_URL}/admin/login`, { email, password });
 
       // Store the admin's email, companyName and token in localStorage
-      localStorage.setItem("adminToken", response.data.token);
+      localStorage.setItem("admin_token", response.data.token);
       localStorage.setItem("adminEmail", response.data.admin.email);
       localStorage.setItem("adminCompanyName", companyName.trim());  // Store trimmed companyName
 
