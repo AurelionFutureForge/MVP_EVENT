@@ -22,13 +22,17 @@ function ManageAccess() {
         });
         const privilegesFromDB = response.data.privileges; // array of privilege names
 
-        // Initialize assignedPrivileges with empty email/password
-        const initialAssigned = privilegesFromDB.map(p => ({
+        // Remove duplicate privileges by converting to Set, then back to an array
+        const uniquePrivileges = [...new Set(privilegesFromDB)];
+
+        // Initialize assignedPrivileges with empty email/password for unique privileges
+        const initialAssigned = uniquePrivileges.map(p => ({
           privilegeName: p,
           email: "",
           password: ""
         }));
-        setPrivilegesList(privilegesFromDB);
+        
+        setPrivilegesList(uniquePrivileges);
         setAssignedPrivileges(initialAssigned);
 
       } catch (error) {
