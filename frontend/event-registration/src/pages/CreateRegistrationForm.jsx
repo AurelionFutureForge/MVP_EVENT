@@ -8,7 +8,7 @@ function CreateRegistrationForm() {
     { fieldName: "", fieldType: "text", options: [], required: false },
   ]);
   const [eventName, setEventName] = useState("");
-  const [formLink, setFormLink] = useState("");
+  const [formLink, setFormLink] = useState(""); // Store the form link
   const BASE_URL = import.meta.env.VITE_BACKEND_URL;
   const companyName = localStorage.getItem("adminCompany");
   const navigate = useNavigate();
@@ -35,6 +35,7 @@ function CreateRegistrationForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // Validate input fields
     if (!eventName || fields.some((field) => !field.fieldName)) {
       toast.error("Please fill out all required fields.");
       return;
@@ -43,6 +44,7 @@ function CreateRegistrationForm() {
     const token = localStorage.getItem("adminToken");
 
     try {
+      // Send request to save registration fields
       const response = await axios.post(
         `${BASE_URL}/events/save-registration-fields`,
         {
@@ -54,10 +56,11 @@ function CreateRegistrationForm() {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
+
       const eventId = response.data.eventId;
-      const link = `${BASE_URL}/register/${eventId}`; // Generate the form registration link
-      setFormLink(link); // Store the link in the state
-      localStorage.setItem("eventId", eventId);
+      const link = `${BASE_URL}/register/${eventId}`; // Generate the registration form link
+      setFormLink(link); // Set the form link in state
+      localStorage.setItem("eventId", eventId); // Store the eventId
       toast.success("Registration form fields updated successfully!");
       navigate(`/register/${eventId}`);
     } catch (error) {
@@ -65,10 +68,13 @@ function CreateRegistrationForm() {
     }
   };
 
+  // Handle copy link action
   const handleCopyLink = () => {
     if (formLink) {
       navigator.clipboard.writeText(formLink);
       toast.success("Link copied to clipboard!");
+    } else {
+      toast.error("No link to copy.");
     }
   };
 
