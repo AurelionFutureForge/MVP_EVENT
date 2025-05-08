@@ -13,7 +13,7 @@ export default function EventCreation() {
     time: '',
     date: '',
     eventRoles: [],
-    eventPrivileges: [], // Added eventPrivileges array
+    eventPrivileges: [],
   });
 
   const [loading, setLoading] = useState(false);
@@ -22,6 +22,7 @@ export default function EventCreation() {
   const [roleDescription, setRoleDescription] = useState('');
   const [selectedRoleForPrivilege, setSelectedRoleForPrivilege] = useState('');
   const [newPrivilege, setNewPrivilege] = useState('');
+  const [assignedPrivileges, setAssignedPrivileges] = useState([]);  // New state to track assigned privileges
   const navigate = useNavigate();
 
   const BASE_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
@@ -66,16 +67,19 @@ export default function EventCreation() {
 
   const handleAddPrivilege = () => {
     if (selectedRoleForPrivilege && newPrivilege.trim()) {
-      setEventDetails((prevDetails) => ({
-        ...prevDetails,
-        eventPrivileges: [
-          ...prevDetails.eventPrivileges,
-          { roleName: selectedRoleForPrivilege, privilege: newPrivilege.trim() }
-        ]
-      }));
-      setSelectedRoleForPrivilege('');
+      setAssignedPrivileges([...assignedPrivileges, { roleName: selectedRoleForPrivilege, privilege: newPrivilege.trim() }]);
       setNewPrivilege('');
     }
+  };
+
+  const handleAssignPrivileges = (roleName) => {
+    // Find all privileges associated with the given role
+    const privileges = assignedPrivileges.filter(priv => priv.roleName === roleName);
+    setEventDetails((prevDetails) => ({
+      ...prevDetails,
+      eventPrivileges: [...prevDetails.eventPrivileges, ...privileges]
+    }));
+    setAssignedPrivileges(assignedPrivileges.filter(priv => priv.roleName !== roleName));  // Clear assigned privileges after assigning
   };
 
   const handleDeletePrivilege = (index) => {
@@ -311,4 +315,5 @@ export default function EventCreation() {
         )}
       </section>
     </div>
-)};
+  );
+}
