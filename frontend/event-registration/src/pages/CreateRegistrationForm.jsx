@@ -33,7 +33,7 @@ function CreateRegistrationForm() {
 
     try {
       await axios.post(
-        `${BASE_URL}/admin/event-registration-fields`,
+        `${BASE_URL}/events/save-registration-fields`,
         {
           companyName,
           eventName,
