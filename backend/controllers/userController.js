@@ -275,18 +275,18 @@ exports.registerUser = async (req, res) => {
       return res.status(400).json({ message: 'Invalid role selected' });
     }
 
-    // 3. Map privileges to include { name, claim: false }
+    // 3. Convert privileges ["entry", "lunch"] into [{name: 'entry', claim: false}, ...]
     const formattedPrivileges = selectedRole.privileges.map(priv => ({
       name: priv,
       claim: false
     }));
 
-    // 4. Save user with registration fields + role + formatted privileges
+    // 4. Save user with registration fields + role + privileges
     const newUser = new User({
       eventId: event._id,
       companyName: event.companyName,
       role: selectedRole.roleName,
-      privileges: formattedPrivileges,  // <-- now array of objects
+      privileges: formattedPrivileges,
       registrationData: formData
     });
 
