@@ -144,7 +144,12 @@ const assignPrivileges = async (req, res) => {
     for (const priv of privileges) {
       const { privilegeName, email, password } = priv;
 
-      // Create or update the privilege
+      // Check if email and password exist
+      if (!email || !password) {
+        return res.status(400).json({ message: "Email and password are required for each privilege" });
+      }
+
+      // Create a new privilege entry (without modifying existing user privileges)
       const newPrivilege = new Privilege({
         companyName,
         eventName,
@@ -157,30 +162,13 @@ const assignPrivileges = async (req, res) => {
       await newPrivilege.save();
     }
 
-    // Fetch users and assign them the privileges
-    const users = await User.find({ companyName, eventName });
-
-    // Assign privileges to users
-    for (const user of users) {
-      const existingPrivileges = user.privileges.map(p => p.privilegeName);
-
-      const newPrivileges = privileges
-        .filter(p => !existingPrivileges.includes(p.privilegeName))
-        .map(p => ({
-          privilegeName: p.privilegeName,
-          claim: false  // Set claim: false for new privileges
-        }));
-
-      user.privileges.push(...newPrivileges);
-      await user.save();
-    }
-
     res.status(200).json({ message: "Privileges assigned successfully!" });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Error assigning privileges" });
   }
 };
+
 
 
 
