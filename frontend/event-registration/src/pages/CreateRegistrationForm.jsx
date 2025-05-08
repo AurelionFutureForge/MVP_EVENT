@@ -62,7 +62,6 @@ function CreateRegistrationForm() {
       setFormLink(link); // Set the form link in state
       localStorage.setItem("eventId", eventId); // Store the eventId
       toast.success("Registration form fields updated successfully!");
-      navigate(`/register/${eventId}`);
     } catch (error) {
       toast.error("Failed to update registration form fields.");
     }
