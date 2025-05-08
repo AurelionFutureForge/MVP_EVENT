@@ -113,7 +113,11 @@ const getEventPrivileges = async (req, res) => {
       return res.status(404).json({ message: "Event not found for this company" });
     }
 
-    const privileges = event.eventRoles.map(role => role.roleName);
+    // Extract privileges from eventRoles
+    const privileges = event.eventRoles.reduce((acc, role) => {
+      acc.push(...role.privileges); // Add each role's privileges to the list
+      return acc;
+    }, []);
 
     res.json({ privileges });
   } catch (error) {
