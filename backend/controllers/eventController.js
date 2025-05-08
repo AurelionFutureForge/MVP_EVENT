@@ -97,8 +97,6 @@ const getEvents = async (req, res) => {
   }
 };
 
-module.exports = { getEvents };
-
 
 // Get event by company name and event name
 const getEventByDetails = async (req, res) => {

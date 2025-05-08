@@ -10,11 +10,19 @@ exports.authenticatePrivilege = (req, res, next) => {
   try {
     const verified = jwt.verify(token, process.env.JWT_SECRET);
 
+    // Ensure the JWT contains email and privilegeName
+    if (!verified.email || !verified.privilegeName) {
+      return res.status(400).json({ message: "Invalid token data" });
+    }
+
     req.privilege = verified;   // { email, privilegeName }
 
     next();
   } catch (err) {
     console.error("Privilege JWT verification error:", err.message);
-    return res.status(403).json({ message: "Invalid Token" });
+    if (err.name === "TokenExpiredError") {
+      return res.status(401).json({ message: "Token expired" });
+    }
+    return res.status(403).json({ message: "Invalid or tampered token" });
   }
 };

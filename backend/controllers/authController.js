@@ -98,103 +98,91 @@ const registerAdmin = async (req, res) => {
   }
 };
 
-const createPrivilege = async (req, res) => {
-  const { companyName, eventName, roleName, privileges, email, password } = req.body;
+const getEventPrivileges = async (req, res) => {
+  const { companyName } = req.query;
 
-  if (!companyName || !eventName || !roleName || !privileges.length || !email || !password) {
-    return res.status(400).json({ message: "All fields are required" });
+  if (!companyName) {
+    return res.status(400).json({ message: "Company name is required" });
   }
 
   try {
-    const newPrivilege = new Privilege({ companyName, eventName, roleName, privileges, email, password });
-    await newPrivilege.save();
-
-    res.status(201).json({ message: "Privilege created successfully" });
-  } catch (error) {
-    res.status(500).json({ message: "Server error while creating privilege" });
-  }
-};
-
-// Assign privilege to users under the role
-const assignPrivilegeToUsers = async (req, res) => {
-  const { companyName, roleName, privileges } = req.body;
-
-  if (!companyName || !roleName || !privileges.length) {
-    return res.status(400).json({ message: "Company, role, and privileges are required" });
-  }
-
-  try {
-    // Fetch the event data using companyName
+    // Find the event by companyName
     const event = await Event.findOne({ companyName });
 
     if (!event) {
       return res.status(404).json({ message: "Event not found for this company" });
     }
 
-    const eventName = event.eventName;  // Get the eventName from the fetched event
+    const privileges = event.eventRoles.map(role => role.roleName);
 
-    // Fetch users for the specific company and role
-    const users = await User.find({ companyName, eventName, role: roleName });
+    res.json({ privileges });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error fetching event privileges" });
+  }
+};
 
-    // Create and save privileges in the Privilege collection
+// Assign privileges to users
+const assignPrivileges = async (req, res) => {
+  const { companyName, privileges } = req.body;
+
+  if (!companyName || !privileges || privileges.length === 0) {
+    return res.status(400).json({ message: "Company and privileges are required" });
+  }
+
+  try {
+    // Fetch the event by companyName to get the eventName
+    const event = await Event.findOne({ companyName });
+
+    if (!event) {
+      return res.status(404).json({ message: "Event not found for this company" });
+    }
+
+    const eventName = event.eventName;
+
+    // Assign privileges to the users
     for (const priv of privileges) {
+      const { privilegeName, email, password } = priv;
+
+      // Create or update the privilege
       const newPrivilege = new Privilege({
         companyName,
         eventName,
-        roleName,
-        privileges: [{
-          privilegeName: priv.privilegeName,
-          email: priv.email,
-          password: priv.password
-        }]
+        roleName: priv.privilegeName,
+        privileges: [
+          { privilegeName, email, password }
+        ]
       });
+
       await newPrivilege.save();
     }
 
-    // Assign privileges to users with claim: false
-    for (let user of users) {
-      const existing = user.privileges.map(p => p.privilegeName);
+    // Fetch users and assign them the privileges
+    const users = await User.find({ companyName, eventName });
+
+    // Assign privileges to users
+    for (const user of users) {
+      const existingPrivileges = user.privileges.map(p => p.privilegeName);
+
       const newPrivileges = privileges
-        .filter(p => !existing.includes(p.privilegeName))
+        .filter(p => !existingPrivileges.includes(p.privilegeName))
         .map(p => ({
           privilegeName: p.privilegeName,
-          claim: false  // Add claim: false here
+          claim: false  // Set claim: false for new privileges
         }));
 
       user.privileges.push(...newPrivileges);
       await user.save();
     }
 
-    res.status(200).json({ message: "Privileges assigned to users and saved successfully" });
+    res.status(200).json({ message: "Privileges assigned successfully!" });
   } catch (error) {
-    res.status(500).json({ message: "Server error while assigning privileges" });
+    console.error(error);
+    res.status(500).json({ message: "Error assigning privileges" });
   }
 };
 
 
-const getRoles = async (req, res) => {
-  try {
-    const adminCompanyName = req.admin.companyName;
-
-    // Find the event by companyName and project only roleName
-    const event = await Event.findOne(
-      { companyName: adminCompanyName },
-      { "eventRoles.roleName": 1, _id: 0 }  // Only fetch roleName
-    );
-
-    if (!event) {
-      return res.status(404).json({ message: "Event not found for this company" });
-    }
-
-    // Extract roleName only from eventRoles array
-    const roles = event.eventRoles.map(role => role.roleName);
-
-    res.json({ roles });
-  } catch (error) {
-    console.error("Error in getRoles:", error.message);
-    res.status(500).json({ message: "Server Error" });
-  }
-};
 
 
-module.exports = { adminLogin, getAllUsers, registerAdmin, createPrivilege, assignPrivilegeToUsers, getRoles };
+module.exports = { adminLogin, getAllUsers, registerAdmin, getEventPrivileges, assignPrivileges };
