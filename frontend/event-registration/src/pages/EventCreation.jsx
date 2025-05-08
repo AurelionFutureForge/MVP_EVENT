@@ -13,12 +13,14 @@ export default function EventCreation() {
     time: '',
     date: '',
     eventRoles: [],
+    eventPrivileges: []  // Add this field for privileges
   });
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [newRole, setNewRole] = useState('');
   const [roleDescription, setRoleDescription] = useState('');
+  const [newPrivilege, setNewPrivilege] = useState('');  // New state for privilege
   const navigate = useNavigate();
 
   const BASE_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
@@ -54,6 +56,16 @@ export default function EventCreation() {
     }
   };
 
+  const handleAddPrivilege = () => {
+    if (newPrivilege.trim()) {
+      setEventDetails((prevDetails) => ({
+        ...prevDetails,
+        eventPrivileges: [...prevDetails.eventPrivileges, newPrivilege.trim()]
+      }));
+      setNewPrivilege('');
+    }
+  };
+
   const handleDeleteRole = (index) => {
     setEventDetails((prevDetails) => ({
       ...prevDetails,
@@ -61,10 +73,17 @@ export default function EventCreation() {
     }));
   };
 
+  const handleDeletePrivilege = (index) => {
+    setEventDetails((prevDetails) => ({
+      ...prevDetails,
+      eventPrivileges: prevDetails.eventPrivileges.filter((_, i) => i !== index)
+    }));
+  };
+
   const validateForm = () => {
-    const { companyName, eventName, place, time, date, eventRoles } = eventDetails;
-    if (!companyName || !eventName || !place || !time || !date || eventRoles.length === 0) {
-      setError("All fields are required, including at least one role.");
+    const { companyName, eventName, place, time, date, eventRoles, eventPrivileges } = eventDetails;
+    if (!companyName || !eventName || !place || !time || !date || eventRoles.length === 0 || eventPrivileges.length === 0) {
+      setError("All fields are required, including at least one role and one privilege.");
       return false;
     }
     setError('');
@@ -81,9 +100,12 @@ export default function EventCreation() {
         roleDescription: role.roleDescription.trim(),
       }));
 
+      const sanitizedPrivileges = eventDetails.eventPrivileges.map(privilege => privilege.trim());
+
       const response = await axios.post(`${BASE_URL}/events/create-event`, {
         ...eventDetails,
         eventRoles: sanitizedRoles,
+        eventPrivileges: sanitizedPrivileges,
         date: new Date(eventDetails.date).toISOString().split('T')[0],
       });
 
@@ -91,7 +113,7 @@ export default function EventCreation() {
         toast.success("Event created successfully!");
         setEvents([...events, response.data.event]);
         setShowForm(false);
-        setEventDetails({ companyName: '', eventName: '', place: '', time: '', date: '', eventRoles: [] });
+        setEventDetails({ companyName: '', eventName: '', place: '', time: '', date: '', eventRoles: [], eventPrivileges: [] });
       }
     } catch (error) {
       console.error("Error creating event:", error.response?.data || error.message);
@@ -210,14 +232,29 @@ export default function EventCreation() {
             </div>
 
             <div className="mb-6">
-              <h5 className="text-lg font-semibold mb-2">Selected Roles</h5>
-              {eventDetails.eventRoles.map((role, index) => (
+              <h5 className="text-lg font-semibold mb-2">Add New Privilege</h5>
+              <input
+                type="text"
+                placeholder="Privilege Name"
+                value={newPrivilege}
+                onChange={(e) => setNewPrivilege(e.target.value)}
+                className="w-full p-3 mb-2 border rounded-lg shadow-sm"
+              />
+              <button
+                onClick={handleAddPrivilege}
+                className="w-full py-2 mt-2 bg-blue-600 text-white font-semibold rounded-lg shadow hover:bg-blue-700"
+              >
+                Add Privilege
+              </button>
+            </div>
+
+            <div className="mb-6">
+              <h5 className="text-lg font-semibold mb-2">Selected Privileges</h5>
+              {eventDetails.eventPrivileges.map((privilege, index) => (
                 <div key={index} className="flex justify-between items-center mb-2 p-2 border rounded-lg bg-gray-100">
-                  <div>
-                    <span className="font-semibold">{role.roleName}</span> - {role.roleDescription}
-                  </div>
+                  <div>{privilege}</div>
                   <button
-                    onClick={() => handleDeleteRole(index)}
+                    onClick={() => handleDeletePrivilege(index)}
                     className="ml-4 text-red-600 hover:text-red-800"
                   >
                     ✕
