@@ -3,7 +3,7 @@ const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 
 exports.privilegeLogin = async (req, res) => {
-  const { email, password, companyName, eventName } = req.body;
+  const { email, password, companyName, eventName, privilegeName } = req.body;
 
   try {
     // Find the privilege document for the given companyName and eventName
@@ -15,11 +15,11 @@ exports.privilegeLogin = async (req, res) => {
 
     // Find the user in the privileges array
     const privUser = privUserData.privileges.find(
-      (priv) => priv.email === email
+      (priv) => priv.email === email && priv.privilegeName === privilegeName
     );
 
     if (!privUser) {
-      return res.status(400).json({ message: "Email not found" });
+      return res.status(400).json({ message: "Email or privilege not found" });
     }
 
     // Check if the password matches (plain text comparison)
@@ -29,7 +29,7 @@ exports.privilegeLogin = async (req, res) => {
 
     // Generate a JWT token if the credentials are valid
     const token = jwt.sign(
-      { email: privUser.email, privilegeName: privUser.privilegeName, roleName: privUser.roleName },
+      { email: privUser.email, privilegeName: privUser.privilegeName },
       process.env.JWT_SECRET,
       { expiresIn: "2h" }
     );
@@ -38,7 +38,6 @@ exports.privilegeLogin = async (req, res) => {
     res.json({
       token,
       privilegeName: privUser.privilegeName,
-      roleName: privUser.roleName,
       privileges: privUserData.privileges, // You can also send back other data if needed
     });
   } catch (err) {
@@ -66,7 +65,7 @@ exports.getPrivilegeUsers = async (req, res) => {
     // Fetch users who belong to the same companyName and have privilegeName inside privileges array
     const users = await User.find({
       companyName,
-      "privileges.name": privilegeName,
+      "privileges.privilegeName": privilegeName, // Corrected query
     });
 
     res.json({ users });
@@ -75,3 +74,4 @@ exports.getPrivilegeUsers = async (req, res) => {
     res.status(500).json({ message: "Server error while fetching privilege users." });
   }
 };
+
