@@ -10,7 +10,8 @@ const userSchema = new mongoose.Schema({
   companyName: { type: String, required: true },
   role: { type: String, required: true },
   privileges: [privilegeSchema],   
-  registrationData: { type: Object, required: true }
+  registrationData: { type: Object, required: true },
+  qrCode: { type: String }  // Added this to store the QR code data (ex: email-userId)
 });
 
 const User = mongoose.model('User', userSchema);
