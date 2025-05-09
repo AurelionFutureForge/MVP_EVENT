@@ -25,6 +25,7 @@ function PrivilegeDashboard() {
         });
         setUsers(res.data.users);
       } catch (err) {
+        console.error("Fetch users error:", err);
         toast.error(err.response?.data?.message || "Failed to fetch users");
       }
     };
@@ -33,15 +34,29 @@ function PrivilegeDashboard() {
   }, [token, privilegeName, navigate, BASE_URL]);
 
   const handleScanQR = () => {
-    // For now — navigate to scan page (we'll create later)
     navigate("/admin/scanner");
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("privilegeName");
+    localStorage.removeItem("privilegeToken");
+    toast.success("Logged out successfully");
+    navigate("/privilege-login");
   };
 
   return (
     <div className="p-6 min-h-screen bg-gray-50">
-      <h1 className="text-3xl font-bold mb-4 text-center">
-        Privilege Dashboard — <span className="text-blue-600">{privilegeName}</span>
-      </h1>
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-3xl font-bold text-center w-full">
+          Privilege Dashboard — <span className="text-blue-600">{privilegeName}</span>
+        </h1>
+        <button
+          onClick={handleLogout}
+          className="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700 transition ml-4"
+        >
+          Logout
+        </button>
+      </div>
 
       <button
         onClick={handleScanQR}
@@ -62,22 +77,23 @@ function PrivilegeDashboard() {
             </tr>
           </thead>
           <tbody>
-            {users.map((user) => (
-              <tr key={user._id} className="border-t">
-                <td className="py-2 px-3">{user.name}</td>
-                <td className="py-2 px-3">{user.email}</td>
-                <td className="py-2 px-3">{user.contact}</td>
-                <td className="py-2 px-3">{user.role}</td>
-                <td className="py-2 px-3">
-                  {user.claimed ? (
-                    <span className="text-green-600 font-semibold">Claimed</span>
-                  ) : (
-                    <span className="text-red-600 font-semibold">Not Claimed</span>
-                  )}
-                </td>
-              </tr>
-            ))}
-            {users.length === 0 && (
+            {users.length > 0 ? (
+              users.map((user) => (
+                <tr key={user._id} className="border-t">
+                  <td className="py-2 px-3">{user.name}</td>
+                  <td className="py-2 px-3">{user.email}</td>
+                  <td className="py-2 px-3">{user.contact}</td>
+                  <td className="py-2 px-3">{user.role}</td>
+                  <td className="py-2 px-3">
+                    {user.claimed ? (
+                      <span className="text-green-600 font-semibold">Claimed</span>
+                    ) : (
+                      <span className="text-red-600 font-semibold">Not Claimed</span>
+                    )}
+                  </td>
+                </tr>
+              ))
+            ) : (
               <tr>
                 <td colSpan="5" className="text-center py-4 text-gray-500">
                   No users found
