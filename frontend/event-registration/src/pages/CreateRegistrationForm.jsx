@@ -4,7 +4,13 @@ import { toast } from "react-hot-toast";
 
 function CreateRegistrationForm() {
   const [fields, setFields] = useState([
-    { fieldName: "EMAIL", fieldType: "email", options: [], required: true },
+    {
+      fieldName: "EMAIL",
+      fieldType: "email",
+      options: [],
+      required: true,
+      locked: true, // Lock the default field
+    },
   ]);
   const [eventName, setEventName] = useState("");
   const [formLink, setFormLink] = useState("");
@@ -21,6 +27,7 @@ function CreateRegistrationForm() {
   }, []);
 
   const handleFieldChange = (index, field, value) => {
+    if (fields[index].locked) return; // Prevent editing locked field
     const updatedFields = [...fields];
     updatedFields[index][field] = value;
     setFields(updatedFields);
@@ -34,9 +41,8 @@ function CreateRegistrationForm() {
   };
 
   const removeField = (index) => {
-    // Prevent removing the default EMAIL field (index 0)
-    if (index === 0) {
-      toast.error("The default EMAIL field cannot be removed.");
+    if (fields[index].locked) {
+      toast.error("You cannot remove the default EMAIL field.");
       return;
     }
     const updatedFields = [...fields];
@@ -73,7 +79,15 @@ function CreateRegistrationForm() {
       localStorage.setItem("eventId", eventId);
 
       setEventName("");
-      setFields([{ fieldName: "EMAIL", fieldType: "email", options: [], required: true }]);
+      setFields([
+        {
+          fieldName: "EMAIL",
+          fieldType: "email",
+          options: [],
+          required: true,
+          locked: true,
+        },
+      ]);
 
       toast.success("Registration form fields updated successfully!");
     } catch (error) {
@@ -123,12 +137,16 @@ function CreateRegistrationForm() {
                 }
                 className="border rounded px-3 py-2 w-full focus:ring-2 focus:ring-blue-400"
                 style={{ textTransform: "uppercase" }}
+                disabled={field.locked}
               />
 
               <select
                 value={field.fieldType}
-                onChange={(e) => handleFieldChange(index, "fieldType", e.target.value)}
+                onChange={(e) =>
+                  handleFieldChange(index, "fieldType", e.target.value)
+                }
                 className="border rounded px-3 py-2 w-full focus:ring-2 focus:ring-blue-400"
+                disabled={field.locked}
               >
                 <option value="text">Text</option>
                 <option value="email">Email</option>
@@ -139,7 +157,7 @@ function CreateRegistrationForm() {
               </select>
             </div>
 
-            {(field.fieldType === "select" || field.fieldType === "checkbox") && (
+            {(field.fieldType === "select" || field.fieldType === "checkbox") && !field.locked && (
               <div className="mt-3">
                 <label className="block font-semibold">Options (comma separated)</label>
                 <input
@@ -158,26 +176,31 @@ function CreateRegistrationForm() {
               </div>
             )}
 
-            <div className="mt-3">
-              <label className="flex items-center">
-                <input
-                  type="checkbox"
-                  checked={field.required}
-                  onChange={(e) => handleFieldChange(index, "required", e.target.checked)}
-                  className="mr-2"
-                />
-                Required
-              </label>
-            </div>
+            {!field.locked && (
+              <div className="mt-3">
+                <label className="flex items-center">
+                  <input
+                    type="checkbox"
+                    checked={field.required}
+                    onChange={(e) =>
+                      handleFieldChange(index, "required", e.target.checked)
+                    }
+                    className="mr-2"
+                  />
+                  Required
+                </label>
+              </div>
+            )}
 
-            <button
-              type="button"
-              onClick={() => removeField(index)}
-              className="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition mt-4"
-              disabled={index === 0} // prevent removing the default EMAIL field
-            >
-              Remove Field
-            </button>
+            {!field.locked && (
+              <button
+                type="button"
+                onClick={() => removeField(index)}
+                className="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition mt-4"
+              >
+                Remove Field
+              </button>
+            )}
           </div>
         ))}
 
@@ -212,4 +235,3 @@ function CreateRegistrationForm() {
 }
 
 export default CreateRegistrationForm;
-
