@@ -179,10 +179,9 @@ const sendSuccessEmail = async (name, email, eventName, companyName, place, time
   }
 };
 
-
 exports.registerUser = async (req, res) => {
   const { formData, eventId } = req.body;
-  console.log("eventID:",eventId);
+  console.log("eventID:", eventId);
 
   try {
     const event = await Event.findById(eventId);
@@ -203,18 +202,9 @@ exports.registerUser = async (req, res) => {
       claim: false
     }));
 
-    // 3. Extract name and email from formData (case-insensitive match)
-    let name = "";
-    let email = "";
-
-    for (const [key, value] of Object.entries(formData)) {
-      const normalizedKey = key.toLowerCase().replace(/[-\s]/g, '');
-      if (normalizedKey === "name" || normalizedKey === "fullname") {
-        name = value;
-      } else if (normalizedKey === "email") {
-        email = value;
-      }
-    }
+    // 3. Extract name and email from formData (no case-insensitive match)
+    let name = formData.name || formData.fullname;
+    let email = formData.email;
 
     if (!name || !email) {
       return res.status(400).json({ message: 'Name (or Full Name) and Email are required fields' });
