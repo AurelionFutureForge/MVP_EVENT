@@ -11,13 +11,29 @@ function extractNameAndEmail(registrationData) {
     key.toLowerCase().includes("name")
   );
   const emailField = Object.keys(registrationData).find((key) =>
-    key.toLowerCase().includes("email")
+    key.toLowerCase().includes("mail")
   );
 
   const name = nameField ? registrationData[nameField] : "";
   const email = emailField ? registrationData[emailField] : "";
 
   return { name, email };
+}
+
+// Utility to dynamically extract contact from registrationData
+function extractContact(registrationData) {
+  const contactField = Object.keys(registrationData).find((key) => {
+    const lowerKey = key.toLowerCase();
+    return (
+      lowerKey.includes("contact") ||
+      lowerKey.includes("mobile") ||
+      lowerKey.includes("phone") ||
+      lowerKey.includes("number")
+    );
+  });
+
+  const contact = contactField ? registrationData[contactField] : "";
+  return contact;
 }
 
 function AdminDashboard() {
@@ -69,11 +85,12 @@ function AdminDashboard() {
 
     const data = filteredUsers.map((user) => {
       const { name, email } = extractNameAndEmail(user.registrationData);
+      const contact = extractContact(user.registrationData); // Use the dynamic contact extraction
       return [
         name,
         email,
         user.registrationData.role,
-        user.registrationData.contact,
+        contact, // Display dynamic contact field
         user.privileges && user.privileges.length > 0
           ? user.privileges
               .map(
@@ -250,6 +267,7 @@ function AdminDashboard() {
             <tbody>
               {getFilteredUsers().map((user, index) => {
                 const { name, email } = extractNameAndEmail(user.registrationData);
+                const contact = extractContact(user.registrationData); // Use dynamic contact extraction
                 return (
                   <tr
                     key={index}
@@ -258,7 +276,7 @@ function AdminDashboard() {
                     <td className="p-3">{name}</td>
                     <td className="p-3">{email}</td>
                     <td className="p-3">{user.registrationData.role}</td>
-                    <td className="p-3">{user.registrationData.contact}</td>
+                    <td className="p-3">{contact}</td> {/* Display dynamic contact field */}
                     <td className="p-3">
                       {user.privileges && user.privileges.length > 0 ? (
                         <ul className="text-left space-y-1">
