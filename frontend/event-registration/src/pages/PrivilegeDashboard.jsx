@@ -3,9 +3,40 @@ import axios from "axios";
 import { toast } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 
+// Utility to dynamically extract name + email from registrationData
+function extractNameAndEmail(registrationData) {
+  const nameField = Object.keys(registrationData).find((key) =>
+    key.toLowerCase().includes("name")
+  );
+  const emailField = Object.keys(registrationData).find((key) =>
+    key.toLowerCase().includes("mail")
+  );
+
+  const name = nameField ? registrationData[nameField] : "";
+  const email = emailField ? registrationData[emailField] : "";
+
+  return { name, email };
+}
+
+// Utility to dynamically extract contact from registrationData
+function extractContact(registrationData) {
+  const contactField = Object.keys(registrationData).find((key) => {
+    const lowerKey = key.toLowerCase();
+    return (
+      lowerKey.includes("contact") ||
+      lowerKey.includes("mobile") ||
+      lowerKey.includes("phone") ||
+      lowerKey.includes("number")
+    );
+  });
+
+  const contact = contactField ? registrationData[contactField] : "";
+  return contact;
+}
+
 function PrivilegeDashboard() {
   const [users, setUsers] = useState([]);
-  const [loading, setLoading] = useState(true); // Track loading state
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const BASE_URL = import.meta.env.VITE_BACKEND_URL;
 
@@ -29,7 +60,7 @@ function PrivilegeDashboard() {
         console.error("Fetch users error:", err);
         toast.error(err.response?.data?.message || "Failed to fetch users");
       } finally {
-        setLoading(false); // Turn off loading after data is fetched
+        setLoading(false);
       }
     };
 
@@ -87,21 +118,32 @@ function PrivilegeDashboard() {
                 </td>
               </tr>
             ) : users.length > 0 ? (
-              users.map((user) => (
-                <tr key={user._id} className="border-t">
-                  <td className="py-2 px-3">{user.name}</td>
-                  <td className="py-2 px-3">{user.email}</td>
-                  <td className="py-2 px-3">{user.contact}</td>
-                  <td className="py-2 px-3">{user.role}</td>
-                  <td className="py-2 px-3">
-                    {user.claimed ? (
-                      <span className="text-green-600 font-semibold">Claimed</span>
-                    ) : (
-                      <span className="text-red-600 font-semibold">Not Claimed</span>
-                    )}
-                  </td>
-                </tr>
-              ))
+              users.map((user) => {
+                const privilege = user.privileges.find(
+                  (p) => p.name === privilegeName
+                );
+                const isClaimed = privilege?.claim === true;
+
+                const registration = user.registrationData;
+                const { name, email } = extractNameAndEmail(registration);
+                const contact = extractContact(registration);
+
+                return (
+                  <tr key={user._id} className="border-t">
+                    <td className="py-2 px-3">{name}</td>
+                    <td className="py-2 px-3">{email}</td>
+                    <td className="py-2 px-3">{contact}</td>
+                    <td className="py-2 px-3">{user.role}</td>
+                    <td className="py-2 px-3">
+                      {isClaimed ? (
+                        <span className="text-green-600 font-semibold">Claimed</span>
+                      ) : (
+                        <span className="text-red-600 font-semibold">Not Claimed</span>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })
             ) : (
               <tr>
                 <td colSpan="5" className="text-center py-4 text-gray-500">
