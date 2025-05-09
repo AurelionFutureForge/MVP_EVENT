@@ -53,9 +53,10 @@ exports.getPrivilegeUsers = async (req, res) => {
   const { email, privilegeName } = req.user; // comes from authenticatePrivilege middleware
 
   try {
-    // Find privilege document containing this email inside privileges array
+    // Find the privilege document containing this email inside the privileges array
     const privilegeDoc = await Privilege.findOne({
-      "privileges.email": email,
+      "privileges.email": email, // Check if the privilege array contains this email
+      "privileges.privilegeName": privilegeName // Ensure privilegeName matches
     });
 
     if (!privilegeDoc) {
@@ -64,12 +65,14 @@ exports.getPrivilegeUsers = async (req, res) => {
 
     const { companyName, eventName } = privilegeDoc;
 
+    // Fetch users who belong to the same companyName, eventName, and have the privilegeName
     const users = await User.find({
       companyName,
       eventName,
-      "privileges.name": privilegeName,
+      "privileges.name": privilegeName, // Ensure privileges.name matches
     });
 
+    // Return the users
     res.json({ users });
   } catch (err) {
     console.error("Error fetching privilege users:", err);
