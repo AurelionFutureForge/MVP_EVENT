@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
 import { toast } from "react-hot-toast";
 
@@ -8,8 +8,18 @@ function CreateRegistrationForm() {
   ]);
   const [eventName, setEventName] = useState("");
   const [formLink, setFormLink] = useState(""); // Store the form link
+
   const BASE_URL = import.meta.env.VITE_BACKEND_URL;
   const companyName = localStorage.getItem("adminCompany");
+
+  // ✅ On component mount — Check if formLink is already stored
+  useEffect(() => {
+    const savedEventId = localStorage.getItem("eventId");
+    if (savedEventId) {
+      const link = `https://mvp-event.vercel.app/register/${savedEventId}`;
+      setFormLink(link);
+    }
+  }, []);
 
   const handleFieldChange = (index, field, value) => {
     const updatedFields = [...fields];
@@ -58,7 +68,9 @@ function CreateRegistrationForm() {
       const eventId = response.data.eventId;
       const link = `https://mvp-event.vercel.app/register/${eventId}`; // Generate the registration form link
       setFormLink(link); // Set the form link in state
-      localStorage.setItem("eventId", eventId); // Store the eventId
+
+      // ✅ Persist eventId so button stays visible on reload
+      localStorage.setItem("eventId", eventId);
 
       // Reset form fields after successful submission
       setEventName("");
@@ -100,8 +112,7 @@ function CreateRegistrationForm() {
           {/* Info Box */}
           <div className="bg-yellow-100 text-yellow-800 border border-yellow-300 rounded p-3 mb-4 text-sm">
             <strong>Note:</strong> You don't need to create a field for{" "}
-            <em>Role</em>. It will be automatically handled from the event
-            roles.
+            <em>Role</em>. It will be automatically handled from the event roles.
           </div>
         </div>
 
@@ -129,7 +140,7 @@ function CreateRegistrationForm() {
               </select>
             </div>
 
-            {field.fieldType === "select" || field.fieldType === "checkbox" ? (
+            {(field.fieldType === "select" || field.fieldType === "checkbox") && (
               <div className="mt-3">
                 <label className="block font-semibold">Options (comma separated)</label>
                 <input
@@ -142,7 +153,7 @@ function CreateRegistrationForm() {
                   className="border rounded px-3 py-2 w-full focus:ring-2 focus:ring-blue-400"
                 />
               </div>
-            ) : null}
+            )}
 
             <div className="mt-3">
               <label className="flex items-center">
