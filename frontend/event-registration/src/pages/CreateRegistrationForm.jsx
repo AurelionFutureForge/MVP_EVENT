@@ -197,7 +197,7 @@ function CreateRegistrationForm() {
           <div className="mt-6">
             <button
               onClick={handleCopyLink}
-              className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 w-full mt-4"
+              className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 w-full"
             >
               Copy Registration Form Link
             </button>
