@@ -49,30 +49,26 @@ exports.privilegeLogin = async (req, res) => {
 
 
 exports.getPrivilegeUsers = async (req, res) => {
-  // Token is already verified by middleware, just use req.user
-  const { email, privilegeName } = req.user; // comes from authenticatePrivilege middleware
+  const { email, privilegeName } = req.user;
 
   try {
-    // Find the privilege document containing this email inside the privileges array
+    // Find privilege document containing this email
     const privilegeDoc = await Privilege.findOne({
-      "privileges.email": email, // Check if the privilege array contains this email
-      "privileges.privilegeName": privilegeName // Ensure privilegeName matches
+      "privileges.email": email,
     });
 
     if (!privilegeDoc) {
       return res.status(404).json({ message: "Privilege not found." });
     }
 
-    const { companyName, eventName } = privilegeDoc;
+    const { companyName } = privilegeDoc;
 
-    // Fetch users who belong to the same companyName, eventName, and have the privilegeName
+    // Fetch users who belong to the same companyName and have privilegeName inside privileges array
     const users = await User.find({
       companyName,
-      eventName,
-      "privileges.name": privilegeName, // Ensure privileges.name matches
+      "privileges.name": privilegeName,
     });
 
-    // Return the users
     res.json({ users });
   } catch (err) {
     console.error("Error fetching privilege users:", err);
