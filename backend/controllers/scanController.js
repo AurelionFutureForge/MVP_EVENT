@@ -1,7 +1,5 @@
 const User = require("../models/User");
 
-const User = require("../models/User");
-
 // VERIFY QR CODE — Claim the specific privilege and update the user's data
 exports.verifyQRCode = async (req, res) => {
   const { qrCode, privilegeName } = req.body;  // qrCode and privilegeName are passed from the frontend
