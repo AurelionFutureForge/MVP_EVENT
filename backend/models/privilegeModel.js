@@ -8,7 +8,6 @@ const privilegeSchema = new mongoose.Schema({
       privilegeName: { type: String, required: true },
       email: { type: String, required: true },
       password: { type: String, required: true },
-      claim: { type: Boolean, default: false }  // Add claim flag (for scan feature)
     }
   ]
 }, { timestamps: true });
