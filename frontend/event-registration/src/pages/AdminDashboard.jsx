@@ -5,6 +5,21 @@ import { toast } from "react-hot-toast";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 
+// Utility to dynamically extract name & email from registrationData
+function extractNameAndEmail(registrationData) {
+  const nameField = Object.keys(registrationData).find((key) =>
+    key.toLowerCase().includes("name")
+  );
+  const emailField = Object.keys(registrationData).find((key) =>
+    key.toLowerCase().includes("email")
+  );
+
+  const name = nameField ? registrationData[nameField] : "";
+  const email = emailField ? registrationData[emailField] : "";
+
+  return { name, email };
+}
+
 function AdminDashboard() {
   const [users, setUsers] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -52,20 +67,23 @@ function AdminDashboard() {
 
     const headers = [["Name", "Email", "Role", "Contact", "Privileges"]];
 
-    const data = filteredUsers.map((user) => [
-      user.registrationData.name,
-      user.registrationData.email,
-      user.registrationData.role,
-      user.registrationData.contact,
-      user.privileges && user.privileges.length > 0
-        ? user.privileges
-            .map(
-              (p) =>
-                `${p.name?.toUpperCase()} (${p.claim ? "Claimed" : "Not Claimed"})`
-            )
-            .join(", ")
-        : "No privileges assigned",
-    ]);
+    const data = filteredUsers.map((user) => {
+      const { name, email } = extractNameAndEmail(user.registrationData);
+      return [
+        name,
+        email,
+        user.registrationData.role,
+        user.registrationData.contact,
+        user.privileges && user.privileges.length > 0
+          ? user.privileges
+              .map(
+                (p) =>
+                  `${p.name?.toUpperCase()} (${p.claim ? "Claimed" : "Not Claimed"})`
+              )
+              .join(", ")
+          : "No privileges assigned",
+      ];
+    });
 
     autoTable(pdf, {
       startY: 30,
@@ -83,9 +101,10 @@ function AdminDashboard() {
 
   const getFilteredUsers = () => {
     return users.filter((user) => {
+      const { name, email } = extractNameAndEmail(user.registrationData);
       const matchesSearch =
-        (user.registrationData.name?.toLowerCase() ?? "").includes(searchTerm.toLowerCase()) ||
-        (user.registrationData.email?.toLowerCase() ?? "").includes(searchTerm.toLowerCase());
+        name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        email.toLowerCase().includes(searchTerm.toLowerCase());
       const matchesRole = roleFilter === "All" || user.registrationData.role === roleFilter;
       return matchesSearch && matchesRole;
     });
@@ -229,43 +248,46 @@ function AdminDashboard() {
               </tr>
             </thead>
             <tbody>
-              {getFilteredUsers().map((user, index) => (
-                <tr
-                  key={index}
-                  className="text-center border-b hover:bg-gray-100 transition text-sm"
-                >
-                  <td className="p-3">{user.registrationData.name}</td>
-                  <td className="p-3">{user.registrationData.email}</td>
-                  <td className="p-3">{user.registrationData.role}</td>
-                  <td className="p-3">{user.registrationData.contact}</td>
-                  <td className="p-3">
-                    {user.privileges && user.privileges.length > 0 ? (
-                      <ul className="text-left space-y-1">
-                        {user.privileges.map((priv, idx) => (
-                          <li
-                            key={idx}
-                            className="flex items-center gap-1 text-xs"
-                          >
-                            <span className="font-semibold">
-                              {priv.name?.toUpperCase()}
-                            </span>{" "}
-                            —{" "}
-                            {priv.claim ? (
-                              <span className="text-green-600">Claimed</span>
-                            ) : (
-                              <span className="text-red-600">Not Claimed</span>
-                            )}
-                          </li>
-                        ))}
-                      </ul>
-                    ) : (
-                      <span className="text-gray-500 text-xs italic">
-                        No privileges assigned
-                      </span>
-                    )}
-                  </td>
-                </tr>
-              ))}
+              {getFilteredUsers().map((user, index) => {
+                const { name, email } = extractNameAndEmail(user.registrationData);
+                return (
+                  <tr
+                    key={index}
+                    className="text-center border-b hover:bg-gray-100 transition text-sm"
+                  >
+                    <td className="p-3">{name}</td>
+                    <td className="p-3">{email}</td>
+                    <td className="p-3">{user.registrationData.role}</td>
+                    <td className="p-3">{user.registrationData.contact}</td>
+                    <td className="p-3">
+                      {user.privileges && user.privileges.length > 0 ? (
+                        <ul className="text-left space-y-1">
+                          {user.privileges.map((priv, idx) => (
+                            <li
+                              key={idx}
+                              className="flex items-center gap-1 text-xs"
+                            >
+                              <span className="font-semibold">
+                                {priv.name?.toUpperCase()}
+                              </span>{" "}
+                              —{" "}
+                              {priv.claim ? (
+                                <span className="text-green-600">Claimed</span>
+                              ) : (
+                                <span className="text-red-600">Not Claimed</span>
+                              )}
+                            </li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <span className="text-gray-500 text-xs italic">
+                          No privileges assigned
+                        </span>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
 
