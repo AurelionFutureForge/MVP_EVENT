@@ -177,10 +177,6 @@ const sendSuccessEmail = async (name, email, eventName, companyName, place, time
     let ticketClass = role;
     let paymentStatus = "will be added soon";
 
-    // Find user and retrieve privileges
-    const user = await User.findOne({ email }); // Use email as the query key
-    const event = await Event.findById(user.eventId);  // Get the event based on the user
-
 
     // Convert Base64 QR image to buffer
     const base64Data = qrCodeImage.replace(/^data:image\/png;base64,/, "");
