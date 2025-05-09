@@ -268,31 +268,52 @@ exports.registerUser = async (req, res) => {
       return res.status(404).json({ message: 'Event not found' });
     }
 
-    // 2. Get selected role from formData
+    // 1. Get selected role from formData
     const selectedRoleName = formData.role;
     const selectedRole = event.eventRoles.find(role => role.roleName === selectedRoleName);
     if (!selectedRole) {
       return res.status(400).json({ message: 'Invalid role selected' });
     }
 
-    // 3. Prepare privileges with 'claim: false' for each privilege
+    // 2. Prepare privileges with 'claim: false'
     const privileges = selectedRole.privileges.map(privilege => ({
       name: privilege,
-      claim: false  // Default claim value
+      claim: false
     }));
 
-    // 4. Save user with registration fields + role + privileges
+    // 3. Save user with registration data + role + privileges
     const newUser = new User({
       eventId: event._id,
       companyName: event.companyName,
       role: selectedRole.roleName,
-      privileges,  // Add privileges here
+      privileges,
       registrationData: formData
     });
 
     await newUser.save();
 
+    // 4. Extract values from formData and event for email & ticket
+    const name = formData.name;
+    const email = formData.email;
+    const role = selectedRole.roleName;
+
+    const { eventName, companyName, place, time, date } = event;
+
+    const qrCodeData = `${email}-${newUser._id}`;
+    const qrCodeImage = await QRCode.toDataURL(qrCodeData);
+
+    newUser.qrCode = qrCodeData;
+    await newUser.save();
+
+    const ticketID = newUser._id.toString();
+    const pdfPath = path.join(__dirname, "../public/pdfs", `${ticketID}.pdf`);
+
+    await generateTicketPDF(name, email, eventName, companyName, place, time, date, role, ticketID, qrCodeImage, pdfPath);
+
+    await sendSuccessEmail(name, email, eventName, companyName, place, time, date, qrCodeImage, role, ticketID, pdfPath);
+
     res.status(201).json({ message: 'User registered successfully' });
+
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'Error registering user' });
