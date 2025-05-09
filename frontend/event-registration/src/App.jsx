@@ -10,6 +10,7 @@ import EventCreation from './pages/EventCreation';
 import AdminRegister from './pages/AdminRegister'
 import ProtectedRoute from './pages/ProtectedRoute';
 import ProtectedEventRoute from './pages/ProtectedEventRoute';
+import ProtectedPrivilege from './pages/ProtectedPrivilege';
 import ManageAccess from './pages/ManageAccess';
 import PrivilegeLogin from './pages/PrivilegeLogin';
 import PrivilegeDashboard from './pages/PrivilegeDashboard';
@@ -24,7 +25,7 @@ const App = () => {
         <Route path='/' element={<Home />} />
         <Route path='/register/:eventID' element={<RegistrationForm />} />
         <Route path="/success" element={<SuccessPage />} />
-        <Route path="/admin/scanner" element={<AdminScanner />} />
+        <Route path="/admin/scanner" element={<ProtectedPrivilege> <AdminScanner /> </ProtectedPrivilege>} />
         <Route path="/admin/register" element={<AdminRegister />} />
         <Route path='/admin/login' element={<AdminLogin />} />
         <Route path='/admin/dashboard' element={<ProtectedRoute> <AdminDashboard /> </ ProtectedRoute>} />
