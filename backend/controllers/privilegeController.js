@@ -64,7 +64,6 @@ exports.getPrivilegeUsers = async (req, res) => {
 
     const { companyName, eventName } = privilegeDoc;
 
-    // Corrected query to match your User schema (privileges.name)
     const users = await User.find({
       companyName,
       eventName,

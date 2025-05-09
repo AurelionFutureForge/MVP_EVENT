@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 
 function PrivilegeDashboard() {
   const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true); // Track loading state
   const navigate = useNavigate();
   const BASE_URL = import.meta.env.VITE_BACKEND_URL;
 
@@ -27,6 +28,8 @@ function PrivilegeDashboard() {
       } catch (err) {
         console.error("Fetch users error:", err);
         toast.error(err.response?.data?.message || "Failed to fetch users");
+      } finally {
+        setLoading(false); // Turn off loading after data is fetched
       }
     };
 
@@ -77,7 +80,13 @@ function PrivilegeDashboard() {
             </tr>
           </thead>
           <tbody>
-            {users.length > 0 ? (
+            {loading ? (
+              <tr>
+                <td colSpan="5" className="text-center py-4 text-gray-500">
+                  Loading...
+                </td>
+              </tr>
+            ) : users.length > 0 ? (
               users.map((user) => (
                 <tr key={user._id} className="border-t">
                   <td className="py-2 px-3">{user.name}</td>
