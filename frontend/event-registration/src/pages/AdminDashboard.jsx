@@ -198,19 +198,19 @@ function AdminDashboard() {
         </div>
 
         {/* Actions */}
-        <div className="flex flex-col md:flex-row md:justify-between gap-3 mb-4">
-          <div className="flex flex-col md:flex-row gap-2 w-full md:w-auto">
+        <div className="flex flex-col sm:flex-row sm:justify-between gap-3 mb-4">
+          <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
             <input
               type="text"
               placeholder="Search name or email..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="border rounded px-3 py-2 w-full md:w-64 focus:ring-2 focus:ring-blue-400"
+              className="border rounded px-3 py-2 w-full sm:w-64 focus:ring-2 focus:ring-blue-400"
             />
             <select
               value={roleFilter}
               onChange={(e) => setRoleFilter(e.target.value)}
-              className="border rounded px-3 py-2 w-full md:w-48 focus:ring-2 focus:ring-blue-400"
+              className="border rounded px-3 py-2 w-full sm:w-48 focus:ring-2 focus:ring-blue-400"
             >
               <option value="All">All Roles</option>
               {uniqueRoles.map((role, idx) => (
@@ -221,7 +221,7 @@ function AdminDashboard() {
             </select>
           </div>
 
-          <div className="flex gap-2 justify-end w-full md:w-auto">
+          <div className="flex gap-2 justify-end w-full sm:w-auto">
             <button
               onClick={downloadPDF}
               className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition shadow"
