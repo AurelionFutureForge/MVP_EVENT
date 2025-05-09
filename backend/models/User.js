@@ -9,10 +9,13 @@ const userSchema = new mongoose.Schema({
   eventId: { type: mongoose.Schema.Types.ObjectId, ref: 'Event', required: true },
   companyName: { type: String, required: true },
   role: { type: String, required: true },
+  email: { type: String, required: true }, 
   privileges: [privilegeSchema],   
   registrationData: { type: Object, required: true },
-  qrCode: { type: String }  // Added this to store the QR code data (ex: email-userId)
+  qrCode: { type: String }
 });
+
+userSchema.index({ email: 1, eventId: 1 }, { unique: true }); // <--- ✅ COMPOUND INDEX
 
 const User = mongoose.model('User', userSchema);
 module.exports = User;

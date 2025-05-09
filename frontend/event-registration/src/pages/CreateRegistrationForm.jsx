@@ -4,15 +4,14 @@ import { toast } from "react-hot-toast";
 
 function CreateRegistrationForm() {
   const [fields, setFields] = useState([
-    { fieldName: "", fieldType: "text", options: [], required: false },
+    { fieldName: "EMAIL", fieldType: "email", options: [], required: true },
   ]);
   const [eventName, setEventName] = useState("");
-  const [formLink, setFormLink] = useState(""); // Store the form link
+  const [formLink, setFormLink] = useState("");
 
   const BASE_URL = import.meta.env.VITE_BACKEND_URL;
   const companyName = localStorage.getItem("adminCompany");
 
-  // ✅ On component mount — Check if formLink is already stored
   useEffect(() => {
     const savedEventId = localStorage.getItem("eventId");
     if (savedEventId) {
@@ -35,6 +34,11 @@ function CreateRegistrationForm() {
   };
 
   const removeField = (index) => {
+    // Prevent removing the default EMAIL field (index 0)
+    if (index === 0) {
+      toast.error("The default EMAIL field cannot be removed.");
+      return;
+    }
     const updatedFields = [...fields];
     updatedFields.splice(index, 1);
     setFields(updatedFields);
@@ -43,7 +47,6 @@ function CreateRegistrationForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Validate input fields
     if (!eventName || fields.some((field) => !field.fieldName)) {
       toast.error("Please fill out all required fields.");
       return;
@@ -52,7 +55,6 @@ function CreateRegistrationForm() {
     const token = localStorage.getItem("adminToken");
 
     try {
-      // Send request to save registration fields
       const response = await axios.post(
         `${BASE_URL}/events/save-registration-fields`,
         {
@@ -66,15 +68,12 @@ function CreateRegistrationForm() {
       );
 
       const eventId = response.data.eventId;
-      const link = `https://mvp-event.vercel.app/register/${eventId}`; // Generate the registration form link
-      setFormLink(link); // Set the form link in state
-
-      // ✅ Persist eventId so button stays visible on reload
+      const link = `https://mvp-event.vercel.app/register/${eventId}`;
+      setFormLink(link);
       localStorage.setItem("eventId", eventId);
 
-      // Reset form fields after successful submission
       setEventName("");
-      setFields([{ fieldName: "", fieldType: "text", options: [], required: false }]);
+      setFields([{ fieldName: "EMAIL", fieldType: "email", options: [], required: true }]);
 
       toast.success("Registration form fields updated successfully!");
     } catch (error) {
@@ -82,7 +81,6 @@ function CreateRegistrationForm() {
     }
   };
 
-  // Handle copy link action
   const handleCopyLink = () => {
     if (formLink) {
       navigator.clipboard.writeText(formLink);
@@ -108,18 +106,14 @@ function CreateRegistrationForm() {
             onChange={(e) => setEventName(e.target.value)}
             className="border rounded px-3 py-2 w-full mb-4"
           />
-
-          {/* Info Box */}
           <div className="bg-yellow-100 text-yellow-800 border border-yellow-300 rounded p-3 mb-4 text-sm">
-            <strong>Note:</strong> You don't need to create a field for{" "}
-            <em>Role</em>. It will be automatically handled from the event roles.
+            <strong>Note:</strong> You don't need to create a field for <em>Role</em>. It will be automatically handled from the event roles.
           </div>
         </div>
 
         {fields.map((field, index) => (
           <div key={index} className="border rounded p-4 mb-3 bg-gray-50">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              {/* ✅ UPDATED FIELD NAME INPUT */}
               <input
                 type="text"
                 placeholder="Field Name"
@@ -128,7 +122,7 @@ function CreateRegistrationForm() {
                   handleFieldChange(index, "fieldName", e.target.value.toUpperCase())
                 }
                 className="border rounded px-3 py-2 w-full focus:ring-2 focus:ring-blue-400"
-                style={{ textTransform: "uppercase" }} // ✅ Visually display uppercase
+                style={{ textTransform: "uppercase" }}
               />
 
               <select
@@ -180,6 +174,7 @@ function CreateRegistrationForm() {
               type="button"
               onClick={() => removeField(index)}
               className="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition mt-4"
+              disabled={index === 0} // prevent removing the default EMAIL field
             >
               Remove Field
             </button>
@@ -201,7 +196,6 @@ function CreateRegistrationForm() {
           Save Registration Form
         </button>
 
-        {/* Displaying the registration form link and copy button */}
         {formLink && (
           <div className="mt-6">
             <button
