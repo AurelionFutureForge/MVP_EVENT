@@ -3,7 +3,7 @@ const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 
 exports.privilegeLogin = async (req, res) => {
-  const { email, password, companyName, eventName, privilegeName } = req.body;
+  const { email, password, companyName, eventName } = req.body;
 
   try {
     // Find the privilege document for the given companyName and eventName
@@ -15,11 +15,11 @@ exports.privilegeLogin = async (req, res) => {
 
     // Find the user in the privileges array
     const privUser = privUserData.privileges.find(
-      (priv) => priv.email === email && priv.privilegeName === privilegeName
+      (priv) => priv.email === email
     );
 
     if (!privUser) {
-      return res.status(400).json({ message: "Email or privilege not found" });
+      return res.status(400).json({ message: "Email not found" });
     }
 
     // Check if the password matches (plain text comparison)
@@ -29,7 +29,7 @@ exports.privilegeLogin = async (req, res) => {
 
     // Generate a JWT token if the credentials are valid
     const token = jwt.sign(
-      { email: privUser.email, privilegeName: privUser.privilegeName },
+      { email: privUser.email, privilegeName: privUser.privilegeName, roleName: privUser.roleName },
       process.env.JWT_SECRET,
       { expiresIn: "2h" }
     );
@@ -38,6 +38,7 @@ exports.privilegeLogin = async (req, res) => {
     res.json({
       token,
       privilegeName: privUser.privilegeName,
+      roleName: privUser.roleName,
       privileges: privUserData.privileges, // You can also send back other data if needed
     });
   } catch (err) {
@@ -48,26 +49,30 @@ exports.privilegeLogin = async (req, res) => {
 
 
 exports.getPrivilegeUsers = async (req, res) => {
-  const { email, privilegeName } = req.user;
+  // Token is already verified by middleware, just use req.user
+  const { email, privilegeName } = req.user; // comes from authenticatePrivilege middleware
 
   try {
-    // Find privilege document containing this email
+    // Find the privilege document containing this email inside the privileges array
     const privilegeDoc = await Privilege.findOne({
-      "privileges.email": email,
+      "privileges.email": email, // Check if the privilege array contains this email
+      "privileges.privilegeName": privilegeName // Ensure privilegeName matches
     });
 
     if (!privilegeDoc) {
       return res.status(404).json({ message: "Privilege not found." });
     }
 
-    const { companyName } = privilegeDoc;
+    const { companyName, eventName } = privilegeDoc;
 
-    // Fetch users who belong to the same companyName and have privilegeName inside privileges array
+    // Fetch users who belong to the same companyName, eventName, and have the privilegeName
     const users = await User.find({
       companyName,
-      "privileges.privilegeName": privilegeName, // Corrected query
+      eventName,
+      "privileges.name": privilegeName, // Ensure privileges.name matches
     });
 
+    // Return the users
     res.json({ users });
   } catch (err) {
     console.error("Error fetching privilege users:", err);
