@@ -144,27 +144,43 @@ const assignPrivileges = async (req, res) => {
 
     const eventName = event.eventName;
 
-    // Assign privileges to the users
+    // Check if the privileges document already exists for this company and event
+    let existingPrivileges = await Privilege.findOne({ companyName, eventName });
+
+    if (!existingPrivileges) {
+      // If no existing privileges, create a new document
+      existingPrivileges = new Privilege({
+        companyName,
+        eventName,
+        privileges: [] // initialize an empty privileges array
+      });
+    }
+
+    // Add new privileges to the existing privileges array
     for (const priv of privileges) {
       const { privilegeName, email, password } = priv;
 
-      // Check if email and password exist
+      // Check if email and password exist for each privilege
       if (!email || !password) {
         return res.status(400).json({ message: "Email and password are required for each privilege" });
       }
 
-      // Create a new privilege entry (without modifying existing user privileges)
-      const newPrivilege = new Privilege({
-        companyName,
-        eventName,
-        roleName: priv.privilegeName,
-        privileges: [
-          { privilegeName, email, password }
-        ]
-      });
+      // Check if the privilege already exists for this user (optional, to prevent duplicates)
+      const existingPrivilege = existingPrivileges.privileges.find(
+        (p) => p.email === email && p.privilegeName === privilegeName
+      );
 
-      await newPrivilege.save();
+      if (existingPrivilege) {
+        // Optionally, update the password if privilege already exists
+        existingPrivilege.password = password;
+      } else {
+        // Add the new privilege
+        existingPrivileges.privileges.push({ privilegeName, email, password });
+      }
     }
+
+    // Save the updated privileges document
+    await existingPrivileges.save();
 
     res.status(200).json({ message: "Privileges assigned successfully!" });
   } catch (error) {

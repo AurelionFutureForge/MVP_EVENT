@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 function ManageAccess() {
   const [privilegesList, setPrivilegesList] = useState([]);
   const [assignedPrivileges, setAssignedPrivileges] = useState([]);
+  const [loading, setLoading] = useState(false); // To handle loading state
   const navigate = useNavigate();
 
   const BASE_URL = import.meta.env.VITE_BACKEND_URL;
@@ -31,10 +32,9 @@ function ManageAccess() {
           email: "",
           password: ""
         }));
-        
+
         setPrivilegesList(uniquePrivileges);
         setAssignedPrivileges(initialAssigned);
-
       } catch (error) {
         toast.error("Failed to fetch privileges");
       }
@@ -51,10 +51,17 @@ function ManageAccess() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     const token = localStorage.getItem("adminToken");
 
+    // Validation: Check if all fields are filled
+    const isValid = assignedPrivileges.every((priv) => priv.email && priv.password);
+    if (!isValid) {
+      toast.error("Please fill all the fields.");
+      return;
+    }
+
     try {
+      setLoading(true);
       await axios.post(`${BASE_URL}/admin/assign-privileges`, {
         companyName,
         privileges: assignedPrivileges,
@@ -66,6 +73,8 @@ function ManageAccess() {
       navigate("/admin/dashboard");
     } catch (error) {
       toast.error("Failed to assign privileges");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -98,9 +107,10 @@ function ManageAccess() {
 
         <button
           onClick={handleSubmit}
-          className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition w-full"
+          className={`bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition w-full ${loading ? "opacity-50 cursor-not-allowed" : ""}`}
+          disabled={loading}
         >
-          Assign Privileges
+          {loading ? "Assigning..." : "Assign Privileges"}
         </button>
       </div>
     </div>
