@@ -64,11 +64,11 @@ exports.getPrivilegeUsers = async (req, res) => {
 
     const { companyName, eventName } = privilegeDoc;
 
-    // Fetch users who belong to the same companyName, eventName, and have privilegeName
+    // Corrected query to match your User schema (privileges.name)
     const users = await User.find({
       companyName,
       eventName,
-      "privileges.privilegeName": privilegeName,
+      "privileges.name": privilegeName,
     });
 
     res.json({ users });
