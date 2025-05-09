@@ -203,7 +203,7 @@ exports.registerUser = async (req, res) => {
     }));
 
     //  Extract email and name from formData
-    const email = formData.email?.trim().toLowerCase(); // standardize email
+    const email = formData.EMAIL?.trim().toLowerCase(); // standardize email
     const name = formData.name || formData.fullname || formData.NAME || formData.FULLNAME;
 
     if (!email || !name) {
