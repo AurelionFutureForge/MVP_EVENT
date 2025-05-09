@@ -49,32 +49,31 @@ exports.privilegeLogin = async (req, res) => {
 
 
 exports.getPrivilegeUsers = async (req, res) => {
-  const token = req.headers.authorization?.split(" ")[1];
-  if (!token) return res.status(401).json({ message: "Unauthorized. Token missing." });
+  // Token is already verified by middleware, just use req.user
+  const { email, privilegeName } = req.user; // comes from authenticatePrivilege middleware
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const { email, privilegeName } = decoded;
-
     // Find privilege document containing this email inside privileges array
     const privilegeDoc = await Privilege.findOne({
-      "privileges.email": email, // Find the privilege matching the email
+      "privileges.email": email,
     });
 
-    if (!privilegeDoc) return res.status(404).json({ message: "Privilege not found." });
+    if (!privilegeDoc) {
+      return res.status(404).json({ message: "Privilege not found." });
+    }
 
     const { companyName, eventName } = privilegeDoc;
 
-    // Fetch users who belong to the same companyName, eventName, and role matching privilegeName
+    // Fetch users who belong to the same companyName, eventName, and have privilegeName
     const users = await User.find({
       companyName,
       eventName,
-      "privileges.privilegeName": privilegeName, // Ensure privilegeName matches
+      "privileges.privilegeName": privilegeName,
     });
 
     res.json({ users });
   } catch (err) {
-    console.error(err);
-    res.status(401).json({ message: "Invalid or expired token." });
+    console.error("Error fetching privilege users:", err);
+    res.status(500).json({ message: "Server error while fetching privilege users." });
   }
 };

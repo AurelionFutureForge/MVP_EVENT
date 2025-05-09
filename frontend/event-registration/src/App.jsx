@@ -24,7 +24,7 @@ const App = () => {
         <Route path='/' element={<Home />} />
         <Route path='/register/:eventID' element={<RegistrationForm />} />
         <Route path="/success" element={<SuccessPage />} />
-        <Route path="/admin/scanner" element={<ProtectedRoute> <AdminScanner /> </ProtectedRoute>} />
+        <Route path="/admin/scanner" element={<AdminScanner />} />
         <Route path="/admin/register" element={<AdminRegister />} />
         <Route path='/admin/login' element={<AdminLogin />} />
         <Route path='/admin/dashboard' element={<ProtectedRoute> <AdminDashboard /> </ ProtectedRoute>} />
@@ -34,7 +34,7 @@ const App = () => {
         <Route path="/privilege/dashboard" element={<PrivilegeDashboard />} />
         <Route path='/edit-event/:eventId' element={<EditEvent />} />
         <Route path='/event-login' element={<EventLogin />} />
-        <Route path='/create-regform' element={<ProtectedRoute> <CreateRegistrationForm/> </ ProtectedRoute>} />
+        <Route path='/create-regform' element={<ProtectedRoute> <CreateRegistrationForm /> </ ProtectedRoute>} />
       </Routes>
     </div>
   );

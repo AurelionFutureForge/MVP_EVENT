@@ -2,7 +2,7 @@ const jwt = require("jsonwebtoken");
 
 exports.authenticatePrivilege = (req, res, next) => {
   const token = req.header("Authorization")?.split(" ")[1];
-  
+
   if (!token) {
     return res.status(401).json({ message: "Access Denied: No token provided" });
   }
@@ -10,12 +10,12 @@ exports.authenticatePrivilege = (req, res, next) => {
   try {
     const verified = jwt.verify(token, process.env.JWT_SECRET);
 
-    // Ensure the JWT contains adminId
-    if (!verified.adminId) {
+    // Accept either token shape
+    if (!verified.adminId && !(verified.email && verified.privilegeName)) {
       return res.status(400).json({ message: "Invalid token data" });
     }
 
-    req.admin = verified;   // { adminId }
+    req.user = verified; // Store full token payload
 
     next();
   } catch (err) {
