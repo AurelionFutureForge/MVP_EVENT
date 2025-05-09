@@ -39,6 +39,7 @@ exports.verifyQRCode = async (req, res) => {
       user: {
         name: user.name,
         email: user.email,
+        role:user.role,
         privileges: user.privileges, // Privileges updated (but this can be omitted if you don't want to return them)
       },
     });
