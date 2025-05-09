@@ -2,13 +2,13 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { toast } from "react-hot-toast";
 
-function RegistrationForm({ eventId: propEventId }) {
+function RegistrationForm() {
   const [event, setEvent] = useState(null);
   const [formData, setFormData] = useState({});
   const [loading, setLoading] = useState(true);
   const BASE_URL = import.meta.env.VITE_BACKEND_URL;
 
-  const eventId = propEventId || localStorage.getItem('eventId');
+  const eventId = localStorage.getItem('eventId');
 
   useEffect(() => {
     const fetchEventDetails = async () => {

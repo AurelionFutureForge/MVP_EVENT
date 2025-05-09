@@ -260,7 +260,7 @@ const sendSuccessEmail = async (name, email, eventName, companyName, place, time
 
 
 exports.registerUser = async (req, res) => {
-  const { eventId, formData } = req.body;
+  const { formData, eventId } = req.body;
 
   try {
     const event = await Event.findById(eventId);
