@@ -203,8 +203,8 @@ exports.registerUser = async (req, res) => {
     }));
 
     // 3. Extract name and email from formData (no case-insensitive match)
-    let name = formData.name || formData.fullname;
-    let email = formData.email;
+    let name = formData.name || formData.fullname || formData.Name || formData.NAME || formData.FULLNAME || formData.Fullname;
+    let email = formData.email || formData.Email || formData.EMail || formData.mail || formData.Mail || formData.MAIL;
 
     if (!name || !email) {
       return res.status(400).json({ message: 'Name (or Full Name) and Email are required fields' });

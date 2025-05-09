@@ -119,13 +119,18 @@ function CreateRegistrationForm() {
         {fields.map((field, index) => (
           <div key={index} className="border rounded p-4 mb-3 bg-gray-50">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {/* ✅ UPDATED FIELD NAME INPUT */}
               <input
                 type="text"
                 placeholder="Field Name"
                 value={field.fieldName}
-                onChange={(e) => handleFieldChange(index, "fieldName", e.target.value)}
+                onChange={(e) =>
+                  handleFieldChange(index, "fieldName", e.target.value.toUpperCase())
+                }
                 className="border rounded px-3 py-2 w-full focus:ring-2 focus:ring-blue-400"
+                style={{ textTransform: "uppercase" }} // ✅ Visually display uppercase
               />
+
               <select
                 value={field.fieldType}
                 onChange={(e) => handleFieldChange(index, "fieldType", e.target.value)}
@@ -148,7 +153,11 @@ function CreateRegistrationForm() {
                   placeholder="Option 1, Option 2"
                   value={field.options.join(", ")}
                   onChange={(e) =>
-                    handleFieldChange(index, "options", e.target.value.split(",").map((opt) => opt.trim()))
+                    handleFieldChange(
+                      index,
+                      "options",
+                      e.target.value.split(",").map((opt) => opt.trim())
+                    )
                   }
                   className="border rounded px-3 py-2 w-full focus:ring-2 focus:ring-blue-400"
                 />
