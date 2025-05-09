@@ -281,7 +281,24 @@ exports.registerUser = async (req, res) => {
       claim: false
     }));
 
-    // 3. Save user with registration data + role + privileges
+    // 3. Extract name and email from formData (case-insensitive match)
+    let name = "";
+    let email = "";
+
+    for (const [key, value] of Object.entries(formData)) {
+      const normalizedKey = key.toLowerCase().replace(/[-\s]/g, '');
+      if (normalizedKey === "name" || normalizedKey === "fullname") {
+        name = value;
+      } else if (normalizedKey === "email") {
+        email = value;
+      }
+    }
+
+    if (!name || !email) {
+      return res.status(400).json({ message: 'Name (or Full Name) and Email are required fields' });
+    }
+
+    // 4. Save user with registration data + role + privileges
     const newUser = new User({
       eventId: event._id,
       companyName: event.companyName,
@@ -292,11 +309,8 @@ exports.registerUser = async (req, res) => {
 
     await newUser.save();
 
-    // 4. Extract values from formData and event for email & ticket
-    const name = formData.name;
-    const email = formData.email;
+    // 5. Prepare QR code, Ticket, Email
     const role = selectedRole.roleName;
-
     const { eventName, companyName, place, time, date } = event;
 
     const qrCodeData = `${email}-${newUser._id}`;
