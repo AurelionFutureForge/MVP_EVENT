@@ -202,26 +202,27 @@ exports.registerUser = async (req, res) => {
       claim: false
     }));
 
-    // 3. Extract name and email from formData (no case-insensitive match)
-    let name = formData.NAME || formData.FULLNAME ;
-    let email = formData.EMAIL || formData.MAIL || formData["EMAIL ADDRESS"] || formData["EMAIL-ID"] || formData["MAIL-ID"];
+    //  Extract email and name from formData
+    const email = formData.email?.trim().toLowerCase(); // standardize email
+    const name = formData.name || formData.fullname || formData.NAME || formData.FULLNAME;
 
-    if (!name || !email) {
-      return res.status(400).json({ message: 'Name (or Full Name) and Email are required fields' });
+    if (!email || !name) {
+      return res.status(400).json({ message: 'Name and Email are required fields' });
     }
 
-    // 4. Save user with registration data + role + privileges
+    //  4. Save user to DB
     const newUser = new User({
       eventId: event._id,
       companyName: event.companyName,
       role: selectedRole.roleName,
+      email,
       privileges,
       registrationData: formData
     });
 
     await newUser.save();
 
-    // 5. Prepare QR code, Ticket, Email
+    //  Generate QR Code and Ticket
     const role = selectedRole.roleName;
     const { eventName, companyName, place, time, date } = event;
 
@@ -235,7 +236,6 @@ exports.registerUser = async (req, res) => {
     const pdfPath = path.join(__dirname, "../public/pdfs", `${ticketID}.pdf`);
 
     await generateTicketPDF(name, email, eventName, companyName, place, time, date, role, ticketID, qrCodeImage, pdfPath);
-
     await sendSuccessEmail(name, email, eventName, companyName, place, time, date, qrCodeImage, role, ticketID, pdfPath);
 
     res.status(201).json({ message: 'User registered successfully' });
@@ -245,5 +245,3 @@ exports.registerUser = async (req, res) => {
     res.status(500).json({ message: 'Error registering user' });
   }
 };
-
-
