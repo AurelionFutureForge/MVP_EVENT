@@ -181,7 +181,7 @@ const sendSuccessEmail = async (name, email, eventName, companyName, place, time
 
 exports.registerUser = async (req, res) => {
   const { formData, eventID } = req.body;
-  console.log("eventID:", eventId);
+  console.log("eventID:", eventID);
 
   try {
     const event = await Event.findById(eventID);
@@ -202,7 +202,7 @@ exports.registerUser = async (req, res) => {
       claim: false
     }));
 
-    //  Extract email and name from formData
+    // 3. Extract email and name from formData
     const email = formData.EMAIL?.trim().toLowerCase(); // standardize email
     const name = formData.name || formData.fullname || formData.NAME || formData.FULLNAME;
 
@@ -210,7 +210,13 @@ exports.registerUser = async (req, res) => {
       return res.status(400).json({ message: 'Name and Email are required fields' });
     }
 
-    //  4. Save user to DB
+    // 4. Check if the user has already registered for this event
+    const existingUser = await User.findOne({ email, eventId: event._id });
+    if (existingUser) {
+      return res.status(400).json({ message: 'You have already registered for this event' });
+    }
+
+    // 5. Save new user to DB
     const newUser = new User({
       eventId: event._id,
       companyName: event.companyName,
@@ -222,7 +228,7 @@ exports.registerUser = async (req, res) => {
 
     await newUser.save();
 
-    //  Generate QR Code and Ticket
+    // 6. Generate QR Code and Ticket
     const role = selectedRole.roleName;
     const { eventName, companyName, place, time, date } = event;
 
@@ -245,3 +251,4 @@ exports.registerUser = async (req, res) => {
     res.status(500).json({ message: 'Error registering user' });
   }
 };
+
