@@ -4,7 +4,6 @@ import { toast } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 
 function ManageAccess() {
-  const [privilegesList, setPrivilegesList] = useState([]);
   const [assignedPrivileges, setAssignedPrivileges] = useState([]);
   const [loading, setLoading] = useState(false); // To handle loading state
   const navigate = useNavigate();
@@ -35,7 +34,6 @@ function ManageAccess() {
           password: ""
         }));
 
-        setPrivilegesList(uniquePrivileges);
         setAssignedPrivileges(initialAssigned);
       } catch (error) {
         toast.error("Failed to fetch privileges");
