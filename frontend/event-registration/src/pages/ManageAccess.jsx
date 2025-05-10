@@ -25,14 +25,17 @@ function ManageAccess() {
 
         const privilegesFromDB = response.data.privileges; // array of privilege names
 
+        // Remove duplicates by using Set
+        const uniquePrivileges = [...new Set(privilegesFromDB)];
+
         // Initialize assignedPrivileges with empty email/password for unique privileges
-        const initialAssigned = privilegesFromDB.map(p => ({
+        const initialAssigned = uniquePrivileges.map(p => ({
           privilegeName: p,
           email: "",
           password: ""
         }));
 
-        setPrivilegesList(privilegesFromDB);
+        setPrivilegesList(uniquePrivileges); // Set unique privileges to state
         setAssignedPrivileges(initialAssigned);
       } catch (error) {
         toast.error("Failed to fetch privileges");
