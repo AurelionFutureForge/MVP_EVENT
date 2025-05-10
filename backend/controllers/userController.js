@@ -180,11 +180,11 @@ const sendSuccessEmail = async (name, email, eventName, companyName, place, time
 };
 
 exports.registerUser = async (req, res) => {
-  const { formData, eventId } = req.body;
+  const { formData, eventID } = req.body;
   console.log("eventID:", eventId);
 
   try {
-    const event = await Event.findById(eventId);
+    const event = await Event.findById(eventID);
     if (!event) {
       return res.status(404).json({ message: 'Event not found' });
     }

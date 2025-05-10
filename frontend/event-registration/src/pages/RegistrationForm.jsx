@@ -1,19 +1,19 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { toast } from "react-hot-toast";
+import { useParams } from "react-router-dom";
 
 function RegistrationForm() {
   const [event, setEvent] = useState(null);
   const [formData, setFormData] = useState({});
   const [loading, setLoading] = useState(true);
   const BASE_URL = import.meta.env.VITE_BACKEND_URL;
-
-  const eventId = localStorage.getItem('eventId');
+  const {eventID} = useParams();
 
   useEffect(() => {
     const fetchEventDetails = async () => {
       try {
-        const response = await axios.get(`${BASE_URL}/events/${eventId}`);
+        const response = await axios.get(`${BASE_URL}/events/${eventID}`);
         setEvent(response.data);
         setLoading(false);
       } catch (error) {
@@ -22,13 +22,13 @@ function RegistrationForm() {
       }
     };
 
-    if (eventId) {
+    if (eventID) {
       fetchEventDetails();
     } else {
       toast.error("No event selected.");
       setLoading(false);
     }
-  }, [eventId, BASE_URL]);
+  }, [eventID, BASE_URL]);
 
   const handleChange = (e) => {
     setFormData({
@@ -42,7 +42,7 @@ function RegistrationForm() {
     try {
       await axios.post(`${BASE_URL}/users/register`, {
         formData, // send as formData object
-        eventId,
+        eventID,
       });
       toast.success("Registration successful!");
       setFormData({});  // clear form
