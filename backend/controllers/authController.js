@@ -153,7 +153,7 @@ const getEventPrivileges = async (req, res) => {
   }
 };
 
-// ✅ ASSIGN privileges (updated to store with eventId)
+//  ASSIGN privileges (updated to store with eventId)
 const assignPrivileges = async (req, res) => {
   const { eventId, privileges } = req.body;
 

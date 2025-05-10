@@ -22,7 +22,7 @@ function CreateRegistrationForm() {
   useEffect(() => {
     const savedEventId = localStorage.getItem("selectedEvent");
     if (savedEventId) {
-      const link = `https://mvp-event.vercel.app/register/${savedEventId}`;
+      const link = `https://mvp-event.vercel.app/register/${savedEventId}/${eventName}`;
       setFormLink(link);
     }
   }, []);
@@ -76,7 +76,7 @@ function CreateRegistrationForm() {
       );
 
       const eventId = response.data.eventId;
-      const link = `https://mvp-event.vercel.app/register/${eventId}`;
+      const link = `https://mvp-event.vercel.app/register/${eventId}/${eventName}`;
       setFormLink(link);
       localStorage.setItem("eventId", eventId);
 
