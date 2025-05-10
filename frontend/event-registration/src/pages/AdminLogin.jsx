@@ -27,7 +27,7 @@ function AdminLogin() {
       toast.success("Login Successful!");
 
       // Redirect to the dashboard after login
-      navigate("/admin/dashboard");
+      navigate("/event-list");
 
     } catch (error) {
       // Handle invalid credentials

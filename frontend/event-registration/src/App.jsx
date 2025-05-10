@@ -17,6 +17,7 @@ import PrivilegeDashboard from './pages/PrivilegeDashboard';
 import EditEvent from './pages/EditEvent';
 import EventLogin from './pages/EventLogin';
 import CreateRegistrationForm from './pages/CreateRegistrationForm';
+import EventList from './pages/EventList';
 
 const App = () => {
   return (
@@ -28,7 +29,7 @@ const App = () => {
         <Route path="/admin/scanner" element={<ProtectedPrivilege> <AdminScanner /> </ProtectedPrivilege>} />
         <Route path="/admin/register" element={<AdminRegister />} />
         <Route path='/admin/login' element={<AdminLogin />} />
-        <Route path='/admin/dashboard' element={<ProtectedRoute> <AdminDashboard /> </ ProtectedRoute>} />
+        <Route path='/admin/dashboard/:eventId' element={<ProtectedRoute> <AdminDashboard /> </ ProtectedRoute>} />
         <Route path='/create-event' element={<ProtectedEventRoute> <EventCreation />  </ProtectedEventRoute>} />
         <Route path='/admin/manage-access' element={<ManageAccess />} />
         <Route path='/privilege-login' element={<PrivilegeLogin />} />
@@ -36,6 +37,7 @@ const App = () => {
         <Route path='/edit-event/:eventId' element={<EditEvent />} />
         <Route path='/event-login' element={<EventLogin />} />
         <Route path='/create-regform' element={<ProtectedRoute> <CreateRegistrationForm /> </ ProtectedRoute>} />
+        <Route path='event-list' element={<ProtectedRoute> <EventList/> </ ProtectedRoute>} />
       </Routes>
     </div>
   );

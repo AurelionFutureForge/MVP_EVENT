@@ -40,9 +40,12 @@ function AdminDashboard() {
   const [users, setUsers] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [roleFilter, setRoleFilter] = useState("All");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
   const navigate = useNavigate();
   const BASE_URL = import.meta.env.VITE_BACKEND_URL;
   const companyName = localStorage.getItem("adminCompany");
+  const selectedEvent = localStorage.getItem("selectedEvent"); // Get selected event
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -56,19 +59,19 @@ function AdminDashboard() {
 
         const response = await axios.get(`${BASE_URL}/admin/users`, {
           headers: { Authorization: `Bearer ${token}` },
+          params: { companyName, eventName: selectedEvent, page: currentPage, limit: 10 },
         });
 
-        const filteredUsers = response.data.filter(
-          (user) => user.companyName === companyName
-        );
+        const filteredUsers = response.data.users; // Ensure API returns 'users' as part of the response
         setUsers(filteredUsers);
+        setTotalPages(response.data.totalPages); // Get total pages for pagination
       } catch (error) {
         toast.error("Failed to fetch users. Please try again.");
       }
     };
 
     fetchUsers();
-  }, [navigate, companyName, BASE_URL]);
+  }, [navigate, companyName, selectedEvent, currentPage, BASE_URL]);
 
   const downloadPDF = () => {
     const filteredUsers = getFilteredUsers();
@@ -158,6 +161,10 @@ function AdminDashboard() {
     localStorage.removeItem("adminCompany");
     toast.success("Logged out successfully!");
     navigate("/admin/login");
+  };
+
+  const handlePagination = (page) => {
+    setCurrentPage(page);
   };
 
   return (
@@ -315,17 +322,25 @@ function AdminDashboard() {
             </p>
           )}
         </div>
-      </div>
-    </div>
-  );
-}
 
-// Summary Card component
-function SummaryCard({ title, value, color }) {
-  return (
-    <div className={`bg-${color}-200 p-4 rounded-lg shadow text-center`}>
-      <p className={`text-xl font-bold text-${color}-800`}>{title}</p>
-      <p className={`text-lg text-${color}-600`}>{value}</p>
+        {/* Pagination Controls */}
+        <div className="flex justify-center mt-4">
+          <button
+            onClick={() => handlePagination(currentPage - 1)}
+            disabled={currentPage === 1}
+            className="px-4 py-2 bg-gray-400 text-white rounded-md mr-2"
+          >
+            Previous
+          </button>
+          <button
+            onClick={() => handlePagination(currentPage + 1)}
+            disabled={currentPage === totalPages}
+            className="px-4 py-2 bg-gray-400 text-white rounded-md"
+          >
+            Next
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

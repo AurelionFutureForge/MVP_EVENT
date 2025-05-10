@@ -1,5 +1,5 @@
 const express = require("express");
-const { adminLogin, getAllUsers, registerAdmin, getEventPrivileges, assignPrivileges} = require("../controllers/authController"); // Ensure functions are correctly imported
+const { adminLogin, getAllUsers, registerAdmin, getEventPrivileges, assignPrivileges, getAllEvents} = require("../controllers/authController"); // Ensure functions are correctly imported
 const { authenticateAdmin } = require("../middleware/authMiddleware");
 const {authenticatePrivilege} = require("../middleware/privilegeAuthMiddleware")
 
@@ -16,6 +16,8 @@ router.post("/register", registerAdmin);
 router.get('/event-privileges', authenticatePrivilege, getEventPrivileges);
 
 router.post('/assign-privileges', authenticatePrivilege, assignPrivileges);
+
+router.get("/events", getAllEvents);
 
 
 

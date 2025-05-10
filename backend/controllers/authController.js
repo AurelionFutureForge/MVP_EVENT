@@ -47,13 +47,37 @@ const getAllUsers = async (req, res) => {
     }
 
     const companyName = admin.companyName;
+    const { eventName } = req.query; 
 
-    // Fetch users ONLY under this company name
-    const users = await User.find({ companyName }, "-password");
+    const query = { companyName };
+
+    if (eventName) {
+      query.eventName = eventName; 
+    }
+
+    const users = await User.find(query, "-password");
 
     res.status(200).json(users);
   } catch (error) {
     res.status(500).json({ message: "Failed to retrieve users", error });
+  }
+};
+
+// Controller function to get all events for the admin's company
+const getAllEvents = async (req, res) => {
+  try {
+    const { companyName } = req.query;  // Get companyName from the query parameters
+
+    // Fetch events for the given company name
+    const events = await Event.find({ companyName });
+
+    if (events.length === 0) {
+      return res.status(404).json({ message: "No events found for this company" });
+    }
+
+    res.status(200).json(events);  // Return the list of events
+  } catch (error) {
+    res.status(500).json({ message: "Failed to retrieve events", error });
   }
 };
 
@@ -193,4 +217,4 @@ const assignPrivileges = async (req, res) => {
 
 
 
-module.exports = { adminLogin, getAllUsers, registerAdmin, getEventPrivileges, assignPrivileges };
+module.exports = { adminLogin, getAllUsers, registerAdmin, getEventPrivileges, assignPrivileges, getAllEvents};
