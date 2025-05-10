@@ -26,10 +26,10 @@ function EventList() {
           params: { companyName },
         });
 
-        console.log("Backend response:", response.data.events); // Log the events here
+        console.log("Backend response:", response.data); // Log the events here
 
-        if (response.data && Array.isArray(response.data.events)) {
-          setEvents(response.data.events);
+        if (response.data && Array.isArray(response.data)) {
+          setEvents(response.data);
         } else {
           setEvents([]);  // Set to empty array if no events are found
         }
