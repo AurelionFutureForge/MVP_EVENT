@@ -6,7 +6,7 @@ import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 
 // Utility to dynamically extract name & email from registrationData
-function extractNameAndEmail(registrationData) {
+function extractNameAndEmail(registrationData = {}) {
   const nameField = Object.keys(registrationData).find((key) =>
     key.toLowerCase().includes("name")
   );
@@ -21,7 +21,7 @@ function extractNameAndEmail(registrationData) {
 }
 
 // Utility to dynamically extract contact from registrationData
-function extractContact(registrationData) {
+function extractContact(registrationData = {}) {
   const contactField = Object.keys(registrationData).find((key) => {
     const lowerKey = key.toLowerCase();
     return (
@@ -55,7 +55,6 @@ function SummaryCard({ title, value, color }) {
   );
 }
 
-
 function AdminDashboard() {
   const [users, setUsers] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -65,7 +64,7 @@ function AdminDashboard() {
   const navigate = useNavigate();
   const BASE_URL = import.meta.env.VITE_BACKEND_URL;
   const companyName = localStorage.getItem("adminCompany");
-  const selectedEvent = localStorage.getItem("selectedEvent"); // Get selected event
+  const selectedEvent = localStorage.getItem("selectedEvent");
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -82,9 +81,9 @@ function AdminDashboard() {
           params: { companyName, eventName: selectedEvent, page: currentPage, limit: 10 },
         });
 
-        const filteredUsers = response.data.users; // Ensure API returns 'users' as part of the response
+        const filteredUsers = response.data.users || [];
         setUsers(filteredUsers);
-        setTotalPages(response.data.totalPages); // Get total pages for pagination
+        setTotalPages(response.data.totalPages || 1);
       } catch (error) {
         toast.error("Failed to fetch users. Please try again.");
       }
@@ -108,21 +107,17 @@ function AdminDashboard() {
 
     const data = filteredUsers.map((user) => {
       const { name, email } = extractNameAndEmail(user.registrationData);
-      const contact = extractContact(user.registrationData); // Use the dynamic contact extraction
-      return [
-        name,
-        email,
-        user.registrationData.role,
-        contact, // Display dynamic contact field
-        user.privileges && user.privileges.length > 0
-          ? user.privileges
-              .map(
-                (p) =>
-                  `${p.name?.toUpperCase()} (${p.claim ? "Claimed" : "Not Claimed"})`
-              )
-              .join(", ")
-          : "No privileges assigned",
-      ];
+      const contact = extractContact(user.registrationData);
+      const privileges = (user.privileges ?? []).length > 0
+        ? user.privileges
+            .map(
+              (p) =>
+                `${p.name?.toUpperCase()} (${p.claim ? "Claimed" : "Not Claimed"})`
+            )
+            .join(", ")
+        : "No privileges assigned";
+
+      return [name, email, user.registrationData.role, contact, privileges];
     });
 
     autoTable(pdf, {
@@ -142,10 +137,11 @@ function AdminDashboard() {
   const getFilteredUsers = () => {
     return users.filter((user) => {
       const { name, email } = extractNameAndEmail(user.registrationData);
+      const role = user.registrationData?.role || "";
       const matchesSearch =
         name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         email.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesRole = roleFilter === "All" || user.registrationData.role === roleFilter;
+      const matchesRole = roleFilter === "All" || role === roleFilter;
       return matchesSearch && matchesRole;
     });
   };
@@ -154,27 +150,25 @@ function AdminDashboard() {
     const summary = {};
 
     users.forEach((user) => {
-      if (user.privileges && user.privileges.length > 0) {
-        user.privileges.forEach((priv) => {
-          const name = priv.name?.toUpperCase();
-          if (!name) return;
+      (user.privileges ?? []).forEach((priv) => {
+        const name = priv.name?.toUpperCase();
+        if (!name) return;
 
-          if (!summary[name]) {
-            summary[name] = { claimed: 0, total: 0 };
-          }
-          summary[name].total += 1;
-          if (priv.claim) {
-            summary[name].claimed += 1;
-          }
-        });
-      }
+        if (!summary[name]) {
+          summary[name] = { claimed: 0, total: 0 };
+        }
+        summary[name].total += 1;
+        if (priv.claim) {
+          summary[name].claimed += 1;
+        }
+      });
     });
 
     return summary;
   };
 
   const totalRegistrations = users.length;
-  const uniqueRoles = [...new Set(users.map((u) => u.registrationData.role))];
+  const uniqueRoles = [...new Set(users.map((u) => u.registrationData?.role).filter(Boolean))];
 
   const handleLogout = () => {
     localStorage.removeItem("adminToken");
@@ -294,7 +288,9 @@ function AdminDashboard() {
             <tbody>
               {getFilteredUsers().map((user, index) => {
                 const { name, email } = extractNameAndEmail(user.registrationData);
-                const contact = extractContact(user.registrationData); // Use dynamic contact extraction
+                const contact = extractContact(user.registrationData);
+                const privileges = user.privileges ?? [];
+
                 return (
                   <tr
                     key={index}
@@ -302,20 +298,14 @@ function AdminDashboard() {
                   >
                     <td className="p-3">{name}</td>
                     <td className="p-3">{email}</td>
-                    <td className="p-3">{user.registrationData.role}</td>
-                    <td className="p-3">{contact}</td> {/* Display dynamic contact field */}
+                    <td className="p-3">{user.registrationData?.role}</td>
+                    <td className="p-3">{contact}</td>
                     <td className="p-3">
-                      {user.privileges && user.privileges.length > 0 ? (
+                      {privileges.length > 0 ? (
                         <ul className="text-left space-y-1">
-                          {user.privileges.map((priv, idx) => (
-                            <li
-                              key={idx}
-                              className="flex items-center gap-1 text-xs"
-                            >
-                              <span className="font-semibold">
-                                {priv.name?.toUpperCase()}
-                              </span>{" "}
-                              —{" "}
+                          {privileges.map((priv, idx) => (
+                            <li key={idx} className="flex items-center gap-1 text-xs">
+                              <span className="font-semibold">{priv.name?.toUpperCase()}</span> —{" "}
                               {priv.claim ? (
                                 <span className="text-green-600">Claimed</span>
                               ) : (
