@@ -72,7 +72,7 @@ function ManageAccess() {
       });
 
       toast.success("Privileges assigned successfully!");
-      navigate("/admin/dashboard");
+      navigate("/admin/dashboard/:eventId");
     } catch (error) {
       toast.error("Failed to assign privileges");
     } finally {
