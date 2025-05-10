@@ -189,6 +189,20 @@ exports.registerUser = async (req, res) => {
       return res.status(404).json({ message: 'Event not found' });
     }
 
+    // Extract email and name from formData
+    const email = formData.EMAIL?.trim().toLowerCase();
+    const name = formData.name || formData.fullname || formData.NAME || formData.FULLNAME;
+
+    if (!email || !name) {
+      return res.status(400).json({ message: 'Name and Email are required fields' });
+    }
+
+    // ✅ Check if user with same email + same event already exists
+    const existingUser = await User.findOne({ email, eventId: eventID });
+    if (existingUser) {
+      return res.status(400).json({ message: 'You have already registered for this event.' });
+    }
+
     // 1. Get selected role from formData
     const selectedRoleName = formData.role;
     const selectedRole = event.eventRoles.find(role => role.roleName === selectedRoleName);
@@ -202,21 +216,7 @@ exports.registerUser = async (req, res) => {
       claim: false
     }));
 
-    // 3. Extract email and name from formData
-    const email = formData.EMAIL?.trim().toLowerCase(); // standardize email
-    const name = formData.name || formData.fullname || formData.NAME || formData.FULLNAME;
-
-    if (!email || !name) {
-      return res.status(400).json({ message: 'Name and Email are required fields' });
-    }
-
-    // 4. Check if the user has already registered for this event
-    const existingUser = await User.findOne({ email, eventId: event._id });
-    if (existingUser) {
-      return res.status(400).json({ message: 'You have already registered for this event' });
-    }
-
-    // 5. Save new user to DB
+    // 4. Save user to DB
     const newUser = new User({
       eventId: event._id,
       companyName: event.companyName,
@@ -228,7 +228,7 @@ exports.registerUser = async (req, res) => {
 
     await newUser.save();
 
-    // 6. Generate QR Code and Ticket
+    // Generate QR Code and Ticket
     const role = selectedRole.roleName;
     const { eventName, companyName, place, time, date } = event;
 
@@ -251,4 +251,3 @@ exports.registerUser = async (req, res) => {
     res.status(500).json({ message: 'Error registering user' });
   }
 };
-
