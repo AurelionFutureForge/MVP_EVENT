@@ -26,12 +26,10 @@ function EventList() {
           params: { companyName },
         });
 
-        console.log("Backend response:", response.data); // Log the events here
-
         if (response.data && Array.isArray(response.data)) {
           setEvents(response.data);
         } else {
-          setEvents([]);  // Set to empty array if no events are found
+          setEvents([]);
         }
         setLoading(false);
       } catch (error) {
@@ -44,38 +42,53 @@ function EventList() {
   }, [companyName, navigate, BASE_URL]);
 
   const handleEventClick = (eventId) => {
-    localStorage.setItem("selectedEvent", eventId); // Save the selected event
-    navigate(`/admin/dashboard/${eventId}`); // Redirect to event analytics page
+    localStorage.setItem("selectedEvent", eventId);
+    navigate(`/admin/dashboard/${eventId}`);
   };
-
-  console.log("Events State:", events); // Log the events state here
 
   return (
     <div className="min-h-screen bg-gray-100 p-6">
-      <div className="bg-white p-6 shadow-xl rounded-2xl">
-        <h2 className="text-4xl font-extrabold text-gray-800 mb-2 text-center">
+      <div className="bg-white p-6 shadow-xl rounded-2xl max-w-7xl mx-auto">
+        <h2 className="text-4xl font-extrabold text-gray-800 mb-6 text-center">
           Select Event for Analytics
         </h2>
         {loading ? (
           <p className="text-center text-lg text-gray-600">Loading events...</p>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {events.length > 0 ? (
               events.map((event) => (
                 <div
                   key={event._id}
-                  className="cursor-pointer border p-4 rounded-xl hover:bg-blue-50 transition"
+                  className="cursor-pointer border rounded-2xl overflow-hidden shadow-md bg-white hover:shadow-xl transition transform hover:-translate-y-1 hover:scale-105 duration-300"
                   onClick={() => handleEventClick(event._id)}
                 >
-                  <h3 className="text-xl font-semibold text-gray-700">{event.eventName}</h3>
-                  <p className="text-gray-500">{event.place}</p>
-                  <p className="text-gray-500">{event.time}</p>
-                  <p className="text-gray-500">{event.date}</p>
-                  <p className="text-gray-500">Roles: {event.eventRoles.length}</p>
+                  <div className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white p-4">
+                    <h3 className="text-xl font-semibold truncate">{event.eventName}</h3>
+                  </div>
+                  <div className="p-4 space-y-2 text-sm">
+                    <p className="text-gray-700">
+                      📍 <span className="font-medium">{event.place}</span>
+                    </p>
+                    <p className="text-gray-700">
+                      📅 <span className="font-medium">{event.date}</span>
+                    </p>
+                    <p className="text-gray-700">
+                      ⏰ <span className="font-medium">{event.time}</span>
+                    </p>
+                    <div className="mt-2 flex items-center justify-between">
+                      <span className="text-sm text-gray-600">Roles</span>
+                      <span className="bg-blue-100 text-blue-800 text-xs font-semibold px-2 py-1 rounded-full">
+                        {event.eventRoles.length} roles
+                      </span>
+                    </div>
+                  </div>
                 </div>
               ))
             ) : (
-              <p className="text-center text-lg text-gray-600">No events found.</p>
+              <p className="text-center text-lg text-gray-600 col-span-full">
+                No events found.
+              </p>
             )}
           </div>
         )}
