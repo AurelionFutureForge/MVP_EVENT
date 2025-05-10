@@ -20,15 +20,15 @@ function ManageAccess() {
         const token = localStorage.getItem("adminToken");
         const response = await axios.get(`${BASE_URL}/admin/event-privileges`, {
           headers: { Authorization: `Bearer ${token}` },
-          params: { companyName,eventId } ,
+          params: { companyName, eventId }, // Pass eventId and companyName as params
         });
 
-        const privilegesFromDB = response.data.privileges; // array of privilege names
+        const privilegesFromDB = response.data.privileges; // Array of privilege objects
 
-        // Remove duplicate privileges by converting to Set, then back to an array
+        // Remove duplicate privilege names
         const uniquePrivileges = [...new Set(privilegesFromDB.map(p => p.privilegeName))];
 
-        // Initialize assignedPrivileges with empty email/password for unique privileges
+        // Initialize assignedPrivileges with empty email/password for each unique privilege
         const initialAssigned = uniquePrivileges.map(p => ({
           privilegeName: p,
           email: "",
@@ -43,7 +43,7 @@ function ManageAccess() {
     };
 
     fetchPrivileges();
-  }, [BASE_URL, companyName]);
+  }, [BASE_URL, companyName, eventId]);
 
   const handleInputChange = (index, field, value) => {
     const updated = [...assignedPrivileges];
