@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 
 const privilegeSchema = new mongoose.Schema({
   companyName: { type: String, required: true },
+  eventId: { type: mongoose.Schema.Types.ObjectId, ref: 'Event', required: true }, 
   eventName: { type: String, required: true },
   privileges: [
     {

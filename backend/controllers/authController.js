@@ -123,24 +123,25 @@ const registerAdmin = async (req, res) => {
   }
 };
 
+// ✅ GET privileges (updated to take eventId)
 const getEventPrivileges = async (req, res) => {
-  const { companyName } = req.query;
+  const { eventId } = req.query;
 
-  if (!companyName) {
-    return res.status(400).json({ message: "Company name is required" });
+  if (!eventId) {
+    return res.status(400).json({ message: "Event ID is required" });
   }
 
   try {
-    // Find the event by companyName
-    const event = await Event.findOne({ companyName });
+    // Find the event by eventId
+    const event = await Event.findById(eventId);
 
     if (!event) {
-      return res.status(404).json({ message: "Event not found for this company" });
+      return res.status(404).json({ message: "Event not found" });
     }
 
     // Extract privileges from eventRoles
     const privileges = event.eventRoles.reduce((acc, role) => {
-      acc.push(...role.privileges); // Add each role's privileges to the list
+      acc.push(...role.privileges);
       return acc;
     }, []);
 
@@ -151,60 +152,57 @@ const getEventPrivileges = async (req, res) => {
   }
 };
 
-// Assign privileges to users
+// ✅ ASSIGN privileges (updated to store with eventId)
 const assignPrivileges = async (req, res) => {
-  const { companyName, privileges } = req.body;
+  const { eventId, privileges } = req.body;
 
-  if (!companyName || !privileges || privileges.length === 0) {
-    return res.status(400).json({ message: "Company and privileges are required" });
+  if (!eventId || !privileges || privileges.length === 0) {
+    return res.status(400).json({ message: "Event ID and privileges are required" });
   }
 
   try {
-    // Fetch the event by companyName to get the eventName
-    const event = await Event.findOne({ companyName });
+    // Fetch the event by eventId to get eventName + companyName
+    const event = await Event.findById(eventId);
 
     if (!event) {
-      return res.status(404).json({ message: "Event not found for this company" });
+      return res.status(404).json({ message: "Event not found" });
     }
 
     const eventName = event.eventName;
+    const companyName = event.companyName;
 
-    // Check if the privileges document already exists for this company and event
-    let existingPrivileges = await Privilege.findOne({ companyName, eventName });
+    // Check if privileges document already exists for this eventId
+    let existingPrivileges = await Privilege.findOne({ eventId });
 
     if (!existingPrivileges) {
       // If no existing privileges, create a new document
       existingPrivileges = new Privilege({
         companyName,
+        eventId,
         eventName,
-        privileges: [] // initialize an empty privileges array
+        privileges: []
       });
     }
 
-    // Add new privileges to the existing privileges array
+    // Add new privileges
     for (const priv of privileges) {
       const { privilegeName, email, password } = priv;
 
-      // Check if email and password exist for each privilege
       if (!email || !password) {
         return res.status(400).json({ message: "Email and password are required for each privilege" });
       }
 
-      // Check if the privilege already exists for this user (optional, to prevent duplicates)
       const existingPrivilege = existingPrivileges.privileges.find(
         (p) => p.email === email && p.privilegeName === privilegeName
       );
 
       if (existingPrivilege) {
-        // Optionally, update the password if privilege already exists
         existingPrivilege.password = password;
       } else {
-        // Add the new privilege
         existingPrivileges.privileges.push({ privilegeName, email, password });
       }
     }
 
-    // Save the updated privileges document
     await existingPrivileges.save();
 
     res.status(200).json({ message: "Privileges assigned successfully!" });
@@ -218,4 +216,5 @@ const assignPrivileges = async (req, res) => {
 
 
 
-module.exports = { adminLogin, getAllUsers, registerAdmin, getEventPrivileges, assignPrivileges, getAllEvents};
+
+module.exports = { adminLogin, getAllUsers, registerAdmin, getEventPrivileges, assignPrivileges , getAllEvents};

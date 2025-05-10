@@ -11,6 +11,7 @@ function ManageAccess() {
 
   const BASE_URL = import.meta.env.VITE_BACKEND_URL;
   const companyName = localStorage.getItem("adminCompany");
+  const eventId = localStorage.getItem("selectedEvent");
 
   // Fetch available privileges from EventDB on load
   useEffect(() => {
@@ -19,12 +20,14 @@ function ManageAccess() {
         const token = localStorage.getItem("adminToken");
         const response = await axios.get(`${BASE_URL}/admin/event-privileges`, {
           headers: { Authorization: `Bearer ${token}` },
-          params: { companyName },
+          params: { companyName } ,
+          eventId
         });
+
         const privilegesFromDB = response.data.privileges; // array of privilege names
 
         // Remove duplicate privileges by converting to Set, then back to an array
-        const uniquePrivileges = [...new Set(privilegesFromDB)];
+        const uniquePrivileges = [...new Set(privilegesFromDB.map(p => p.privilegeName))];
 
         // Initialize assignedPrivileges with empty email/password for unique privileges
         const initialAssigned = uniquePrivileges.map(p => ({
@@ -63,8 +66,8 @@ function ManageAccess() {
     try {
       setLoading(true);
       await axios.post(`${BASE_URL}/admin/assign-privileges`, {
-        companyName,
-        privileges: assignedPrivileges,
+        eventId, // Pass eventId here
+        privileges: assignedPrivileges
       }, {
         headers: { Authorization: `Bearer ${token}` },
       });
