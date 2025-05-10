@@ -202,15 +202,15 @@ const UpdateEvents = async (req, res) => {
 };
 
 const saveRegistrationFields = async (req, res) => {
-  const { eventId, registrationFields } = req.body;
+  const { EventId, registrationFields } = req.body;
 
-  if (!eventId || !registrationFields || registrationFields.length === 0) {
+  if (!EventId || !registrationFields || registrationFields.length === 0) {
     return res.status(400).json({ message: "Event ID and fields are required" });
   }
 
   try {
     // Find the event by eventId
-    const event = await Event.findById(eventId);
+    const event = await Event.findById(EventId);
 
     if (!event) {
       return res.status(404).json({ message: "Event not found" });
