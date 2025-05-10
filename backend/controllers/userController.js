@@ -197,10 +197,14 @@ exports.registerUser = async (req, res) => {
       return res.status(400).json({ message: 'Name and Email are required fields' });
     }
 
-    // ✅ Check if user with same email + same event already exists
-    const existingUser = await User.findOne({ email, eventId: eventID });
+    //  Check if user has already registered for the same event under this company
+    const existingUser = await User.findOne({ email, companyName: event.companyName });
     if (existingUser) {
-      return res.status(400).json({ message: 'You have already registered for this event.' });
+      // Check if the user has already registered for the same event
+      const isAlreadyRegisteredForThisEvent = existingUser.eventId.toString() === eventID;
+      if (isAlreadyRegisteredForThisEvent) {
+        return res.status(400).json({ message: 'You have already registered for this event.' });
+      }
     }
 
     // 1. Get selected role from formData
@@ -251,3 +255,4 @@ exports.registerUser = async (req, res) => {
     res.status(500).json({ message: 'Error registering user' });
   }
 };
+
