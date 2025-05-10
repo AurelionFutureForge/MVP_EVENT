@@ -78,7 +78,7 @@ function AdminDashboard() {
 
         const response = await axios.get(`${BASE_URL}/admin/users`, {
           headers: { Authorization: `Bearer ${token}` },
-          params: { companyName, eventName: selectedEvent, page: currentPage, limit: 10 },
+          params: { companyName, eventId: selectedEvent, page: currentPage, limit: 10 },
         });
 
         const filteredUsers = response.data.users || [];

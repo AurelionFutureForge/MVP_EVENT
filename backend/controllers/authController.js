@@ -47,21 +47,22 @@ const getAllUsers = async (req, res) => {
     }
 
     const companyName = admin.companyName;
-    const { eventName } = req.query; 
+    const { eventId } = req.query; // Fetch eventId from query params
 
     const query = { companyName };
 
-    if (eventName) {
-      query.eventName = eventName; 
+    if (eventId) {
+      query.eventId = eventId; // Match users by eventId now
     }
 
     const users = await User.find(query, "-password");
 
-    res.status(200).json(users);
+    res.status(200).json({ users }); // wrap in { users } to match frontend usage
   } catch (error) {
     res.status(500).json({ message: "Failed to retrieve users", error });
   }
 };
+
 
 // Controller function to get all events for the admin's company
 const getAllEvents = async (req, res) => {
