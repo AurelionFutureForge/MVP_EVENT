@@ -20,8 +20,7 @@ function ManageAccess() {
         const token = localStorage.getItem("adminToken");
         const response = await axios.get(`${BASE_URL}/admin/event-privileges`, {
           headers: { Authorization: `Bearer ${token}` },
-          params: { companyName } ,
-          eventId
+          params: { companyName,eventId } ,
         });
 
         const privilegesFromDB = response.data.privileges; // array of privilege names

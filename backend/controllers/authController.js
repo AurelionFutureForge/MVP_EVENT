@@ -125,7 +125,8 @@ const registerAdmin = async (req, res) => {
 
 //  GET privileges (updated to take eventId)
 const getEventPrivileges = async (req, res) => {
-  const { eventId } = req.body;
+  const { eventId } = req.query;
+  console.log("eventID:",eventId);
 
   if (!eventId) {
     return res.status(400).json({ message: "Event ID is required" });
