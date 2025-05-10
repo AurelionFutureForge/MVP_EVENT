@@ -4,6 +4,7 @@ import { toast } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 
 function ManageAccess() {
+  const [privilegesList, setPrivilegesList] = useState([]);
   const [assignedPrivileges, setAssignedPrivileges] = useState([]);
   const [loading, setLoading] = useState(false); // To handle loading state
   const navigate = useNavigate();
@@ -19,21 +20,19 @@ function ManageAccess() {
         const token = localStorage.getItem("adminToken");
         const response = await axios.get(`${BASE_URL}/admin/event-privileges`, {
           headers: { Authorization: `Bearer ${token}` },
-          params: { companyName, eventId }, // Pass eventId and companyName as params
+          params: { eventId } // We only need eventId in query params
         });
 
-        const privilegesFromDB = response.data.privileges; // Array of privilege objects
+        const privilegesFromDB = response.data.privileges; // array of privilege names
 
-        // Remove duplicate privilege names
-        const uniquePrivileges = [...new Set(privilegesFromDB.map(p => p.privilegeName))];
-
-        // Initialize assignedPrivileges with empty email/password for each unique privilege
-        const initialAssigned = uniquePrivileges.map(p => ({
+        // Initialize assignedPrivileges with empty email/password for unique privileges
+        const initialAssigned = privilegesFromDB.map(p => ({
           privilegeName: p,
           email: "",
           password: ""
         }));
 
+        setPrivilegesList(privilegesFromDB);
         setAssignedPrivileges(initialAssigned);
       } catch (error) {
         toast.error("Failed to fetch privileges");
@@ -41,7 +40,7 @@ function ManageAccess() {
     };
 
     fetchPrivileges();
-  }, [BASE_URL, companyName, eventId]);
+  }, [BASE_URL, eventId]);
 
   const handleInputChange = (index, field, value) => {
     const updated = [...assignedPrivileges];
