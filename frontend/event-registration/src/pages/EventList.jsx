@@ -26,7 +26,12 @@ function EventList() {
           params: { companyName },
         });
 
-        setEvents(response.data.events);
+        // Ensure that the response data is valid and has events
+        if (response.data && Array.isArray(response.data.events)) {
+          setEvents(response.data.events);
+        } else {
+          setEvents([]);  // Set to empty array if no events are found
+        }
         setLoading(false);
       } catch (error) {
         toast.error("Failed to fetch events. Please try again.");
@@ -59,8 +64,11 @@ function EventList() {
                   className="cursor-pointer border p-4 rounded-xl hover:bg-blue-50 transition"
                   onClick={() => handleEventClick(event._id)}
                 >
-                  <h3 className="text-xl font-semibold text-gray-700">{event.name}</h3>
+                  <h3 className="text-xl font-semibold text-gray-700">{event.eventName}</h3>
                   <p className="text-gray-500">{event.place}</p>
+                  <p className="text-gray-500">{event.time}</p>
+                  <p className="text-gray-500">{event.date}</p>
+                  <p className="text-gray-500">Roles: {event.eventRoles.length}</p>
                 </div>
               ))
             ) : (
