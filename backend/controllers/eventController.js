@@ -202,28 +202,27 @@ const UpdateEvents = async (req, res) => {
 };
 
 const saveRegistrationFields = async (req, res) => {
-  const { companyName, registrationFields } = req.body;
+  const { eventId, registrationFields } = req.body;
 
-  if (!companyName || !registrationFields || registrationFields.length === 0) {
-    return res.status(400).json({ message: "Company and fields are required" });
+  if (!eventId || !registrationFields || registrationFields.length === 0) {
+    return res.status(400).json({ message: "Event ID and fields are required" });
   }
 
   try {
-    // Find the event by companyName
-    const event = await Event.findOne({ companyName });
+    // Find the event by eventId
+    const event = await Event.findById(eventId);
 
     if (!event) {
-      return res.status(404).json({ message: "Event not found for this company" });
+      return res.status(404).json({ message: "Event not found" });
     }
 
     // Save the registration fields to the event
     event.registrationFields = registrationFields;
     await event.save();
 
-    // Send eventId (_id) along with success message
     res.status(200).json({ 
       message: "Registration fields saved successfully!",
-      eventId: event._id   // <-- Send the _id here
+      eventId: event._id   // still sending eventId in response
     });
 
   } catch (error) {
@@ -231,6 +230,7 @@ const saveRegistrationFields = async (req, res) => {
     res.status(500).json({ message: "Error saving registration fields" });
   }
 };
+
 
 const getEventById = async (req, res) => {
   try {

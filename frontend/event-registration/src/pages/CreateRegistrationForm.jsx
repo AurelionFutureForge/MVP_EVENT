@@ -17,9 +17,10 @@ function CreateRegistrationForm() {
 
   const BASE_URL = import.meta.env.VITE_BACKEND_URL;
   const companyName = localStorage.getItem("adminCompany");
+  const EventId = localStorage.getItem("selectedEvent")
 
   useEffect(() => {
-    const savedEventId = localStorage.getItem("eventId");
+    const savedEventId = localStorage.getItem("selectedEvent");
     if (savedEventId) {
       const link = `https://mvp-event.vercel.app/register/${savedEventId}`;
       setFormLink(link);
@@ -66,6 +67,7 @@ function CreateRegistrationForm() {
         {
           companyName,
           eventName,
+          EventId,
           registrationFields: fields,
         },
         {
