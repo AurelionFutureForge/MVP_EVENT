@@ -36,6 +36,26 @@ function extractContact(registrationData) {
   return contact;
 }
 
+function SummaryCard({ title, value, color }) {
+  const colors = {
+    blue: "bg-blue-500",
+    green: "bg-green-500",
+    yellow: "bg-yellow-500",
+    red: "bg-red-500",
+    gray: "bg-gray-500",
+  };
+
+  const selectedColor = colors[color] || "bg-gray-500";
+
+  return (
+    <div className={`rounded-xl shadow-md p-4 text-white ${selectedColor}`}>
+      <h3 className="text-lg font-semibold">{title}</h3>
+      <p className="text-2xl font-bold mt-1">{value}</p>
+    </div>
+  );
+}
+
+
 function AdminDashboard() {
   const [users, setUsers] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
