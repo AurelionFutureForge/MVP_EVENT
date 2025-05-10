@@ -8,7 +8,7 @@ function RegistrationForm() {
   const [formData, setFormData] = useState({});
   const [loading, setLoading] = useState(true);
   const BASE_URL = import.meta.env.VITE_BACKEND_URL;
-  const {eventID,eventName} = useParams();
+  const {eventID} = useParams();
 
   useEffect(() => {
     const fetchEventDetails = async () => {
@@ -43,7 +43,6 @@ function RegistrationForm() {
       await axios.post(`${BASE_URL}/users/register`, {
         formData, // send as formData object
         eventID,
-        eventName
       });
       toast.success("Registration successful!");
       setFormData({});  // clear form

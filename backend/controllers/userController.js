@@ -180,7 +180,7 @@ const sendSuccessEmail = async (name, email, eventName, companyName, place, time
 };
 
 exports.registerUser = async (req, res) => {
-  const { formData, eventID, eventName } = req.body;
+  const { formData, eventID} = req.body;
   console.log("eventID:", eventID);
 
   try {
@@ -225,7 +225,6 @@ exports.registerUser = async (req, res) => {
       eventId: event._id,
       companyName: event.companyName,
       role: selectedRole.roleName,
-      eventName,
       email,
       privileges,
       registrationData: formData
