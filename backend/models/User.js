@@ -15,7 +15,7 @@ const userSchema = new mongoose.Schema({
   qrCode: { type: String }
 });
 
-userSchema.index({ email: 1, eventId: 1 }, { unique: true }); // <--- ✅ COMPOUND INDEX
+
 
 const User = mongoose.model('User', userSchema);
 module.exports = User;
