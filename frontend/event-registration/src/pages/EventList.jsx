@@ -26,7 +26,8 @@ function EventList() {
           params: { companyName },
         });
 
-        // Ensure that the response data is valid and has events
+        console.log("Backend response:", response.data.events); // Log the events here
+
         if (response.data && Array.isArray(response.data.events)) {
           setEvents(response.data.events);
         } else {
@@ -46,6 +47,8 @@ function EventList() {
     localStorage.setItem("selectedEvent", eventId); // Save the selected event
     navigate(`/admin/dashboard/${eventId}`); // Redirect to event analytics page
   };
+
+  console.log("Events State:", events); // Log the events state here
 
   return (
     <div className="min-h-screen bg-gray-100 p-6">
