@@ -33,7 +33,7 @@ function CreateRegistrationForm() {
         try {
           const response = await axios.get(`${BASE_URL}/admin/event-roles/${EventId}`);
           const roleOptions = response.data.roles || [];
-          setRoles(roleOptions);
+          setRoles(roleOptions);  // Update roles state
 
           setFields((prevFields) => {
             const hasRoleField = prevFields.some((f) => f.fieldName === "ROLE");
@@ -63,7 +63,7 @@ function CreateRegistrationForm() {
 
       fetchRoles();
     }
-  }, []);
+  }, [EventId]);
 
   const handleFieldChange = (index, field, value) => {
     if (fields[index].locked) return;
@@ -234,9 +234,13 @@ function CreateRegistrationForm() {
                   multiple
                   className="border rounded px-3 py-2 w-full focus:ring-2 focus:ring-blue-400"
                 >
-                  {roles.map((role, idx) => (
-                    <option key={idx} value={role}>{role}</option>
-                  ))}
+                  {roles.length > 0 ? (
+                    roles.map((role, idx) => (
+                      <option key={idx} value={role}>{role}</option>
+                    ))
+                  ) : (
+                    <option>No roles available</option>
+                  )}
                 </select>
               </div>
             )}
