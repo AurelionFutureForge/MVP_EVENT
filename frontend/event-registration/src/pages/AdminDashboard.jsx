@@ -186,18 +186,24 @@ function AdminDashboard() {
 
   useEffect(() => {
   const fetchEventDetails = async () => {
-    try {
-      const response = await axios.get(`${BASE_URL}/admin/event-reg`, {
-        headers: { Authorization: `Bearer ${token}` },
-        params: { companyName, eventId: selectedEvent },
-      });
-      console.log('Event Details:', response.data);
-      setRegistrationFields(response.data.registrationFields || []);
-    } catch (err) {
-      toast.error("Failed to fetch event details");
-    }
-  };
+  try {
+    const response = await axios.get(`${BASE_URL}/admin/event-reg`, {
+      params: { eventId: selectedEvent },
+    });
 
+    console.log('API Response:', response.data); // Check the full response
+
+    // Make sure the data structure matches what you expect
+    if (response.data.registrationFields) {
+      setRegistrationFields(response.data.registrationFields);
+    } else {
+      console.warn('No registrationFields found in the response');
+    }
+  } catch (err) {
+    console.error('Error fetching event details:', err);
+    toast.error("Failed to fetch event details");
+  }
+};
   fetchEventDetails();
 }, [companyName, selectedEvent]);
 

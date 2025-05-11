@@ -225,16 +225,20 @@ const getRegField = async (req, res) => {
       return res.status(404).json({ message: "Event not found" });
     }
 
+    // Log the event to verify if registrationFields are populated
+    console.log('Fetched Event:', event);
+
     // Extract registration fields from the event
     const { registrationFields } = event;
 
     // Send back the registration fields
-    res.status(200).json(registrationFields);
+    res.status(200).json({ registrationFields }); // Send registrationFields explicitly
   } catch (err) {
     // Handle any other errors
     res.status(500).json({ error: err.message });
   }
 };
+
 
 
 
