@@ -246,8 +246,9 @@ const getEventById = async (req, res) => {
 
 const getAvailableRoles = async (req, res) => {
   try {
-    const { eventId } = req.params;
-    const event = await Event.findById(eventId);
+    const { EventId } = req.params;
+    console.log(EventId);
+    const event = await Event.findById(EventId);
 
     if (!event) {
       return res.status(404).json({ message: "Event not found." });

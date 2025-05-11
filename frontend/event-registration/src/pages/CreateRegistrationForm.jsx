@@ -29,7 +29,7 @@ function CreateRegistrationForm() {
       // Fetch roles for the selected event
       const fetchRoles = async () => {
         try {
-          const response = await axios.get(`${BASE_URL}/events/event-roles/${savedEventId}`);
+          const response = await axios.get(`${BASE_URL}/events/event-roles/${EventId}`);
           const roleOptions = response.data.roles || [];
           setRoles(roleOptions);
 
