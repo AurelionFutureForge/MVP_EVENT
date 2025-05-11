@@ -56,6 +56,8 @@ function PrivilegeLogin() {
       localStorage.setItem("privilegeToken", res.data.token);
       localStorage.setItem("privilegeName", res.data.privilegeName);
       localStorage.setItem("eventId", res.data.eventId);
+      locatStorge.setItem("companyName",res.data.companyName);
+      localStorage.setItem("eventName",res.data.eventName);
 
       toast.success("Login successful!");
       navigate("/privilege/dashboard");
