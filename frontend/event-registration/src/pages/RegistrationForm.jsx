@@ -32,10 +32,21 @@ function RegistrationForm() {
 
   const handleChange = (e) => {
     const { name, type, value, checked } = e.target;
-    setFormData({
-      ...formData,
-      [name]: type === "checkbox" ? checked : value,
-    });
+    if (type === "checkbox") {
+      // If it's a checkbox, update formData accordingly
+      setFormData({
+        ...formData,
+        [name]: checked
+          ? [...(formData[name] || []), value]
+          : (formData[name] || []).filter((v) => v !== value),
+      });
+    } else {
+      // For other inputs, just update the formData directly
+      setFormData({
+        ...formData,
+        [name]: value,
+      });
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -125,7 +136,24 @@ function RegistrationForm() {
                 </select>
               )}
 
-              {field.fieldType === "checkbox" && (
+              {field.fieldType === "checkbox" && field.fieldName === "ROLE" && (
+                <div className="flex flex-col gap-2">
+                  {field.options.map((option, idx) => (
+                    <label key={idx} className="inline-flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        name={field.fieldName}
+                        value={option}
+                        checked={(formData[field.fieldName] || []).includes(option)}
+                        onChange={handleChange}
+                      />
+                      <span>{option}</span>
+                    </label>
+                  ))}
+                </div>
+              )}
+
+              {field.fieldType === "checkbox" && field.fieldName !== "ROLE" && (
                 <div className="flex items-center space-x-2">
                   <input
                     type="checkbox"
