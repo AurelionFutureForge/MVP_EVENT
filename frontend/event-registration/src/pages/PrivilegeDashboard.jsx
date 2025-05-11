@@ -47,9 +47,9 @@ function PrivilegeDashboard() {
   const eventId = localStorage.getItem("eventId");
 
   useEffect(() => {
-    // If required data is missing, don't fetch or show error — just stop loading
     if (!token || !privilegeName || !eventId) {
-      setLoading(false);
+      toast.error("Unauthorized access. Please login.");
+      navigate("/privilege-login");
       return;
     }
 
@@ -69,7 +69,7 @@ function PrivilegeDashboard() {
     };
 
     fetchUsers();
-  }, [token, privilegeName, eventId, BASE_URL]);
+  }, [token, privilegeName, eventId, navigate, BASE_URL]);
 
   const handleScanQR = () => {
     navigate("/admin/scanner");
@@ -123,12 +123,6 @@ function PrivilegeDashboard() {
               <tr>
                 <td colSpan="5" className="text-center py-4 text-gray-500">
                   Loading...
-                </td>
-              </tr>
-            ) : !token || !privilegeName || !eventId ? (
-              <tr>
-                <td colSpan="5" className="text-center py-4 text-gray-500">
-                  Please login to view users
                 </td>
               </tr>
             ) : users.length > 0 ? (

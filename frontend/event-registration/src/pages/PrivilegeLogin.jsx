@@ -12,26 +12,30 @@ function PrivilegeLogin() {
   const navigate = useNavigate();
   const BASE_URL = import.meta.env.VITE_BACKEND_URL;
 
-  // Fetch events when companyName changes (for suggestions)
+  // Fetch events with debounce (only after user stops typing companyName)
   useEffect(() => {
-    const fetchEvents = async () => {
-      if (!companyName) {
-        setEvents([]);
-        setSelectedEvent("");
-        return;
-      }
-      try {
-        const res = await axios.get(`${BASE_URL}/company/events`, {
-          params: { companyName },
-        });
-        setEvents(res.data.events);
-      } catch (err) {
-        console.error("Error fetching events:", err);
-        toast.error("Failed to fetch events for company.");
-      }
-    };
+    const delayDebounce = setTimeout(() => {
+      const fetchEvents = async () => {
+        if (!companyName || companyName.trim().length < 3) {
+          setEvents([]);
+          setSelectedEvent("");
+          return;
+        }
+        try {
+          const res = await axios.get(`${BASE_URL}/company/events`, {
+            params: { companyName },
+          });
+          setEvents(res.data.events);
+        } catch (err) {
+          console.error("Error fetching events:", err);
+          setEvents([]); // Clear events silently if fetch fails
+        }
+      };
 
-    fetchEvents();
+      fetchEvents();
+    }, 500); // 500ms debounce
+
+    return () => clearTimeout(delayDebounce);
   }, [companyName, BASE_URL]);
 
   const handleSubmit = async (e) => {
@@ -56,8 +60,8 @@ function PrivilegeLogin() {
       localStorage.setItem("privilegeToken", res.data.token);
       localStorage.setItem("privilegeName", res.data.privilegeName);
       localStorage.setItem("eventId", res.data.eventId);
-      locatStorge.setItem("companyName",res.data.companyName);
-      localStorage.setItem("eventName",res.data.eventName);
+      localStorage.setItem("companyName", res.data.companyName);
+      localStorage.setItem("eventName", res.data.eventName);
 
       toast.success("Login successful!");
       navigate("/privilege/dashboard");
