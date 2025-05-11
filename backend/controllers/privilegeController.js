@@ -1,17 +1,26 @@
 const Privilege = require("../models/privilegeModel"); // Your privilege collection
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
-
+const Event = require("../models/Event"); 
 
 exports.privilegeLogin = async (req, res) => {
-  const { email, password, companyName, eventId } = req.body;
+  const { email, password, companyName, eventName } = req.body;
 
   try {
-    // Find the privilege document for the given companyName and eventId
-    const privUserData = await Privilege.findOne({ companyName, eventId });
+    // Find the eventId from Event DB using companyName and eventName
+    const eventDoc = await Event.findOne({ companyName, eventName });
+
+    if (!eventDoc) {
+      return res.status(404).json({ message: "Event not found for this company" });
+    }
+
+    const eventId = eventDoc._id.toString(); // Convert ObjectId to string (optional but clean)
+
+    // Find the privilege document using companyName and eventName
+    const privUserData = await Privilege.findOne({ companyName, eventName });
 
     if (!privUserData) {
-      return res.status(404).json({ message: "Event or company not found" });
+      return res.status(404).json({ message: "Privileges not set for this event" });
     }
 
     // Find the user in the privileges array
@@ -23,32 +32,31 @@ exports.privilegeLogin = async (req, res) => {
       return res.status(400).json({ message: "Email not found" });
     }
 
-    // Check if the password matches (plain text comparison)
+    //  Check password
     if (privUser.password !== password) {
       return res.status(400).json({ message: "Incorrect password" });
     }
 
-    // Include eventId + companyName in token to scope properly
+    //  Prepare token payload (now with eventId fetched from Event DB)
     const tokenPayload = {
       email: privUser.email,
       privilegeName: privUser.privilegeName,
-      roleName: privUser.roleName,   // optional
-      companyName: privUserData.companyName,
-      eventName: privUserData.eventName,   // still useful for display
-      eventId: privUserData.eventId,       // this is crucial
+      roleName: privUser.roleName,
+      companyName,
+      eventName,
+      eventId,
     };
 
-    // Generate a JWT token if the credentials are valid
     const token = jwt.sign(tokenPayload, process.env.JWT_SECRET, { expiresIn: "2h" });
 
-    // Send back the token + privilege info
+    //  Return token + privilege info + eventId
     res.json({
       token,
       privilegeName: privUser.privilegeName,
       roleName: privUser.roleName,
-      eventName: privUserData.eventName,
-      eventId: privUserData.eventId,
-      companyName: privUserData.companyName,
+      eventName,
+      eventId,
+      companyName,
     });
   } catch (err) {
     console.error(err);
