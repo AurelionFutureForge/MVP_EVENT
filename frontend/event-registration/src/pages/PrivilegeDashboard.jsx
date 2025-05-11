@@ -42,9 +42,12 @@ function PrivilegeDashboard() {
 
   const privilegeName = localStorage.getItem("privilegeName");
   const token = localStorage.getItem("privilegeToken");
+  const companyName = localStorage.getItem("companyName");
+  const eventName = localStorage.getItem("eventName");
+  const eventId = localStorage.getItem("eventId");
 
   useEffect(() => {
-    if (!token || !privilegeName) {
+    if (!token || !privilegeName || !eventId) {
       toast.error("Unauthorized access. Please login.");
       navigate("/privilege-login");
       return;
@@ -54,6 +57,7 @@ function PrivilegeDashboard() {
       try {
         const res = await axios.get(`${BASE_URL}/privilege/users`, {
           headers: { Authorization: `Bearer ${token}` },
+          params: { eventId },
         });
         setUsers(res.data.users);
       } catch (err) {
@@ -65,7 +69,7 @@ function PrivilegeDashboard() {
     };
 
     fetchUsers();
-  }, [token, privilegeName, navigate, BASE_URL]);
+  }, [token, privilegeName, eventId, navigate, BASE_URL]);
 
   const handleScanQR = () => {
     navigate("/admin/scanner");
@@ -74,6 +78,9 @@ function PrivilegeDashboard() {
   const handleLogout = () => {
     localStorage.removeItem("privilegeName");
     localStorage.removeItem("privilegeToken");
+    localStorage.removeItem("companyName");
+    localStorage.removeItem("eventName");
+    localStorage.removeItem("eventId");
     toast.success("Logged out successfully");
     navigate("/privilege-login");
   };
@@ -81,8 +88,9 @@ function PrivilegeDashboard() {
   return (
     <div className="p-6 min-h-screen bg-gray-50">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold text-center w-full">
-          Privilege Dashboard — <span className="text-blue-600">{privilegeName}</span>
+        <h1 className="text-2xl md:text-3xl font-bold text-center w-full leading-tight">
+          <div>{companyName} — {eventName}</div>
+          <div className="text-blue-600">Privilege: {privilegeName}</div>
         </h1>
         <button
           onClick={handleLogout}
