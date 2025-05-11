@@ -39,7 +39,7 @@ const App = () => {
         <Route path='/event-login' element={<EventLogin />} />
         <Route path='/create-regform' element={<ProtectedRoute> <CreateRegistrationForm /> </ ProtectedRoute>} />
         <Route path='event-list' element={<ProtectedRoute> <EventList/> </ ProtectedRoute>} />
-        <Route path='/manual-registration/:eventId' element={<ProtectedRoute> <ManualReg /> </ ProtectedRoute>} />
+        <Route path='/manual-registration' element={<ProtectedRoute> <ManualReg /> </ ProtectedRoute>} />
       </Routes>
     </div>
   );

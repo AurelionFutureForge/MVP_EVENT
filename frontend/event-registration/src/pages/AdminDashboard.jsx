@@ -291,7 +291,7 @@ function AdminDashboard() {
             </button>
 
             <button
-              onClick={() => navigate("/manual-registration/:eventId")}  // Navigate to the manual registration page
+              onClick={() => navigate("/manual-registration")}  // Navigate to the manual registration page
               className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition shadow"
             >
               Manual Registration
