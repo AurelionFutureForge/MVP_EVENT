@@ -244,4 +244,4 @@ const getEventById = async (req, res) => {
   }
 };
 
-module.exports = { createEvent, getEvents, getEventByDetails, EditEvents, UpdateEvents, saveRegistrationFields, getEventById, getAvailableRoles };
+module.exports = { createEvent, getEvents, getEventByDetails, EditEvents, UpdateEvents, saveRegistrationFields, getEventById};

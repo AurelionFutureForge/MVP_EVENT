@@ -1,5 +1,5 @@
 const express = require('express');
-const { createEvent, getEvents, getEventByDetails, EditEvents, UpdateEvents, saveRegistrationFields,getEventById, getAvailableRoles } = require("../controllers/eventController");
+const { createEvent, getEvents, getEventByDetails, EditEvents, UpdateEvents, saveRegistrationFields,getEventById } = require("../controllers/eventController");
 const router = express.Router();
 
 // Create event requires JWT token for authentication
