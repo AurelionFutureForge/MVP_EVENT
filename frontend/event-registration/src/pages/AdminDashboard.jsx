@@ -331,7 +331,7 @@ function AdminDashboard() {
                   >
                     <td className="p-3">{name}</td>
                     <td className="p-3">{email}</td>
-                    <td className="p-3">{user.registrationData?.role}</td>
+                   <td className="p-3">{user.registrationData?.role || user.registrationData?.ROLE}</td>
                     <td className="p-3">{contact}</td>
                     <td className="p-3">
                       {privileges.length > 0 ? (
