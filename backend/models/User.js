@@ -8,6 +8,7 @@ const privilegeSchema = new mongoose.Schema({
 const userSchema = new mongoose.Schema({
   eventId: { type: mongoose.Schema.Types.ObjectId, ref: 'Event', required: true },
   companyName: { type: String, required: true },
+  eventName : { type: String, required: true},
   role: { type: String, required: true },
   email: { type: String, required: true }, 
   privileges: [privilegeSchema],   
