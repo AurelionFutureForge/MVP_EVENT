@@ -31,7 +31,9 @@ function CreateRegistrationForm() {
     // Fetch roles for public registration
     const fetchRoles = async () => {
       try {
-        const response = await axios.get(`${BASE_URL}/events/available-roles`, EventId);
+        const response = await axios.get(`${BASE_URL}/events/available-roles`, {
+      params: { EventId },
+      });
         setRoles(response.data.roles);
       } catch (error) {
         toast.error("Failed to fetch roles.");
@@ -241,21 +243,25 @@ function CreateRegistrationForm() {
         <div className="mb-6">
           <h3 className="text-xl font-semibold mb-2">Select Roles for Public Registration</h3>
           {roles.length > 0 ? (
-            roles.map((role, index) => (
-              <div key={index} className="flex items-center mb-3">
-                <input
-                  type="checkbox"
-                  id={`role-${role._id}`}
-                  checked={selectedRoles.includes(role._id)}
-                  onChange={() => toggleRoleSelection(role._id)}
-                  className="mr-2"
-                />
-                <label htmlFor={`role-${role._id}`} className="text-lg">{role.name}</label>
-              </div>
-            ))
-          ) : (
-            <p>No roles available for selection.</p>
-          )}
+              roles.map((role, index) => (
+                <div key={index} className="flex items-start mb-3">
+                  <input
+                    type="checkbox"
+                    id={`role-${role._id}`}
+                    checked={selectedRoles.includes(role._id)}
+                    onChange={() => toggleRoleSelection(role._id)}
+                    className="mt-1 mr-2"
+                  />
+                  <label htmlFor={`role-${role._id}`} className="text-lg">
+                    <span className="font-semibold">{role.roleName}</span>
+                    <br />
+                    <span className="text-sm text-gray-600">{role.roleDescription}</span>
+                  </label>
+                </div>
+              ))
+            ) : (
+              <p>No roles available for selection.</p>
+            )}
         </div>
 
         <button

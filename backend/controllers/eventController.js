@@ -246,7 +246,7 @@ const getEventById = async (req, res) => {
 
 const getAvailableRoles = async (req, res) => {
   try {
-    const {EventId} = req.body;
+    const { EventId } = req.query;
     if (!EventId) {
       return res.status(400).json({ message: "Event ID is required" });
     }
@@ -257,8 +257,9 @@ const getAvailableRoles = async (req, res) => {
     }
 
     const roles = event.eventRoles.map((role, index) => ({
-      _id: index.toString(), 
-      name: role,
+      _id: index.toString(),
+      roleName: role.roleName,
+      roleDescription: role.roleDescription,
     }));
 
     res.status(200).json({ roles });
