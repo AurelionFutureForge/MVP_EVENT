@@ -145,15 +145,20 @@ function ManualReg() {
                 {/* Handle checkboxes */}
                 {field.fieldType === "checkbox" && (
                   <div className="flex items-center space-x-2">
-                    <input
-                      type="checkbox"
-                      name={field.fieldName}
-                      checked={formData[field.fieldName] || false}
-                      onChange={handleChange}
-                      required={field.required}
-                      className="w-4 h-4"
-                    />
-                    <label className="text-gray-700">{field.label || "Check if applicable"}</label>
+                    {field.options.map((option, optionIdx) => (
+                      <div key={optionIdx} className="flex items-center">
+                        <input
+                          type="checkbox"
+                          name={field.fieldName}
+                          value={option}
+                          checked={formData[field.fieldName]?.includes(option) || false}
+                          onChange={handleChange}
+                          required={field.required}
+                          className="w-4 h-4"
+                        />
+                        <label className="text-gray-700">{option}</label>
+                      </div>
+                    ))}
                   </div>
                 )}
               </div>
