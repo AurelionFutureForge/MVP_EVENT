@@ -27,12 +27,10 @@ function CreateRegistrationForm() {
       const link = `https://mvp-event.vercel.app/register/${savedEventId}`;
       setFormLink(link);
     }
-
-    // Fetch roles for public registration
     const fetchRoles = async () => {
       try {
         const response = await axios.get(`${BASE_URL}/events/available-roles`, {
-      params: { EventId },
+      params: { EventId: savedEventId },
       });
         setRoles(response.data.roles);
       } catch (error) {

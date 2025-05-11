@@ -251,6 +251,11 @@ const getAvailableRoles = async (req, res) => {
       return res.status(400).json({ message: "Event ID is required" });
     }
 
+    // Check for valid ObjectId
+    if (!mongoose.Types.ObjectId.isValid(EventId)) {
+      return res.status(400).json({ message: "Invalid Event ID format" });
+    }
+
     const event = await Event.findById(EventId);
     if (!event) {
       return res.status(404).json({ message: "Event not found" });
@@ -268,5 +273,4 @@ const getAvailableRoles = async (req, res) => {
     res.status(500).json({ message: "Internal Server Error" });
   }
 };
-
 module.exports = { createEvent, getEvents, getEventByDetails, EditEvents, UpdateEvents, saveRegistrationFields, getEventById, getAvailableRoles };
