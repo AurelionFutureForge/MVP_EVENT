@@ -37,13 +37,13 @@ function extractContact(registrationData) {
 function PrivilegeDashboard() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [eventName, setEventName] = useState(""); // state to handle user input for event name
   const navigate = useNavigate();
   const BASE_URL = import.meta.env.VITE_BACKEND_URL;
 
   const privilegeName = localStorage.getItem("privilegeName");
   const token = localStorage.getItem("privilegeToken");
   const companyName = localStorage.getItem("companyName");
-  const eventName = localStorage.getItem("eventName");
   const eventId = localStorage.getItem("eventId");
 
   useEffect(() => {
@@ -85,11 +85,15 @@ function PrivilegeDashboard() {
     navigate("/privilege-login");
   };
 
+  const handleEventNameChange = (e) => {
+    setEventName(e.target.value); // Update eventName state with user input
+  };
+
   return (
     <div className="p-6 min-h-screen bg-gray-50">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl md:text-3xl font-bold text-center w-full leading-tight">
-          <div>{companyName} — {eventName}</div>
+          <div>{companyName} — {eventName || "Enter Event Name"}</div>
           <div className="text-blue-600">Privilege: {privilegeName}</div>
         </h1>
         <button
@@ -98,6 +102,21 @@ function PrivilegeDashboard() {
         >
           Logout
         </button>
+      </div>
+
+      {/* Event Name input field */}
+      <div className="mb-4">
+        <label htmlFor="eventName" className="block text-sm font-medium text-gray-700">
+          Event Name
+        </label>
+        <input
+          type="text"
+          id="eventName"
+          value={eventName}
+          onChange={handleEventNameChange}
+          className="mt-1 p-2 w-full border border-gray-300 rounded-md"
+          placeholder="Enter the event name"
+        />
       </div>
 
       <button
