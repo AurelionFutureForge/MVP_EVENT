@@ -61,11 +61,12 @@ exports.getPrivilegeUsers = async (req, res) => {
       return res.status(404).json({ message: "Privilege not found." });
     }
 
-    const { companyName } = privilegeDoc;
+    const { companyName, eventName } = privilegeDoc;
 
-    // Fetch users who belong to the same companyName and have privilegeName inside privileges array
+    // Fetch users who belong to same company, same event, and have privilegeName
     const users = await User.find({
       companyName,
+      eventName,
       "privileges.name": privilegeName,
     });
 
@@ -74,4 +75,5 @@ exports.getPrivilegeUsers = async (req, res) => {
     console.error("Error fetching privilege users:", err);
     res.status(500).json({ message: "Server error while fetching privilege users." });
   }
-}; 
+};
+
