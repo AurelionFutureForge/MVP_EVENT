@@ -10,7 +10,7 @@ router.get('/:eventId',EditEvents);
 router.put('/:eventId',UpdateEvents);
 router.post("/save-registration-fields", saveRegistrationFields);
 router.get('/:eventId', getEventById);
-router.get("/event-roles/:EventId",getAvailableRoles);
+
 
 
 module.exports = router;

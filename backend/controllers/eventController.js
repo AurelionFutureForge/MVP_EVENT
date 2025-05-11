@@ -244,22 +244,4 @@ const getEventById = async (req, res) => {
   }
 };
 
-const getAvailableRoles = async (req, res) => {
-  try {
-    const { EventId } = req.params;
-    console.log(EventId);
-    const event = await Event.findById(EventId);
-
-    if (!event) {
-      return res.status(404).json({ message: "Event not found." });
-    }
-
-    const roles = event.eventRoles.map(role => role.roleName);
-    res.json({ roles });
-  } catch (error) {
-    console.error("Error fetching roles:", error);
-    res.status(500).json({ message: "Server error." });
-  }
-};
-
 module.exports = { createEvent, getEvents, getEventByDetails, EditEvents, UpdateEvents, saveRegistrationFields, getEventById, getAvailableRoles };
