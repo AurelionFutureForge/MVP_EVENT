@@ -67,6 +67,8 @@ function AdminDashboard() {
   const selectedEvent = localStorage.getItem("selectedEvent");
   const [registrationFields, setRegistrationFields] = useState([]);
 
+  console.log(registrationFields);
+
   useEffect(() => {
     const fetchUsers = async () => {
       try {
@@ -189,6 +191,7 @@ function AdminDashboard() {
         headers: { Authorization: `Bearer ${token}` },
         params: { companyName, eventId: selectedEvent },
       });
+      console.log('Event Details:', response.data);
       setRegistrationFields(response.data.registrationFields || []);
     } catch (err) {
       toast.error("Failed to fetch event details");
