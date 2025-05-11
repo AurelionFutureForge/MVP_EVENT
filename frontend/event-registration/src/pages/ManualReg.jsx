@@ -153,7 +153,6 @@ function ManualReg() {
                           value={option}
                           checked={formData[field.fieldName]?.includes(option) || false}
                           onChange={handleChange}
-                          required={field.required}
                           className="w-4 h-4"
                         />
                         <label className="text-gray-700">{option}</label>
