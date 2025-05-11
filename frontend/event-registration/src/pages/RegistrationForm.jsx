@@ -8,7 +8,7 @@ function RegistrationForm() {
   const [formData, setFormData] = useState({});
   const [loading, setLoading] = useState(true);
   const BASE_URL = import.meta.env.VITE_BACKEND_URL;
-  const {eventID} = useParams();
+  const { eventID } = useParams();
 
   useEffect(() => {
     const fetchEventDetails = async () => {
@@ -31,9 +31,10 @@ function RegistrationForm() {
   }, [eventID, BASE_URL]);
 
   const handleChange = (e) => {
+    const { name, type, value, checked } = e.target;
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value,
+      [name]: type === "checkbox" ? checked : value,
     });
   };
 
@@ -41,11 +42,11 @@ function RegistrationForm() {
     e.preventDefault();
     try {
       await axios.post(`${BASE_URL}/users/register`, {
-        formData, // send as formData object
+        formData,
         eventID,
       });
       toast.success("Registration successful!");
-      setFormData({});  // clear form
+      setFormData({});
     } catch (error) {
       toast.error("Registration failed. Please try again.");
     }
@@ -67,7 +68,6 @@ function RegistrationForm() {
         </h2>
 
         <form onSubmit={handleSubmit}>
-          {/* Dynamic Registration Fields */}
           {event.registrationFields.map((field, idx) => (
             <div key={idx} className="mb-4">
               <label className="block text-gray-700 font-semibold mb-2">
@@ -124,30 +124,22 @@ function RegistrationForm() {
                   ))}
                 </select>
               )}
+
+              {field.fieldType === "checkbox" && (
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    name={field.fieldName}
+                    checked={formData[field.fieldName] || false}
+                    onChange={handleChange}
+                    required={field.required}
+                    className="w-4 h-4"
+                  />
+                  <label className="text-gray-700">{field.label || "Check if applicable"}</label>
+                </div>
+              )}
             </div>
           ))}
-
-          {/* Role Selection (Default Field) */}
-          <div className="mb-4">
-            <label className="block text-gray-700 font-semibold mb-2">
-              Select Role <span className="text-red-600">*</span>
-            </label>
-            {event.eventRoles.map((role, idx) => (
-              <div key={idx} className="flex items-center mb-2">
-                <input
-                  type="radio"
-                  name="role"
-                  value={role.roleName}
-                  checked={formData.role === role.roleName}
-                  onChange={handleChange}
-                  required
-                  className="mr-2"
-                />
-                <span className="font-medium text-gray-800">{role.roleName}</span>
-                <span className="text-gray-500 text-sm ml-2">({role.roleDescription})</span>
-              </div>
-            ))}
-          </div>
 
           <button
             type="submit"
