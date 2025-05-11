@@ -208,7 +208,7 @@ exports.registerUser = async (req, res) => {
         return res.status(400).json({ message: 'You have already registered for this event.' });
       }
     }
-
+    console.log(formData);
     // 1. Get selected role from formData
     const selectedRoleName = formData.role;
     const selectedRole = event.eventRoles.find(role => role.roleName === selectedRoleName);

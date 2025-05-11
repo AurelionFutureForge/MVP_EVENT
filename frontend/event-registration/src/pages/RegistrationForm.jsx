@@ -52,6 +52,7 @@ function RegistrationForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      console.log(formData);
       await axios.post(`${BASE_URL}/users/register`, {
         formData,
         eventID,
