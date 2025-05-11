@@ -256,7 +256,7 @@ const getAvailableRoles = async (req, res) => {
       return res.status(400).json({ message: "Invalid Event ID format" });
     }
 
-    const event = await Event.findById(EventId);
+    const event = await Event.findByOne(EventId);
     if (!event) {
       return res.status(404).json({ message: "Event not found" });
     }
