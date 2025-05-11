@@ -71,6 +71,8 @@ function AdminScanner() {
     try {
       const token = localStorage.getItem("privilegeToken");
       const privilegeName = localStorage.getItem("privilegeName");
+      const eventName = localStorage.getItem("eventName");
+      const eventId = localStorage.getItem("eventId");
 
       if (!token || !privilegeName) {
         toast.error("Missing privilege credentials. Please log in again.");
@@ -79,7 +81,7 @@ function AdminScanner() {
 
       const response = await axios.post(
         `${BASE_URL}/scan/verify`,
-        { qrCode, privilegeName },
+        { qrCode, privilegeName, eventId, eventName },
         {
           headers: {
             Authorization: `Bearer ${token}`,
