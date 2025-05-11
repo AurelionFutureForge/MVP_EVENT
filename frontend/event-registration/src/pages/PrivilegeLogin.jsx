@@ -8,6 +8,7 @@ function PrivilegeLogin() {
   const [password, setPassword] = useState("");
   const [companyName, setCompanyName] = useState("");
   const [events, setEvents] = useState([]);
+  const [selectedEvent, setSelectedEvent] = useState(""); // Changed to text input value
   const [selectedEventId, setSelectedEventId] = useState("");
   const navigate = useNavigate();
   const BASE_URL = import.meta.env.VITE_BACKEND_URL;
@@ -17,6 +18,7 @@ function PrivilegeLogin() {
     const fetchEvents = async () => {
       if (!companyName) {
         setEvents([]);
+        setSelectedEvent("");
         setSelectedEventId("");
         return;
       }
@@ -38,8 +40,8 @@ function PrivilegeLogin() {
     e.preventDefault();
 
     // Validation
-    if (!companyName || !selectedEventId) {
-      toast.error("Please provide Company Name and select an Event.");
+    if (!companyName || !selectedEvent || !selectedEventId) {
+      toast.error("Please provide Company Name, select an Event, and enter Event Name.");
       return;
     }
 
@@ -55,13 +57,22 @@ function PrivilegeLogin() {
       // Save auth data
       localStorage.setItem("privilegeToken", res.data.token);
       localStorage.setItem("privilegeName", res.data.privilegeName);
-      localStorage.setItem("eventId", selectedEventId); // <== Save eventId for dashboard fetch
+      localStorage.setItem("eventId", selectedEventId); // Save eventId for dashboard fetch
 
       toast.success("Login successful!");
       navigate("/privilege/dashboard");
     } catch (err) {
       toast.error(err.response?.data?.message || "Login failed");
     }
+  };
+
+  const handleEventChange = (e) => {
+    const eventName = e.target.value;
+    setSelectedEvent(eventName);
+
+    // Find eventId by eventName
+    const event = events.find((event) => event.eventName === eventName);
+    setSelectedEventId(event ? event._id : "");
   };
 
   return (
@@ -82,20 +93,22 @@ function PrivilegeLogin() {
           required
         />
 
-        {/* Event Selection Dropdown */}
-        <select
+        {/* Event Name Input (Text Input instead of Dropdown) */}
+        <input
+          type="text"
+          placeholder="Event Name"
           className="border p-2 w-full mb-3 rounded"
-          value={selectedEventId}
-          onChange={(e) => setSelectedEventId(e.target.value)}
+          value={selectedEvent}
+          onChange={handleEventChange}
+          list="eventList"
           required
-        >
-          <option value="">Select Event</option>
+        />
+        {/* Event Suggestions */}
+        <datalist id="eventList">
           {events.map((event) => (
-            <option key={event._id} value={event._id}>
-              {event.eventName} — {event.place}
-            </option>
+            <option key={event._id} value={event.eventName} />
           ))}
-        </select>
+        </datalist>
 
         {/* Email Input */}
         <input
