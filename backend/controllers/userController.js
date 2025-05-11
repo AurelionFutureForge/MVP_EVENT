@@ -210,11 +210,17 @@ exports.registerUser = async (req, res) => {
     }
     console.log(formData);
     // 1. Get selected role from formData
-    const selectedRoleName = formData.role;
-    const selectedRole = event.eventRoles.find(role => role.roleName === selectedRoleName);
-    if (!selectedRole) {
-      return res.status(400).json({ message: 'Invalid role selected' });
-    }
+      const selectedRoleName = formData.role;
+      let selectedRole = event.eventRoles.find(role => role.roleName === selectedRoleName);
+      if (!selectedRole) {
+        const roleField = event.registrationFields.find(field => field.fieldName === "ROLE");
+        if (roleField && roleField.options.includes(selectedRoleName)) {
+          selectedRole = { roleName: selectedRoleName, roleDescription: "Custom role from registration fields" };
+        }
+      }
+      if (!selectedRole) {
+        return res.status(400).json({ message: 'Invalid role selected' });
+      }
 
     // 2. Prepare privileges with 'claim: false'
     const privileges = selectedRole.privileges.map(privilege => ({
