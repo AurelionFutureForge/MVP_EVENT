@@ -14,10 +14,12 @@ function CreateRegistrationForm() {
   ]);
   const [eventName, setEventName] = useState("");
   const [formLink, setFormLink] = useState("");
+  const [roles, setRoles] = useState([]);  // To store available roles
+  const [selectedRoles, setSelectedRoles] = useState([]);  // To store roles selected by the admin
 
   const BASE_URL = import.meta.env.VITE_BACKEND_URL;
   const companyName = localStorage.getItem("adminCompany");
-  const EventId = localStorage.getItem("selectedEvent")
+  const EventId = localStorage.getItem("selectedEvent");
 
   useEffect(() => {
     const savedEventId = localStorage.getItem("selectedEvent");
@@ -25,6 +27,17 @@ function CreateRegistrationForm() {
       const link = `https://mvp-event.vercel.app/register/${savedEventId}`;
       setFormLink(link);
     }
+
+    // Fetch roles for public registration
+    const fetchRoles = async () => {
+      try {
+        const response = await axios.get(`${BASE_URL}/events/available-roles`, EventId);
+        setRoles(response.data.roles);
+      } catch (error) {
+        toast.error("Failed to fetch roles.");
+      }
+    };
+    fetchRoles();
   }, []);
 
   const handleFieldChange = (index, field, value) => {
@@ -69,6 +82,7 @@ function CreateRegistrationForm() {
           eventName,
           EventId,
           registrationFields: fields,
+          selectedRoles,  // Include selected roles in the request
         },
         {
           headers: { Authorization: `Bearer ${token}` },
@@ -104,6 +118,15 @@ function CreateRegistrationForm() {
     } else {
       toast.error("No link to copy.");
     }
+  };
+
+  // Handle the toggle of role selection
+  const toggleRoleSelection = (roleId) => {
+    setSelectedRoles((prevSelected) =>
+      prevSelected.includes(roleId)
+        ? prevSelected.filter((id) => id !== roleId)
+        : [...prevSelected, roleId]
+    );
   };
 
   return (
@@ -213,6 +236,27 @@ function CreateRegistrationForm() {
         >
           Add Another Field
         </button>
+
+        {/* Role Selection Section */}
+        <div className="mb-6">
+          <h3 className="text-xl font-semibold mb-2">Select Roles for Public Registration</h3>
+          {roles.length > 0 ? (
+            roles.map((role, index) => (
+              <div key={index} className="flex items-center mb-3">
+                <input
+                  type="checkbox"
+                  id={`role-${role._id}`}
+                  checked={selectedRoles.includes(role._id)}
+                  onChange={() => toggleRoleSelection(role._id)}
+                  className="mr-2"
+                />
+                <label htmlFor={`role-${role._id}`} className="text-lg">{role.name}</label>
+              </div>
+            ))
+          ) : (
+            <p>No roles available for selection.</p>
+          )}
+        </div>
 
         <button
           onClick={handleSubmit}
