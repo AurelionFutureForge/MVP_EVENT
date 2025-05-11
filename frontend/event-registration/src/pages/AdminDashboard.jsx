@@ -185,27 +185,27 @@ function AdminDashboard() {
   };
 
   useEffect(() => {
-  const fetchEventDetails = async () => {
-  try {
-    const response = await axios.get(`${BASE_URL}/admin/event-reg`, {
-      params: { eventId: selectedEvent },
-    });
+    const fetchEventDetails = async () => {
+      try {
+        const response = await axios.get(`${BASE_URL}/admin/event-reg`, {
+          params: { eventId: selectedEvent },
+        });
 
-    console.log('API Response:', response.data); // Check the full response
+        console.log('API Response:', response.data); // Check the full response
 
-    // Make sure the data structure matches what you expect
-    if (response.data.registrationFields) {
-      setRegistrationFields(response.data.registrationFields);
-    } else {
-      console.warn('No registrationFields found in the response');
-    }
-  } catch (err) {
-    console.error('Error fetching event details:', err);
-    toast.error("Failed to fetch event details");
-  }
-};
-  fetchEventDetails();
-}, [companyName, selectedEvent]);
+        // Make sure the data structure matches what you expect
+        if (response.data.registrationFields) {
+          setRegistrationFields(response.data.registrationFields);
+        } else {
+          console.warn('No registrationFields found in the response');
+        }
+      } catch (err) {
+        console.error('Error fetching event details:', err);
+        toast.error("Failed to fetch event details");
+      }
+    };
+    fetchEventDetails();
+  }, [companyName, selectedEvent]);
 
   return (
     <div className="min-h-screen bg-gray-100 p-6 flex flex-col items-center">
@@ -288,6 +288,13 @@ function AdminDashboard() {
               className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition shadow"
             >
               {registrationFields.length === 0 ? "Create Registration Form" : "Edit Registration Form"}
+            </button>
+
+            <button
+              onClick={() => navigate("/manual-registration/:eventId")}  // Navigate to the manual registration page
+              className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition shadow"
+            >
+              Manual Registration
             </button>
 
             <button

@@ -3,12 +3,12 @@ import axios from "axios";
 import { toast } from "react-hot-toast";
 import { useParams } from "react-router-dom";
 
-function RegistrationForm() {
+function ManualReg() {
   const [event, setEvent] = useState(null);
   const [formData, setFormData] = useState({});
   const [loading, setLoading] = useState(true);
   const BASE_URL = import.meta.env.VITE_BACKEND_URL;
-  const { eventID } = useParams();
+  const {eventID} = useParams();
 
   useEffect(() => {
     const fetchEventDetails = async () => {
@@ -31,34 +31,21 @@ function RegistrationForm() {
   }, [eventID, BASE_URL]);
 
   const handleChange = (e) => {
-    const { name, type, value, checked } = e.target;
-    if (type === "checkbox") {
-      // For checkboxes, update formData with selected values
-      setFormData({
-        ...formData,
-        [name]: checked
-          ? [...(formData[name] || []), value]
-          : (formData[name] || []).filter((v) => v !== value),
-      });
-    } else {
-      // For other fields (like text, email, etc.), update formData directly
-      setFormData({
-        ...formData,
-        [name]: value,
-      });
-    }
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      console.log(formData);
       await axios.post(`${BASE_URL}/users/register`, {
-        formData,
+        formData, // send as formData object
         eventID,
       });
       toast.success("Registration successful!");
-      setFormData({});
+      setFormData({});  // clear form
     } catch (error) {
       toast.error("Registration failed. Please try again.");
     }
@@ -80,6 +67,7 @@ function RegistrationForm() {
         </h2>
 
         <form onSubmit={handleSubmit}>
+          {/* Dynamic Registration Fields */}
           {event.registrationFields.map((field, idx) => (
             <div key={idx} className="mb-4">
               <label className="block text-gray-700 font-semibold mb-2">
@@ -136,44 +124,30 @@ function RegistrationForm() {
                   ))}
                 </select>
               )}
-
-              {/* Handling radio buttons for 'ROLE' field specifically */}
-              {field.fieldType === "checkbox" && field.fieldName === "ROLE" && (
-                <div className="flex flex-col gap-2">
-                  {field.options.map((option, idx) => (
-                    <label key={idx} className="inline-flex items-center gap-2">
-                      <input
-                        type="radio"
-                        name={field.fieldName}
-                        value={option}
-                        checked={formData[field.fieldName] === option}
-                        onChange={handleChange}
-                      />
-                      <span>{option}</span>
-                    </label>
-                  ))}
-                </div>
-              )}
-
-              {/* Dynamic checkbox handling for other checkbox fields */}
-              {field.fieldType === "checkbox" && field.fieldName !== "ROLE" && (
-                <div className="flex flex-col gap-2">
-                  {field.options.map((option, idx) => (
-                    <label key={idx} className="inline-flex items-center gap-2">
-                      <input
-                        type="checkbox"
-                        name={field.fieldName}
-                        value={option}
-                        checked={formData[field.fieldName]?.includes(option) || false}
-                        onChange={handleChange}
-                      />
-                      <span>{option}</span>
-                    </label>
-                  ))}
-                </div>
-              )}
             </div>
           ))}
+
+          {/* Role Selection (Default Field) */}
+          <div className="mb-4">
+            <label className="block text-gray-700 font-semibold mb-2">
+              Select Role <span className="text-red-600">*</span>
+            </label>
+            {event.eventRoles.map((role, idx) => (
+              <div key={idx} className="flex items-center mb-2">
+                <input
+                  type="radio"
+                  name="role"
+                  value={role.roleName}
+                  checked={formData.role === role.roleName}
+                  onChange={handleChange}
+                  required
+                  className="mr-2"
+                />
+                <span className="font-medium text-gray-800">{role.roleName}</span>
+                <span className="text-gray-500 text-sm ml-2">({role.roleDescription})</span>
+              </div>
+            ))}
+          </div>
 
           <button
             type="submit"
@@ -187,4 +161,4 @@ function RegistrationForm() {
   );
 }
 
-export default RegistrationForm;
+export default ManualReg;
