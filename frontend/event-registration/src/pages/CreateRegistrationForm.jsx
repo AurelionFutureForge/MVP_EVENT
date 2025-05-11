@@ -42,7 +42,7 @@ function CreateRegistrationForm() {
                 ...prevFields,
                 {
                   fieldName: "ROLE",
-                  fieldType: "select",
+                  fieldType: "checkbox", // Change fieldType to checkbox
                   options: roleOptions,
                   required: true,
                   locked: false,
@@ -129,7 +129,7 @@ function CreateRegistrationForm() {
         },
         {
           fieldName: "ROLE",
-          fieldType: "select",
+          fieldType: "checkbox", // Change fieldType to checkbox
           options: roles,
           required: true,
           locked: false,
@@ -148,6 +148,21 @@ function CreateRegistrationForm() {
       toast.success("Link copied to clipboard!");
     } else {
       toast.error("No link to copy.");
+    }
+  };
+
+  const handleRoleChange = (e, role) => {
+    const isChecked = e.target.checked;
+    const updatedFields = [...fields];
+    const roleField = updatedFields.find((field) => field.fieldName === "ROLE");
+
+    if (roleField) {
+      if (isChecked) {
+        roleField.options.push(role);
+      } else {
+        roleField.options = roleField.options.filter((r) => r !== role);
+      }
+      setFields(updatedFields);
     }
   };
 
@@ -220,25 +235,27 @@ function CreateRegistrationForm() {
               </div>
             )}
 
-            {(field.fieldType === "select" && field.fieldName === "ROLE") && !field.locked && (
+            {(field.fieldType === "checkbox" && field.fieldName === "ROLE") && !field.locked && (
               <div className="mt-3">
-                <label className="block font-semibold">Select Roles (multiple)</label>
-                <select
-                  value={field.options}
-                  onChange={(e) =>
-                    handleFieldChange(index, "options", Array.from(e.target.selectedOptions, option => option.value))
-                  }
-                  multiple
-                  className="border rounded px-3 py-2 w-full focus:ring-2 focus:ring-blue-400"
-                >
+                <label className="block font-semibold">Select Roles</label>
+                <div className="space-y-2">
                   {roles.length > 0 ? (
                     roles.map((role, idx) => (
-                      <option key={idx} value={role}>{role}</option>
+                      <div key={idx} className="flex items-center">
+                        <input
+                          type="checkbox"
+                          value={role}
+                          checked={field.options.includes(role)}
+                          onChange={(e) => handleRoleChange(e, role)}
+                          className="mr-2"
+                        />
+                        <span>{role}</span>
+                      </div>
                     ))
                   ) : (
-                    <option>No roles available</option>
+                    <div>No roles available</div>
                   )}
-                </select>
+                </div>
               </div>
             )}
 
