@@ -8,7 +8,7 @@ function ManualReg() {
   const [formData, setFormData] = useState({});
   const [loading, setLoading] = useState(true);
   const BASE_URL = import.meta.env.VITE_BACKEND_URL;
-  const { eventID } = useParams();
+  const eventID = localStorage.getItem("selectedEvent");
 
   useEffect(() => {
     const fetchEventDetails = async () => {
