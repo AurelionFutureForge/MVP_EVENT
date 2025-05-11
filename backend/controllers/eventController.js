@@ -247,30 +247,26 @@ const getEventById = async (req, res) => {
 const getAvailableRoles = async (req, res) => {
   try {
     const { EventId } = req.query;
+
     if (!EventId) {
-      return res.status(400).json({ message: "Event ID is required" });
+      return res.status(400).json({ message: 'EventId is required' });
     }
 
-    // Check for valid ObjectId
-    if (!mongoose.Types.ObjectId.isValid(EventId)) {
-      return res.status(400).json({ message: "Invalid Event ID format" });
-    }
+    const event = await Event.findById(EventId).select('eventRoles');
 
-    const event = await Event.findByOne(EventId);
     if (!event) {
-      return res.status(404).json({ message: "Event not found" });
+      return res.status(404).json({ message: 'Event not found' });
     }
 
-    const roles = event.eventRoles.map((role, index) => ({
-      _id: index.toString(),
+    const roles = event.eventRoles.map(role => ({
       roleName: role.roleName,
-      roleDescription: role.roleDescription,
+      roleDescription: role.roleDescription
     }));
 
-    res.status(200).json({ roles });
+    return res.status(200).json({ roles });
   } catch (error) {
-    console.error("Error fetching roles:", error);
-    res.status(500).json({ message: "Internal Server Error" });
+    console.error('Error fetching available roles:', error);
+    return res.status(500).json({ message: 'Server error' });
   }
 };
 module.exports = { createEvent, getEvents, getEventByDetails, EditEvents, UpdateEvents, saveRegistrationFields, getEventById, getAvailableRoles };
