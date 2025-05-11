@@ -4,11 +4,11 @@ const User = require("../models/User");
 
 
 exports.privilegeLogin = async (req, res) => {
-  const { email, password, companyName, eventName } = req.body;
+  const { email, password, companyName, eventId } = req.body;
 
   try {
-    // Find the privilege document for the given companyName and eventName
-    const privUserData = await Privilege.findOne({ companyName, eventName });
+    // Find the privilege document for the given companyName and eventId
+    const privUserData = await Privilege.findOne({ companyName, eventId });
 
     if (!privUserData) {
       return res.status(404).json({ message: "Event or company not found" });
@@ -32,10 +32,10 @@ exports.privilegeLogin = async (req, res) => {
     const tokenPayload = {
       email: privUser.email,
       privilegeName: privUser.privilegeName,
-      roleName: privUser.roleName,   // (optional: remove if you don't use it later)
+      roleName: privUser.roleName,   // optional
       companyName: privUserData.companyName,
-      eventName: privUserData.eventName,
-      eventId: privUserData.eventId,   // <== **This is what we’ll use later for safer queries**
+      eventName: privUserData.eventName,   // still useful for display
+      eventId: privUserData.eventId,       // this is crucial
     };
 
     // Generate a JWT token if the credentials are valid

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
 import { toast } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
@@ -6,29 +6,57 @@ import { useNavigate } from "react-router-dom";
 function PrivilegeLogin() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [companyName, setCompanyName] = useState(""); // Added company name state
-  const [eventName, setEventName] = useState(""); // Added event name state
+  const [companyName, setCompanyName] = useState("");
+  const [events, setEvents] = useState([]);
+  const [selectedEventId, setSelectedEventId] = useState("");
   const navigate = useNavigate();
   const BASE_URL = import.meta.env.VITE_BACKEND_URL;
+
+  // Fetch events when companyName changes
+  useEffect(() => {
+    const fetchEvents = async () => {
+      if (!companyName) {
+        setEvents([]);
+        setSelectedEventId("");
+        return;
+      }
+      try {
+        const res = await axios.get(`${BASE_URL}/company/events`, {
+          params: { companyName },
+        });
+        setEvents(res.data.events);
+      } catch (err) {
+        console.error("Error fetching events:", err);
+        toast.error("Failed to fetch events for company.");
+      }
+    };
+
+    fetchEvents();
+  }, [companyName, BASE_URL]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Validation for required fields
-    if (!companyName || !eventName) {
-      toast.error("Please provide both Company Name and Event Name.");
+    // Validation
+    if (!companyName || !selectedEventId) {
+      toast.error("Please provide Company Name and select an Event.");
       return;
     }
 
     try {
-      // Send email, password, company name, and event name to backend
-      const res = await axios.post(`${BASE_URL}/privilege/login`, { email, password, companyName, eventName });
+      // Send login info + eventId
+      const res = await axios.post(`${BASE_URL}/privilege/login`, {
+        email,
+        password,
+        companyName,
+        eventId: selectedEventId,
+      });
 
-      // Save the token and privilege name to localStorage
+      // Save auth data
       localStorage.setItem("privilegeToken", res.data.token);
       localStorage.setItem("privilegeName", res.data.privilegeName);
+      localStorage.setItem("eventId", selectedEventId); // <== Save eventId for dashboard fetch
 
-      // Redirect to privilege dashboard
       toast.success("Login successful!");
       navigate("/privilege/dashboard");
     } catch (err) {
@@ -54,15 +82,20 @@ function PrivilegeLogin() {
           required
         />
 
-        {/* Event Name Input */}
-        <input
-          type="text"
-          placeholder="Event Name"
+        {/* Event Selection Dropdown */}
+        <select
           className="border p-2 w-full mb-3 rounded"
-          value={eventName}
-          onChange={(e) => setEventName(e.target.value)}
+          value={selectedEventId}
+          onChange={(e) => setSelectedEventId(e.target.value)}
           required
-        />
+        >
+          <option value="">Select Event</option>
+          {events.map((event) => (
+            <option key={event._id} value={event._id}>
+              {event.eventName} — {event.place}
+            </option>
+          ))}
+        </select>
 
         {/* Email Input */}
         <input
