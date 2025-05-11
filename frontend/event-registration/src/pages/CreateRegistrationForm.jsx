@@ -9,13 +9,12 @@ function CreateRegistrationForm() {
       fieldType: "email",
       options: [],
       required: true,
-      locked: true, // Lock the default field
+      locked: true,
     },
   ]);
+  const [roles, setRoles] = useState([]);
   const [eventName, setEventName] = useState("");
   const [formLink, setFormLink] = useState("");
-  const [availableRoles, setAvailableRoles] = useState([]);
-  const [selectedRoles, setSelectedRoles] = useState([]);
 
   const BASE_URL = import.meta.env.VITE_BACKEND_URL;
   const companyName = localStorage.getItem("adminCompany");
@@ -27,22 +26,43 @@ function CreateRegistrationForm() {
       const link = `https://mvp-event.vercel.app/register/${savedEventId}`;
       setFormLink(link);
 
-      // Fetch event roles
-      axios
-        .get(`${BASE_URL}/events/${savedEventId}`)
-        .then((res) => {
-          if (res.data && res.data.roles) {
-            setAvailableRoles(res.data.roles);
-          }
-        })
-        .catch(() => {
-          toast.error("Failed to fetch event roles.");
-        });
+      // Fetch roles for the selected event
+      const fetchRoles = async () => {
+        try {
+          const response = await axios.get(`${BASE_URL}/events/event-roles/${savedEventId}`);
+          const roleOptions = response.data.roles || [];
+          setRoles(roleOptions);
+
+          setFields((prevFields) => {
+            const hasRoleField = prevFields.some((f) => f.fieldName === "ROLE");
+            if (!hasRoleField) {
+              return [
+                ...prevFields,
+                {
+                  fieldName: "ROLE",
+                  fieldType: "select",
+                  options: roleOptions,
+                  required: true,
+                  locked: true,
+                },
+              ];
+            }
+            return prevFields.map((f) =>
+              f.fieldName === "ROLE" ? { ...f, options: roleOptions } : f
+            );
+          });
+        } catch (error) {
+          toast.error("Failed to fetch event roles");
+          console.error(error);
+        }
+      };
+
+      fetchRoles();
     }
   }, []);
 
   const handleFieldChange = (index, field, value) => {
-    if (fields[index].locked) return; // Prevent editing locked field
+    if (fields[index].locked) return;
     const updatedFields = [...fields];
     updatedFields[index][field] = value;
     setFields(updatedFields);
@@ -57,20 +77,12 @@ function CreateRegistrationForm() {
 
   const removeField = (index) => {
     if (fields[index].locked) {
-      toast.error("You cannot remove the default EMAIL field.");
+      toast.error("You cannot remove default locked fields.");
       return;
     }
     const updatedFields = [...fields];
     updatedFields.splice(index, 1);
     setFields(updatedFields);
-  };
-
-  const handleRoleToggle = (role) => {
-    setSelectedRoles((prev) =>
-      prev.includes(role)
-        ? prev.filter((r) => r !== role)
-        : [...prev, role]
-    );
   };
 
   const handleSubmit = async (e) => {
@@ -91,7 +103,6 @@ function CreateRegistrationForm() {
           eventName,
           EventId,
           registrationFields: fields,
-          publicRoles: selectedRoles, // include selected roles
         },
         {
           headers: { Authorization: `Bearer ${token}` },
@@ -112,8 +123,14 @@ function CreateRegistrationForm() {
           required: true,
           locked: true,
         },
+        {
+          fieldName: "ROLE",
+          fieldType: "select",
+          options: roles,
+          required: true,
+          locked: true,
+        },
       ]);
-      setSelectedRoles([]);
 
       toast.success("Registration form fields updated successfully!");
     } catch (error) {
@@ -149,26 +166,6 @@ function CreateRegistrationForm() {
           <div className="bg-yellow-100 text-yellow-800 border border-yellow-300 rounded p-3 mb-4 text-sm">
             <strong>Note:</strong> You don't need to create a field for <em>Role</em>. It will be automatically handled from the event roles.
           </div>
-        </div>
-
-        {/* Role Selection UI */}
-        <div className="mt-4">
-          <label className="block font-semibold mb-2">Select Public Roles</label>
-          {availableRoles.length > 0 ? (
-            availableRoles.map((role, idx) => (
-              <label key={idx} className="flex items-center mb-2">
-                <input
-                  type="checkbox"
-                  checked={selectedRoles.includes(role)}
-                  onChange={() => handleRoleToggle(role)}
-                  className="mr-2"
-                />
-                {role}
-              </label>
-            ))
-          ) : (
-            <p className="text-sm text-gray-500">No roles available for this event.</p>
-          )}
         </div>
 
         {fields.map((field, index) => (
