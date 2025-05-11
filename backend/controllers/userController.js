@@ -183,6 +183,8 @@ exports.registerUser = async (req, res) => {
   const { formData, eventID} = req.body;
   console.log("eventID:", eventID);
 
+  
+
   try {
     const event = await Event.findById(eventID);
     if (!event) {
@@ -224,6 +226,7 @@ exports.registerUser = async (req, res) => {
     const newUser = new User({
       eventId: event._id,
       companyName: event.companyName,
+      eventName : event.eventName ,
       role: selectedRole.roleName,
       email,
       privileges,
