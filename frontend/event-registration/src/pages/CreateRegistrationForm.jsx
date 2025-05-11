@@ -219,6 +219,24 @@ function CreateRegistrationForm() {
               </div>
             )}
 
+            {(field.fieldType === "select" && field.fieldName === "ROLE") && !field.locked && (
+              <div className="mt-3">
+                <label className="block font-semibold">Select Roles (multiple)</label>
+                <select
+                  value={field.options}
+                  onChange={(e) =>
+                    handleFieldChange(index, "options", Array.from(e.target.selectedOptions, option => option.value))
+                  }
+                  multiple
+                  className="border rounded px-3 py-2 w-full focus:ring-2 focus:ring-blue-400"
+                >
+                  {roles.map((role, idx) => (
+                    <option key={idx} value={role}>{role}</option>
+                  ))}
+                </select>
+              </div>
+            )}
+
             {!field.locked && (
               <div className="mt-3">
                 <label className="flex items-center">
