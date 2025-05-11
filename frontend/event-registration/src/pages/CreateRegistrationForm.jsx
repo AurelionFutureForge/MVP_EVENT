@@ -15,6 +15,7 @@ function CreateRegistrationForm() {
   const [roles, setRoles] = useState([]);
   const [eventName, setEventName] = useState("");
   const [formLink, setFormLink] = useState("");
+  const [loadingRoles, setLoadingRoles] = useState(false);  // Loading state for roles
 
   const BASE_URL = import.meta.env.VITE_BACKEND_URL;
   const companyName = localStorage.getItem("adminCompany");
@@ -28,6 +29,7 @@ function CreateRegistrationForm() {
 
       // Fetch roles for the selected event
       const fetchRoles = async () => {
+        setLoadingRoles(true);  // Start loading
         try {
           const response = await axios.get(`${BASE_URL}/admin/event-roles/${EventId}`);
           const roleOptions = response.data.roles || [];
@@ -54,6 +56,8 @@ function CreateRegistrationForm() {
         } catch (error) {
           toast.error("Failed to fetch event roles");
           console.error(error);
+        } finally {
+          setLoadingRoles(false);  // Stop loading
         }
       };
 
