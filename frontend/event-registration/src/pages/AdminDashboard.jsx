@@ -65,6 +65,7 @@ function AdminDashboard() {
   const BASE_URL = import.meta.env.VITE_BACKEND_URL;
   const companyName = localStorage.getItem("adminCompany");
   const selectedEvent = localStorage.getItem("selectedEvent");
+  const [registrationFields, setRegistrationFields] = useState([]);
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -110,11 +111,11 @@ function AdminDashboard() {
       const contact = extractContact(user.registrationData);
       const privileges = (user.privileges ?? []).length > 0
         ? user.privileges
-            .map(
-              (p) =>
-                `${p.name?.toUpperCase()} (${p.claim ? "Claimed" : "Not Claimed"})`
-            )
-            .join(", ")
+          .map(
+            (p) =>
+              `${p.name?.toUpperCase()} (${p.claim ? "Claimed" : "Not Claimed"})`
+          )
+          .join(", ")
         : "No privileges assigned";
 
       return [name, email, user.registrationData.role, contact, privileges];
@@ -181,6 +182,22 @@ function AdminDashboard() {
     setCurrentPage(page);
   };
 
+  useEffect(() => {
+  const fetchEventDetails = async () => {
+    try {
+      const response = await axios.get(`${BASE_URL}/admin/event-reg`, {
+        headers: { Authorization: `Bearer ${token}` },
+        params: { companyName, eventId: selectedEvent },
+      });
+      setRegistrationFields(response.data.registrationFields || []);
+    } catch (err) {
+      toast.error("Failed to fetch event details");
+    }
+  };
+
+  fetchEventDetails();
+}, [companyName, selectedEvent]);
+
   return (
     <div className="min-h-screen bg-gray-100 p-6 flex flex-col items-center">
       <div className="bg-white p-6 shadow-xl rounded-2xl w-full max-w-7xl">
@@ -204,8 +221,8 @@ function AdminDashboard() {
               data.claimed === data.total
                 ? "green"
                 : data.claimed > 0
-                ? "yellow"
-                : "red";
+                  ? "yellow"
+                  : "red";
 
             return (
               <SummaryCard
@@ -261,7 +278,7 @@ function AdminDashboard() {
               onClick={() => navigate("/create-regform")}
               className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition shadow"
             >
-              Create Registration Form
+              {registrationFields.length === 0 ? "Create Registration Form" : "Edit Registration Form"}
             </button>
 
             <button

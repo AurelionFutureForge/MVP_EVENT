@@ -213,9 +213,33 @@ const assignPrivileges = async (req, res) => {
   }
 };
 
+const getRegField = async (req, res) => {
+  try {
+    const { eventId } = req.query; // Correct the query extraction
+
+    // Find the event by its ID
+    const event = await Event.findOne({ _id: eventId });
+
+    // If no event is found, return a 404 error
+    if (!event) {
+      return res.status(404).json({ message: "Event not found" });
+    }
+
+    // Extract registration fields from the event
+    const { registrationFields } = event;
+
+    // Send back the registration fields
+    res.status(200).json(registrationFields);
+  } catch (err) {
+    // Handle any other errors
+    res.status(500).json({ error: err.message });
+  }
+};
 
 
 
 
 
-module.exports = { adminLogin, getAllUsers, registerAdmin, getEventPrivileges, assignPrivileges , getAllEvents};
+
+
+module.exports = { adminLogin, getAllUsers, registerAdmin, getEventPrivileges, assignPrivileges , getAllEvents, getRegField};
