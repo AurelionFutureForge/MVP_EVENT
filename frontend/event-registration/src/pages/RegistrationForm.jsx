@@ -33,7 +33,7 @@ function RegistrationForm() {
   const handleChange = (e) => {
     const { name, type, value, checked } = e.target;
     if (type === "checkbox") {
-      // If it's a checkbox, update formData accordingly
+      // For checkboxes, update formData with selected values
       setFormData({
         ...formData,
         [name]: checked
@@ -41,7 +41,7 @@ function RegistrationForm() {
           : (formData[name] || []).filter((v) => v !== value),
       });
     } else {
-      // For other inputs, just update the formData directly
+      // For radio buttons or other fields, just update formData directly
       setFormData({
         ...formData,
         [name]: value,
@@ -136,15 +136,16 @@ function RegistrationForm() {
                 </select>
               )}
 
+              {/* Updated ROLE field with radio buttons */}
               {field.fieldType === "checkbox" && field.fieldName === "ROLE" && (
                 <div className="flex flex-col gap-2">
                   {field.options.map((option, idx) => (
                     <label key={idx} className="inline-flex items-center gap-2">
                       <input
-                        type="checkbox"
+                        type="radio"
                         name={field.fieldName}
                         value={option}
-                        checked={(formData[field.fieldName] || []).includes(option)}
+                        checked={formData[field.fieldName] === option}
                         onChange={handleChange}
                       />
                       <span>{option}</span>
