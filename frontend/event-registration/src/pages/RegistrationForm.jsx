@@ -39,6 +39,11 @@ function RegistrationForm() {
           ? [...(prev[name] || []), value]
           : (prev[name] || []).filter((v) => v !== value),
       }));
+    } else if (type === "radio") {
+      setFormData((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
     } else {
       setFormData((prev) => ({
         ...prev,
@@ -70,7 +75,7 @@ function RegistrationForm() {
     return <div>No event found.</div>;
   }
 
-  // Split ROLE field out to ensure it appears last
+  // Separate ROLE field to render last
   const otherFields = event.registrationFields.filter((field) => field.fieldName !== "ROLE");
   const roleField = event.registrationFields.find((field) => field.fieldName === "ROLE");
 
@@ -159,7 +164,7 @@ function RegistrationForm() {
             </div>
           ))}
 
-          {/* Render ROLE field last (as multi-checkbox) */}
+          {/* Render ROLE field last (as radio buttons) */}
           {roleField && (
             <div className="mb-4">
               <label className="block text-gray-700 font-semibold mb-2">
@@ -170,11 +175,12 @@ function RegistrationForm() {
                 {roleField.options.map((option, idx) => (
                   <label key={idx} className="inline-flex items-center gap-2">
                     <input
-                      type="checkbox"
+                      type="radio"
                       name={roleField.fieldName}
                       value={option}
-                      checked={formData[roleField.fieldName]?.includes(option) || false}
+                      checked={formData[roleField.fieldName] === option}
                       onChange={handleChange}
+                      required={roleField.required}
                     />
                     <span>{option}</span>
                   </label>
