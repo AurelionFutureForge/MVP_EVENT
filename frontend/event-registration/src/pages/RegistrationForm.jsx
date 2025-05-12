@@ -33,19 +33,17 @@ function RegistrationForm() {
   const handleChange = (e) => {
     const { name, type, value, checked } = e.target;
     if (type === "checkbox") {
-      // For checkboxes, update formData with selected values
-      setFormData({
-        ...formData,
+      setFormData((prev) => ({
+        ...prev,
         [name]: checked
-          ? [...(formData[name] || []), value]
-          : (formData[name] || []).filter((v) => v !== value),
-      });
+          ? [...(prev[name] || []), value]
+          : (prev[name] || []).filter((v) => v !== value),
+      }));
     } else {
-      // For other fields (like text, email, etc.), update formData directly
-      setFormData({
-        ...formData,
+      setFormData((prev) => ({
+        ...prev,
         [name]: value,
-      });
+      }));
     }
   };
 
@@ -72,6 +70,10 @@ function RegistrationForm() {
     return <div>No event found.</div>;
   }
 
+  // Split ROLE field out to ensure it appears last
+  const otherFields = event.registrationFields.filter((field) => field.fieldName !== "ROLE");
+  const roleField = event.registrationFields.find((field) => field.fieldName === "ROLE");
+
   return (
     <div className="min-h-screen bg-gray-100 p-6">
       <div className="bg-white p-6 shadow-xl rounded-2xl max-w-lg mx-auto">
@@ -80,7 +82,8 @@ function RegistrationForm() {
         </h2>
 
         <form onSubmit={handleSubmit}>
-          {event.registrationFields.map((field, idx) => (
+          {/* Render all fields except ROLE first */}
+          {otherFields.map((field, idx) => (
             <div key={idx} className="mb-4">
               <label className="block text-gray-700 font-semibold mb-2">
                 {field.fieldName.charAt(0).toUpperCase() + field.fieldName.slice(1)}{" "}
@@ -137,8 +140,7 @@ function RegistrationForm() {
                 </select>
               )}
 
-              {/* Dynamic checkbox handling for other checkbox fields */}
-              {field.fieldType === "checkbox" && field.fieldName !== "ROLE" && (
+              {field.fieldType === "checkbox" && (
                 <div className="flex flex-col gap-2">
                   {field.options.map((option, idx) => (
                     <label key={idx} className="inline-flex items-center gap-2">
@@ -154,26 +156,32 @@ function RegistrationForm() {
                   ))}
                 </div>
               )}
-
-              {/* Handling radio buttons for 'ROLE' field specifically */}
-              {field.fieldType === "checkbox" && field.fieldName === "ROLE" && (
-                <div className="flex flex-col gap-2">
-                  {field.options.map((option, idx) => (
-                    <label key={idx} className="inline-flex items-center gap-2">
-                      <input
-                        type="checkbox"
-                        name={field.fieldName}
-                        value={option}
-                        checked={formData[field.fieldName] === option || false}
-                        onChange={handleChange}
-                      />
-                      <span>{option}</span>
-                    </label>
-                  ))}
-                </div>
-              )}
             </div>
           ))}
+
+          {/* Render ROLE field last (as multi-checkbox) */}
+          {roleField && (
+            <div className="mb-4">
+              <label className="block text-gray-700 font-semibold mb-2">
+                {roleField.fieldName.charAt(0).toUpperCase() + roleField.fieldName.slice(1)}{" "}
+                {roleField.required && <span className="text-red-600">*</span>}
+              </label>
+              <div className="flex flex-col gap-2">
+                {roleField.options.map((option, idx) => (
+                  <label key={idx} className="inline-flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      name={roleField.fieldName}
+                      value={option}
+                      checked={formData[roleField.fieldName]?.includes(option) || false}
+                      onChange={handleChange}
+                    />
+                    <span>{option}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+          )}
 
           <button
             type="submit"
