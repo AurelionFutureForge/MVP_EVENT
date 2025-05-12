@@ -120,7 +120,7 @@ function AdminDashboard() {
           .join(", ")
         : "No privileges assigned";
 
-      return [name, email, user.registrationData.role, contact, privileges];
+      return [name, email, user.registrationData.role || user.registrationData.ROLE , contact, privileges];
     });
 
     autoTable(pdf, {
@@ -171,7 +171,7 @@ function AdminDashboard() {
   };
 
   const totalRegistrations = users.length;
-  const uniqueRoles = [...new Set(users.map((u) => u.registrationData?.role).filter(Boolean))];
+  const uniqueRoles = [...new Set(users.map((u) => ( u.registrationData?.role || u.registrationData.ROLE) ).filter(Boolean))];
 
   const handleLogout = () => {
     localStorage.removeItem("adminToken");
