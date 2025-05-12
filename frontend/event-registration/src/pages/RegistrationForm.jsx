@@ -164,7 +164,7 @@ function RegistrationForm() {
                         type="checkbox"
                         name={field.fieldName}
                         value={option}
-                        checked={formData[field.fieldName] === option || fasle}
+                        checked={formData[field.fieldName] === option || false}
                         onChange={handleChange}
                       />
                       <span>{option}</span>
