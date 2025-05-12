@@ -242,10 +242,11 @@ exports.registerUser = async (req, res) => {
 
     // Generate QR Code and Ticket
     const role = selectedRole.roleName;
-    const { eventName, companyName, place, time, date } = event;
+    const { eventName, companyName, place, time, startDate } = event;
 
     const qrCodeData = `${email}-${newUser._id}`;
     const qrCodeImage = await QRCode.toDataURL(qrCodeData);
+    const date = startDate;
 
     newUser.qrCode = qrCodeData;
     await newUser.save();
