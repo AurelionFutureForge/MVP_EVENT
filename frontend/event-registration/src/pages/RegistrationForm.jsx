@@ -191,20 +191,32 @@ function RegistrationForm() {
                 {roleField.fieldName.charAt(0).toUpperCase() + roleField.fieldName.slice(1)}{" "}
                 {roleField.required && <span className="text-red-600">*</span>}
               </label>
-              <div className="flex flex-col gap-2">
-                {roleField.options.map((option, idx) => (
-                  <label key={idx} className="inline-flex items-center gap-2">
-                    <input
-                      type="radio"
-                      name={roleField.fieldName}
-                      value={option}
-                      checked={formData[roleField.fieldName] === option}
-                      onChange={handleChange}
-                      required={roleField.required}
-                    />
-                    <span>{option}</span>
-                  </label>
-                ))}
+              <div className="flex flex-col gap-3">
+                {roleField.options.map((option, idx) => {
+                  // Find role description from eventRoles
+                  const matchingRole = event.eventRoles?.find(
+                    (role) => role.roleName === option
+                  );
+
+                  return (
+                    <label key={idx} className="flex flex-col border rounded p-3 hover:shadow transition cursor-pointer">
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="radio"
+                          name={roleField.fieldName}
+                          value={option}
+                          checked={formData[roleField.fieldName] === option}
+                          onChange={handleChange}
+                          required={roleField.required}
+                        />
+                        <span className="font-medium">{option}</span>
+                      </div>
+                      {matchingRole && (
+                        <p className="text-gray-600 text-sm mt-1 ml-6">{matchingRole.roleDescription}</p>
+                      )}
+                    </label>
+                  );
+                })}
               </div>
             </div>
           )}
