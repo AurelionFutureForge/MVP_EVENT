@@ -266,7 +266,7 @@ export default function EventCreation() {
               onChange={handleChange}
               value={eventDetails.time}
             />
-            <label>Start Date</label>
+            <label><b>Start Date</b></label>
             <input
               type="date"
               name="startDate"
@@ -275,7 +275,7 @@ export default function EventCreation() {
               onChange={handleChange}
               value={eventDetails.startDate}
             />
-            <label>End Date</label>
+            <label><b>End Date</b></label>
             <input
               type="date"
               name="endDate"
