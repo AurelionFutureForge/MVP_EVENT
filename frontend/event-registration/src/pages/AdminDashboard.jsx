@@ -56,23 +56,6 @@ function SummaryCard({ title, value, color }) {
   );
 }
 
-const [showMenu, setShowMenu] = useState(false);
-const menuRef = useRef();
-
-useEffect(() => {
-  const handleClickOutside = (event) => {
-    if (menuRef.current && !menuRef.current.contains(event.target)) {
-      setShowMenu(false);
-    }
-  };
-
-  document.addEventListener("mousedown", handleClickOutside);
-
-  return () => {
-    document.removeEventListener("mousedown", handleClickOutside);
-  };
-}, []);
-
 function AdminDashboard() {
   const [users, setUsers] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -224,6 +207,23 @@ function AdminDashboard() {
     };
     fetchEventDetails();
   }, [companyName, selectedEvent]);
+
+  const [showMenu, setShowMenu] = useState(false);
+const menuRef = useRef();
+
+useEffect(() => {
+  const handleClickOutside = (event) => {
+    if (menuRef.current && !menuRef.current.contains(event.target)) {
+      setShowMenu(false);
+    }
+  };
+
+  document.addEventListener("mousedown", handleClickOutside);
+
+  return () => {
+    document.removeEventListener("mousedown", handleClickOutside);
+  };
+}, []);
 
   return (
     <div className="min-h-screen bg-gray-100 p-6 flex flex-col items-center">
