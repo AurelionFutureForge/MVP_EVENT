@@ -260,8 +260,9 @@ export default function EventCreation() {
               value={eventDetails.place}
             />
             <input
-              type="time"
+              type="text"
               name="time"
+              placeholder="Time (e.g., 10:00 AM)"
               className="w-full p-3 mb-4 border rounded-lg shadow-sm"
               onChange={handleChange}
               value={eventDetails.time}

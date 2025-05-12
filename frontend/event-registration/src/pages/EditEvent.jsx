@@ -175,13 +175,14 @@ export default function EditEvent() {
           className="w-full p-3 mb-4 border rounded"
           value={eventDetails.endDate} onChange={handleChange} />
 
-        <input
-          type="time"
-          name="time"
-          className="w-full p-3 mb-4 border rounded-lg shadow-sm"
-          onChange={handleChange}
-          value={eventDetails.time}
-        />
+          <input
+            type="text"
+            name="time"
+            placeholder="Time (e.g., 10:00 AM)"
+            className="w-full p-3 mb-4 border rounded-lg shadow-sm"
+            onChange={handleChange}
+            value={eventDetails.time}
+          />
 
         <div className="mb-6">
           <h5 className="font-semibold mb-2">Add/Edit Roles & Privileges</h5>
