@@ -21,10 +21,11 @@ export default function EventCreation() {
   const [newRole, setNewRole] = useState('');
   const [roleDescription, setRoleDescription] = useState('');
   const [privilege, setPrivilege] = useState('');
+  const [rolePrice, setRolePrice] = useState('');
+  const [roleMaxReg, setRoleMaxReg] = useState('');
+
   const navigate = useNavigate();
-
   const BASE_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
-
   const loggedInEmail = localStorage.getItem('adminEmail');
 
   useEffect(() => {
@@ -59,7 +60,7 @@ export default function EventCreation() {
   };
 
   const handleAddRole = () => {
-    if (newRole.trim() && roleDescription.trim() && privilege.trim()) {
+    if (newRole.trim() && roleDescription.trim() && privilege.trim() && rolePrice && roleMaxReg) {
       const cleanedPrivilege = privilege.split(',').map(p => p.trim()).filter(p => p.length > 0).join(',');
 
       setEventDetails((prevDetails) => ({
@@ -69,7 +70,9 @@ export default function EventCreation() {
           {
             roleName: newRole.trim(),
             roleDescription: roleDescription.trim(),
-            privileges: [cleanedPrivilege]
+            privileges: [cleanedPrivilege],
+            price: Number(rolePrice),
+            maxRegistrations: Number(roleMaxReg)
           }
         ]
       }));
@@ -77,6 +80,10 @@ export default function EventCreation() {
       setNewRole('');
       setRoleDescription('');
       setPrivilege('');
+      setRolePrice('');
+      setRoleMaxReg('');
+    } else {
+      toast.error('Please fill all role fields, including price and max registrations');
     }
   };
 
@@ -105,7 +112,9 @@ export default function EventCreation() {
       const sanitizedRoles = eventDetails.eventRoles.map(role => ({
         roleName: role.roleName.trim(),
         roleDescription: role.roleDescription.trim(),
-        privileges: role.privileges.map(p => p.trim())
+        privileges: role.privileges.map(p => p.trim()),
+        price: role.price,
+        maxRegistrations: role.maxRegistrations
       }));
 
       const response = await axios.post(`${BASE_URL}/events/create-event`, {
@@ -225,6 +234,21 @@ export default function EventCreation() {
                 onChange={(e) => setPrivilege(e.target.value)}
                 className="w-full p-3 mb-2 border rounded-lg shadow-sm"
               />
+              <input
+                type="number"
+                placeholder="Role Price"
+                value={rolePrice}
+                onChange={(e) => setRolePrice(e.target.value)}
+                className="w-full p-3 mb-2 border rounded-lg shadow-sm"
+              />
+              <input
+                type="number"
+                placeholder="Max Registrations"
+                value={roleMaxReg}
+                onChange={(e) => setRoleMaxReg(e.target.value)}
+                className="w-full p-3 mb-2 border rounded-lg shadow-sm"
+              />
+
               <button
                 onClick={handleAddRole}
                 className="w-full py-2 mt-2 bg-blue-600 text-white font-semibold rounded-lg shadow hover:bg-blue-700"
@@ -239,7 +263,9 @@ export default function EventCreation() {
                 <div key={index} className="flex justify-between items-center mb-2 p-2 border rounded-lg bg-gray-100">
                   <div>
                     <span className="font-semibold">{role.roleName}</span> - {role.roleDescription} <br />
-                    <span className="text-sm text-gray-600">Privileges: {role.privileges[0]}</span>
+                    <span className="text-sm text-gray-600">Privileges: {role.privileges[0]}</span><br />
+                    <span className="text-sm text-gray-600">Price: ₹{role.price}</span><br />
+                    <span className="text-sm text-gray-600">Max Registrations: {role.maxRegistrations}</span>
                   </div>
                   <button
                     onClick={() => handleDeleteRole(index)}
@@ -271,7 +297,6 @@ export default function EventCreation() {
             <input
               type="date"
               name="startDate"
-              placeholder='start Date'
               className="w-full p-3 mb-4 border rounded-lg shadow-sm"
               onChange={handleChange}
               value={eventDetails.startDate}
@@ -280,7 +305,6 @@ export default function EventCreation() {
             <input
               type="date"
               name="endDate"
-              placeholder='ebnDate'
               className="w-full p-3 mb-4 border rounded-lg shadow-sm"
               onChange={handleChange}
               value={eventDetails.endDate}

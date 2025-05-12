@@ -1,5 +1,6 @@
 const Event = require('../models/Event');
 
+// Create Event
 const createEvent = async (req, res) => {
   try {
     console.log("Incoming Request Body:", req.body);
@@ -17,12 +18,10 @@ const createEvent = async (req, res) => {
       return res.status(400).json({ msg: 'An event with this company and event name already exists' });
     }
 
-    // Check if startDate and endDate are provided
     if (!startDate || !endDate) {
       return res.status(400).json({ msg: 'Start date and End date are required' });
     }
 
-    // Validate the startDate and endDate
     const formattedStartDate = new Date(startDate);
     const formattedEndDate = new Date(endDate);
     if (isNaN(formattedStartDate.getTime()) || isNaN(formattedEndDate.getTime())) { 
@@ -46,10 +45,20 @@ const createEvent = async (req, res) => {
         throw new Error(`Role '${role.roleName}' must have at least one valid privilege`);
       }
 
+      if (role.rolePrice === undefined || isNaN(Number(role.rolePrice)) || Number(role.rolePrice) < 0) {
+        throw new Error(`Role '${role.roleName}' must have a valid non-negative price`);
+      }
+
+      if (role.maxRegistrations === undefined || isNaN(Number(role.maxRegistrations)) || Number(role.maxRegistrations) <= 0) {
+        throw new Error(`Role '${role.roleName}' must have a valid positive maxRegistrations`);
+      }
+
       return {
         roleName: role.roleName.trim(),
         roleDescription: role.roleDescription.trim(),
-        privileges: privilegesArray
+        privileges: privilegesArray,
+        rolePrice: Number(role.rolePrice),
+        maxRegistrations: Number(role.maxRegistrations)
       };
     });
 
@@ -57,8 +66,8 @@ const createEvent = async (req, res) => {
       companyName: trimmedCompanyName,
       eventName: trimmedEventName,
       eventRoles: processedRoles,
-      place, 
-      time, 
+      place,
+      time,
       startDate: formattedStartDate.toISOString(),
       endDate: formattedEndDate.toISOString()
     });
@@ -72,10 +81,9 @@ const createEvent = async (req, res) => {
   }
 };
 
-
-
+// Get all events of a company
 const getEvents = async (req, res) => {
-  const companyName = req.query.companyName?.trim(); // get from query param, trim to avoid extra spaces
+  const companyName = req.query.companyName?.trim();
 
   if (!companyName) {
     return res.status(400).json({ msg: 'Company name is required' });
@@ -94,38 +102,26 @@ const getEvents = async (req, res) => {
 const getEventByDetails = async (req, res) => {
   try {
     const { companyName, eventName } = req.params;
-    console.log("Received Company Name:", companyName);  // Log received companyName
-    console.log("Received Event Name:", eventName);  // Log received eventName
-
-    // Trim spaces from the received params to avoid trailing spaces
     const trimmedCompanyName = companyName.trim();
     const trimmedEventName = eventName.trim();
 
-    // Perform the query to find the event
     const event = await Event.findOne({
-      companyName: { $regex: new RegExp(`^${trimmedCompanyName}$`, 'i') },  // Case-insensitive search
-      eventName: { $regex: new RegExp(`^${trimmedEventName}$`, 'i') }       // Case-insensitive search
+      companyName: { $regex: new RegExp(`^${trimmedCompanyName}$`, 'i') },
+      eventName: { $regex: new RegExp(`^${trimmedEventName}$`, 'i') }
     });
-
-    // Debug the found event
-    if (event) {
-      console.log("Event found:", event);  // Log the found event
-    } else {
-      console.log("No event found matching the criteria.");
-    }
 
     if (!event) {
       return res.status(404).json({ msg: 'Event not found!' });
     }
 
-    // Return the event details if found
-    res.json(event);  // Respond with event details
+    res.json(event);
   } catch (error) {
     console.error("Server Error:", error);
     res.status(500).json({ msg: 'Server error', error: error.message });
   }
 };
 
+// Edit event (fetch event by ID)
 const EditEvents = async (req, res) => {
   try {
     const event = await Event.findById(req.params.eventId);
@@ -141,7 +137,6 @@ const UpdateEvents = async (req, res) => {
   try {
     const { companyName, eventName, eventRoles, place, time, startDate, endDate } = req.body;
 
-    // Validate fields like in createEvent
     if (!startDate || !endDate) {
       return res.status(400).json({ msg: 'Start date and End date are required' });
     }
@@ -156,40 +151,46 @@ const UpdateEvents = async (req, res) => {
       return res.status(400).json({ msg: 'At least one role is required' });
     }
 
-    for (const role of eventRoles) {
+    const processedRoles = eventRoles.map(role => {
       if (!role.roleName || typeof role.roleName !== 'string') {
-        return res.status(400).json({ msg: 'Each role must have a valid roleName' });
+        throw new Error('Each role must have a valid roleName');
       }
       if (!role.roleDescription || typeof role.roleDescription !== 'string') {
-        return res.status(400).json({ msg: `Role '${role.roleName}' must have a valid roleDescription` });
+        throw new Error(`Role '${role.roleName}' must have a valid roleDescription`);
       }
 
       if (!Array.isArray(role.privileges) || role.privileges.length === 0) {
-        return res.status(400).json({ msg: `Role '${role.roleName}' must have at least one privilege` });
+        throw new Error(`Role '${role.roleName}' must have at least one privilege`);
       }
 
       for (const privilege of role.privileges) {
         if (typeof privilege !== 'string' || !privilege.trim()) {
-          return res.status(400).json({ msg: `Role '${role.roleName}' has invalid privilege values` });
+          throw new Error(`Role '${role.roleName}' has invalid privilege values`);
         }
       }
-    }
 
-    // Clean the data
-    const trimmedCompanyName = companyName.trim();
-    const trimmedEventName = eventName.trim();
-    const processedRoles = eventRoles.map(role => ({
-      roleName: role.roleName.trim(),
-      roleDescription: role.roleDescription.trim(),
-      privileges: role.privileges.map(p => p.trim())
-    }));
+      if (role.rolePrice === undefined || isNaN(Number(role.rolePrice)) || Number(role.rolePrice) < 0) {
+        throw new Error(`Role '${role.roleName}' must have a valid non-negative price`);
+      }
 
-    // Perform the update safely
+      if (role.maxRegistrations === undefined || isNaN(Number(role.maxRegistrations)) || Number(role.maxRegistrations) <= 0) {
+        throw new Error(`Role '${role.roleName}' must have a valid positive maxRegistrations`);
+      }
+
+      return {
+        roleName: role.roleName.trim(),
+        roleDescription: role.roleDescription.trim(),
+        privileges: role.privileges.map(p => p.trim()),
+        rolePrice: Number(role.rolePrice),
+        maxRegistrations: Number(role.maxRegistrations)
+      };
+    });
+
     const updatedEvent = await Event.findByIdAndUpdate(
       req.params.eventId,
       {
-        companyName: trimmedCompanyName,
-        eventName: trimmedEventName,
+        companyName: companyName.trim(),
+        eventName: eventName.trim(),
         eventRoles: processedRoles,
         place,
         time,
@@ -207,7 +208,7 @@ const UpdateEvents = async (req, res) => {
   }
 };
 
-
+// Save registration fields for event
 const saveRegistrationFields = async (req, res) => {
   const { EventId, registrationFields } = req.body;
 
@@ -216,20 +217,18 @@ const saveRegistrationFields = async (req, res) => {
   }
 
   try {
-    // Find the event by eventId
     const event = await Event.findById(EventId);
 
     if (!event) {
       return res.status(404).json({ message: "Event not found" });
     }
 
-    // Save the registration fields to the event
     event.registrationFields = registrationFields;
     await event.save();
 
     res.status(200).json({ 
       message: "Registration fields saved successfully!",
-      eventId: event._id   // still sending eventId in response
+      eventId: event._id
     });
 
   } catch (error) {
@@ -238,7 +237,7 @@ const saveRegistrationFields = async (req, res) => {
   }
 };
 
-
+// Get event by ID
 const getEventById = async (req, res) => {
   try {
     const event = await Event.findById(req.params.eventID);
@@ -251,4 +250,12 @@ const getEventById = async (req, res) => {
   }
 };
 
-module.exports = { createEvent, getEvents, getEventByDetails, EditEvents, UpdateEvents, saveRegistrationFields, getEventById};
+module.exports = { 
+  createEvent, 
+  getEvents, 
+  getEventByDetails, 
+  EditEvents, 
+  UpdateEvents, 
+  saveRegistrationFields, 
+  getEventById 
+};

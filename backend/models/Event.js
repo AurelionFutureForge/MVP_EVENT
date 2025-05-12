@@ -1,10 +1,12 @@
 const mongoose = require('mongoose');
 
-// Role Schema with Privileges
+// Role Schema with Privileges, Price, and Max Registrations
 const roleSchema = new mongoose.Schema({
   roleName: { type: String, required: true },
   roleDescription: { type: String, required: true },
-  privileges: [{ type: String, required: true }]   
+  privileges: [{ type: String, required: true }],
+  rolePrice: { type: Number, required: true },          
+  maxRegistrations: { type: Number, required: true }    
 });
 
 // Registration Field Schema
@@ -19,7 +21,7 @@ const registrationFieldSchema = new mongoose.Schema({
 const eventSchema = new mongoose.Schema({
   companyName: { type: String, required: true },
   eventName: { type: String, required: true },
-  eventRoles: [roleSchema],       // Array of roles with descriptions + privileges
+  eventRoles: [roleSchema],       // Array of roles with description + privileges + price + maxRegistrations
   place: { type: String, required: true },
   time: { type: String, required: true },  // Time in AM/PM format
   startDate: { type: Date, required: true },  // Event start date
