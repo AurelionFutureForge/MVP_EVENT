@@ -4,6 +4,15 @@ const Admin = require("../models/Admin");
 const User = require("../models/User");
 const Privilege = require('../models/privilegeModel');
 const Event = require("../models/Event");
+const nodemailer = require('nodemailer');
+
+const transporter = nodemailer.createTransport({
+  service: 'Gmail',
+  auth: {
+        user: "amthemithun@gmail.com",
+        pass: "ptfk ykpn uygd yodb",
+  }
+});
 
 
 // Admin login function
@@ -162,9 +171,7 @@ const assignPrivileges = async (req, res) => {
   }
 
   try {
-    // Fetch the event by eventId to get eventName + companyName
     const event = await Event.findById(eventId);
-
     if (!event) {
       return res.status(404).json({ message: "Event not found" });
     }
@@ -172,11 +179,8 @@ const assignPrivileges = async (req, res) => {
     const eventName = event.eventName;
     const companyName = event.companyName;
 
-    // Check if privileges document already exists for this eventId
     let existingPrivileges = await Privilege.findOne({ eventId });
-
     if (!existingPrivileges) {
-      // If no existing privileges, create a new document
       existingPrivileges = new Privilege({
         companyName,
         eventId,
@@ -185,7 +189,6 @@ const assignPrivileges = async (req, res) => {
       });
     }
 
-    // Add new privileges
     for (const priv of privileges) {
       const { privilegeName, email, password } = priv;
 
@@ -202,11 +205,21 @@ const assignPrivileges = async (req, res) => {
       } else {
         existingPrivileges.privileges.push({ privilegeName, email, password });
       }
+
+      // Send confirmation email
+      const mailOptions = {
+        from: '"Event Admin" <youremail@gmail.com>',
+        to: email,
+        subject: `Access Granted: ${privilegeName} Role for ${eventName}`,
+        text: `Hi,\n\nYou have been assigned the "${privilegeName}" role for the event "${eventName}".\n\nYour login credentials are:\nEmail: ${email}\nPassword: ${password}\n\nPlease keep them secure.\n\nBest regards,\n${companyName} Team`
+      };
+
+      await transporter.sendMail(mailOptions);
     }
 
     await existingPrivileges.save();
 
-    res.status(200).json({ message: "Privileges assigned successfully!" });
+    res.status(200).json({ message: "Privileges assigned and emails sent successfully!" });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Error assigning privileges" });
