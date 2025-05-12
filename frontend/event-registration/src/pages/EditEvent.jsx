@@ -13,6 +13,7 @@ export default function EditEvent() {
     place: '',
     startDate: '',
     endDate: '',
+    time: '', // New time field
     eventRoles: [],
   });
 
@@ -33,7 +34,7 @@ export default function EditEvent() {
 
         const rolesWithPrivilegesString = event.eventRoles.map(role => ({
           ...role,
-          privileges: role.privileges.join(', ')
+          privileges: role.privileges.join(', '),
         }));
 
         setEventDetails({
@@ -42,6 +43,7 @@ export default function EditEvent() {
           place: event.place,
           startDate: event.startDate,
           endDate: event.endDate,
+          time: event.time, // Include time
           eventRoles: rolesWithPrivilegesString,
         });
       } catch (err) {
@@ -66,7 +68,7 @@ export default function EditEvent() {
           updatedRoles[editIndex] = {
             roleName: newRole.trim(),
             roleDescription: roleDescription.trim(),
-            privileges: privileges.trim()
+            privileges: privileges.trim(),
           };
           return { ...prev, eventRoles: updatedRoles };
         });
@@ -76,8 +78,8 @@ export default function EditEvent() {
           ...prev,
           eventRoles: [
             ...prev.eventRoles,
-            { roleName: newRole.trim(), roleDescription: roleDescription.trim(), privileges: privileges.trim() }
-          ]
+            { roleName: newRole.trim(), roleDescription: roleDescription.trim(), privileges: privileges.trim() },
+          ],
         }));
       }
 
@@ -101,13 +103,13 @@ export default function EditEvent() {
   const handleDeleteRole = (index) => {
     setEventDetails(prev => ({
       ...prev,
-      eventRoles: prev.eventRoles.filter((_, i) => i !== index)
+      eventRoles: prev.eventRoles.filter((_, i) => i !== index),
     }));
   };
 
   const validateForm = () => {
-    const { companyName, eventName, place, startDate, endDate, eventRoles } = eventDetails;
-    if (!companyName || !eventName || !place || !startDate || !endDate || eventRoles.length === 0) {
+    const { companyName, eventName, place, startDate, endDate, eventRoles, time } = eventDetails;
+    if (!companyName || !eventName || !place || !startDate || !endDate || eventRoles.length === 0 || !time) {
       setError("All fields and at least one role are required.");
       return false;
     }
@@ -123,7 +125,7 @@ export default function EditEvent() {
       const sanitizedRoles = eventDetails.eventRoles.map(role => ({
         roleName: role.roleName.trim(),
         roleDescription: role.roleDescription.trim(),
-        privileges: role.privileges.split(',').map(p => p.trim()).filter(p => p)
+        privileges: role.privileges.split(',').map(p => p.trim()).filter(p => p),
       }));
 
       const updatedEvent = {
@@ -131,6 +133,7 @@ export default function EditEvent() {
         eventRoles: sanitizedRoles,
         startDate: new Date(eventDetails.startDate).toISOString().split('T')[0],
         endDate: new Date(eventDetails.endDate).toISOString().split('T')[0],
+        time: eventDetails.time, // Include time
       };
 
       const res = await axios.put(`${BASE_URL}/events/${eventId}`, updatedEvent);
@@ -171,6 +174,14 @@ export default function EditEvent() {
         <input type="date" name="endDate"
           className="w-full p-3 mb-4 border rounded"
           value={eventDetails.endDate} onChange={handleChange} />
+
+        <input
+          type="time"
+          name="time"
+          className="w-full p-3 mb-4 border rounded-lg shadow-sm"
+          onChange={handleChange}
+          value={eventDetails.time}
+        />
 
         <div className="mb-6">
           <h5 className="font-semibold mb-2">Add/Edit Roles & Privileges</h5>
