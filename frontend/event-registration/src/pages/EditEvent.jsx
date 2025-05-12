@@ -21,6 +21,7 @@ export default function EditEvent() {
   const [privileges, setPrivileges] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [editIndex, setEditIndex] = useState(null); // Track the index of the role being edited
 
   const BASE_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
 
@@ -59,19 +60,42 @@ export default function EditEvent() {
 
   const handleAddRole = () => {
     if (newRole.trim() && roleDescription.trim() && privileges.trim()) {
-      setEventDetails(prev => ({
-        ...prev,
-        eventRoles: [
-          ...prev.eventRoles,
-          { roleName: newRole.trim(), roleDescription: roleDescription.trim(), privileges: privileges.trim() }
-        ]
-      }));
+      if (editIndex !== null) {
+        setEventDetails(prev => {
+          const updatedRoles = [...prev.eventRoles];
+          updatedRoles[editIndex] = {
+            roleName: newRole.trim(),
+            roleDescription: roleDescription.trim(),
+            privileges: privileges.trim()
+          };
+          return { ...prev, eventRoles: updatedRoles };
+        });
+        setEditIndex(null); // reset edit index after update
+      } else {
+        setEventDetails(prev => ({
+          ...prev,
+          eventRoles: [
+            ...prev.eventRoles,
+            { roleName: newRole.trim(), roleDescription: roleDescription.trim(), privileges: privileges.trim() }
+          ]
+        }));
+      }
+
+      // Clear the input fields
       setNewRole('');
       setRoleDescription('');
       setPrivileges('');
     } else {
       toast.error("All fields for role are required.");
     }
+  };
+
+  const handleEditRole = (index) => {
+    const selectedRole = eventDetails.eventRoles[index];
+    setNewRole(selectedRole.roleName);
+    setRoleDescription(selectedRole.roleDescription);
+    setPrivileges(selectedRole.privileges);
+    setEditIndex(index); // Set the role index to be edited
   };
 
   const handleDeleteRole = (index) => {
@@ -164,7 +188,7 @@ export default function EditEvent() {
           <button
             onClick={handleAddRole}
             className="w-full py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-          >Add Role</button>
+          >{editIndex !== null ? 'Update Role' : 'Add Role'}</button>
 
           <div className="mt-4 space-y-2">
             {eventDetails.eventRoles.map((role, index) => (
@@ -173,7 +197,10 @@ export default function EditEvent() {
                   <strong>{role.roleName}</strong> — {role.roleDescription}<br />
                   <small className="text-sm text-gray-600">Privileges: {role.privileges}</small>
                 </div>
-                <button onClick={() => handleDeleteRole(index)} className="text-red-600 hover:text-red-800">✕</button>
+                <div>
+                  <button onClick={() => handleEditRole(index)} className="text-blue-600 hover:text-blue-800">Edit</button>
+                  <button onClick={() => handleDeleteRole(index)} className="text-red-600 hover:text-red-800">✕</button>
+                </div>
               </div>
             ))}
           </div>
