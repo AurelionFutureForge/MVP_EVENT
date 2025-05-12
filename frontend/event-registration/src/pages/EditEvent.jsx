@@ -11,8 +11,8 @@ export default function EditEvent() {
     companyName: '',
     eventName: '',
     place: '',
-    time: '',
-    date: '',
+    startDate: '',
+    endDate: '',
     eventRoles: [],
   });
 
@@ -40,8 +40,8 @@ export default function EditEvent() {
           companyName: event.companyName,
           eventName: event.eventName,
           place: event.place,
-          time: event.time,
-          date: event.date,
+          startDate: event.startDate,
+          endDate: event.endDate,
           eventRoles: rolesWithPrivilegesString,
         });
       } catch (err) {
@@ -106,8 +106,8 @@ export default function EditEvent() {
   };
 
   const validateForm = () => {
-    const { companyName, eventName, place, time, date, eventRoles } = eventDetails;
-    if (!companyName || !eventName || !place || !time || !date || eventRoles.length === 0) {
+    const { companyName, eventName, place, startDate, endDate, eventRoles } = eventDetails;
+    if (!companyName || !eventName || !place || !startDate || !endDate || eventRoles.length === 0) {
       setError("All fields and at least one role are required.");
       return false;
     }
@@ -129,7 +129,8 @@ export default function EditEvent() {
       const updatedEvent = {
         ...eventDetails,
         eventRoles: sanitizedRoles,
-        date: new Date(eventDetails.date).toISOString().split('T')[0],
+        startDate: new Date(eventDetails.startDate).toISOString().split('T')[0],
+        endDate: new Date(eventDetails.endDate).toISOString().split('T')[0],
       };
 
       const res = await axios.put(`${BASE_URL}/events/${eventId}`, updatedEvent);
@@ -163,13 +164,13 @@ export default function EditEvent() {
           className="w-full p-3 mb-4 border rounded"
           value={eventDetails.place} onChange={handleChange} />
 
-        <input type="time" name="time"
+        <input type="date" name="startDate"
           className="w-full p-3 mb-4 border rounded"
-          value={eventDetails.time} onChange={handleChange} />
+          value={eventDetails.startDate} onChange={handleChange} />
 
-        <input type="date" name="date"
+        <input type="date" name="endDate"
           className="w-full p-3 mb-4 border rounded"
-          value={eventDetails.date} onChange={handleChange} />
+          value={eventDetails.endDate} onChange={handleChange} />
 
         <div className="mb-6">
           <h5 className="font-semibold mb-2">Add/Edit Roles & Privileges</h5>

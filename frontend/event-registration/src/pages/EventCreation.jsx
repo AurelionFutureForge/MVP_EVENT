@@ -1,5 +1,3 @@
-// EventCreation.jsx
-
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -12,8 +10,9 @@ export default function EventCreation() {
     companyName: '',
     eventName: '',
     place: '',
+    startDate: '',
+    endDate: '',
     time: '',
-    date: '',
     eventRoles: [],
   });
 
@@ -61,10 +60,7 @@ export default function EventCreation() {
 
   const handleAddRole = () => {
     if (newRole.trim() && roleDescription.trim() && privilege.trim()) {
-      const cleanedPrivilege = privilege.split(',')
-        .map(p => p.trim())
-        .filter(p => p.length > 0)
-        .join(',');
+      const cleanedPrivilege = privilege.split(',').map(p => p.trim()).filter(p => p.length > 0).join(',');
 
       setEventDetails((prevDetails) => ({
         ...prevDetails,
@@ -92,8 +88,8 @@ export default function EventCreation() {
   };
 
   const validateForm = () => {
-    const { companyName, eventName, place, time, date, eventRoles } = eventDetails;
-    if (!companyName || !eventName || !place || !time || !date || eventRoles.length === 0) {
+    const { companyName, eventName, place, time, startDate, endDate, eventRoles } = eventDetails;
+    if (!companyName || !eventName || !place || !time || !startDate || !endDate || eventRoles.length === 0) {
       setError("All fields are required, including at least one role.");
       return false;
     }
@@ -116,14 +112,15 @@ export default function EventCreation() {
         ...eventDetails,
         companyEmail: loggedInEmail,
         eventRoles: sanitizedRoles,
-        date: new Date(eventDetails.date).toISOString().split('T')[0],
+        startDate: new Date(eventDetails.startDate).toISOString().split('T')[0],
+        endDate: new Date(eventDetails.endDate).toISOString().split('T')[0],
       });
 
       if (response.status === 201) {
         toast.success("Event created successfully!");
         setEvents([...events, response.data.event]);
         setShowForm(false);
-        setEventDetails({ companyName: '', eventName: '', place: '', time: '', date: '', eventRoles: [] });
+        setEventDetails({ companyName: '', eventName: '', place: '', startDate: '', endDate: '', time: '', eventRoles: [] });
       }
     } catch (error) {
       console.error("Error creating event:", error.response?.data || error.message);
@@ -161,7 +158,7 @@ export default function EventCreation() {
                 <h4 className="font-semibold text-xl">{event.eventName}</h4>
                 <p>{event.companyName}</p>
                 <p>{event.place} - {event.time}</p>
-                <p>{new Date(event.date).toLocaleDateString()}</p>
+                <p>{new Date(event.startDate).toLocaleDateString()} - {new Date(event.endDate).toLocaleDateString()}</p>
                 <div className="mt-4 space-x-4 flex justify-center">
                   <button
                     onClick={() => handleEditEvent(event._id)}
@@ -271,10 +268,17 @@ export default function EventCreation() {
             />
             <input
               type="date"
-              name="date"
+              name="startDate"
               className="w-full p-3 mb-4 border rounded-lg shadow-sm"
               onChange={handleChange}
-              value={eventDetails.date}
+              value={eventDetails.startDate}
+            />
+            <input
+              type="date"
+              name="endDate"
+              className="w-full p-3 mb-4 border rounded-lg shadow-sm"
+              onChange={handleChange}
+              value={eventDetails.endDate}
             />
 
             {error && <p className="text-red-600 mb-2">{error}</p>}

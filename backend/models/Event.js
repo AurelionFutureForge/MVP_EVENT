@@ -21,8 +21,9 @@ const eventSchema = new mongoose.Schema({
   eventName: { type: String, required: true },
   eventRoles: [roleSchema],       // Array of roles with descriptions + privileges
   place: { type: String, required: true },
-  time: { type: String, required: true },
-  date: { type: String, required: true },
+  time: { type: String, required: true },  // Time in AM/PM format
+  startDate: { type: Date, required: true },  // Event start date
+  endDate: { type: Date, required: true },  // Event end date
   registrationFields: [registrationFieldSchema]  // Array of dynamically added registration fields
 });
 

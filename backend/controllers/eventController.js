@@ -3,7 +3,7 @@ const Event = require('../models/Event');
 const createEvent = async (req, res) => {
   try {
     console.log("Incoming Request Body:", req.body);
-    const { companyName, eventName, eventRoles, place, time, date } = req.body;
+    const { companyName, eventName, eventRoles, place, time, startDate, endDate } = req.body;
 
     const trimmedCompanyName = companyName.trim();
     const trimmedEventName = eventName.trim();
@@ -17,12 +17,15 @@ const createEvent = async (req, res) => {
       return res.status(400).json({ msg: 'An event with this company and event name already exists' });
     }
 
-    if (!date) {
-      return res.status(400).json({ msg: 'Date is required' });
+    // Check if startDate and endDate are provided
+    if (!startDate || !endDate) {
+      return res.status(400).json({ msg: 'Start date and End date are required' });
     }
 
-    const formattedDate = new Date(date);
-    if (isNaN(formattedDate.getTime())) { 
+    // Validate the startDate and endDate
+    const formattedStartDate = new Date(startDate);
+    const formattedEndDate = new Date(endDate);
+    if (isNaN(formattedStartDate.getTime()) || isNaN(formattedEndDate.getTime())) { 
       return res.status(400).json({ msg: 'Invalid date format' });
     }
 
@@ -31,12 +34,11 @@ const createEvent = async (req, res) => {
     }
 
     const processedRoles = eventRoles.map(role => {
-      // Process privileges safely (whether it is ["entry", "lunch"] or ["entry,lunch"])
       let privilegesArray = [];
 
       if (Array.isArray(role.privileges)) {
         privilegesArray = role.privileges.flatMap(p => 
-          p.split(',').map(item => item.trim()).filter(item => item)  // Split + trim + remove empty
+          p.split(',').map(item => item.trim()).filter(item => item)
         );
       }
 
@@ -57,7 +59,8 @@ const createEvent = async (req, res) => {
       eventRoles: processedRoles,
       place, 
       time, 
-      date: formattedDate.toISOString().split("T")[0]
+      startDate: formattedStartDate.toISOString(),
+      endDate: formattedEndDate.toISOString()
     });
 
     await newEvent.save();
@@ -136,14 +139,16 @@ const EditEvents = async (req, res) => {
 // Update event
 const UpdateEvents = async (req, res) => {
   try {
-    const { companyName, eventName, eventRoles, place, time, date } = req.body;
+    const { companyName, eventName, eventRoles, place, time, startDate, endDate } = req.body;
 
     // Validate fields like in createEvent
-    if (!date) {
-      return res.status(400).json({ msg: 'Date is required' });
+    if (!startDate || !endDate) {
+      return res.status(400).json({ msg: 'Start date and End date are required' });
     }
-    const formattedDate = new Date(date);
-    if (isNaN(formattedDate.getTime())) { 
+
+    const formattedStartDate = new Date(startDate);
+    const formattedEndDate = new Date(endDate);
+    if (isNaN(formattedStartDate.getTime()) || isNaN(formattedEndDate.getTime())) { 
       return res.status(400).json({ msg: 'Invalid date format' });
     }
 
@@ -188,7 +193,8 @@ const UpdateEvents = async (req, res) => {
         eventRoles: processedRoles,
         place,
         time,
-        date: formattedDate.toISOString().split("T")[0]
+        startDate: formattedStartDate.toISOString(),
+        endDate: formattedEndDate.toISOString()
       },
       { new: true, runValidators: true }
     );
@@ -200,6 +206,7 @@ const UpdateEvents = async (req, res) => {
     res.status(500).json({ msg: "Failed to update event", error: err.message });
   }
 };
+
 
 const saveRegistrationFields = async (req, res) => {
   const { EventId, registrationFields } = req.body;
