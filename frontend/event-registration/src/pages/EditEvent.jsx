@@ -20,8 +20,8 @@ export default function EditEvent() {
   const [newRole, setNewRole] = useState('');
   const [roleDescription, setRoleDescription] = useState('');
   const [privileges, setPrivileges] = useState('');
-  const [rolePrice, setRolePrice] = useState('');  // New state for role price
-  const [maxRegistration, setMaxRegistration] = useState('');  // New state for max registration
+  const [rolePrice, setRolePrice] = useState('');
+  const [maxRegistrations, setMaxRegistrations] = useState(''); // ✅ renamed correctly
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [editIndex, setEditIndex] = useState(null);
@@ -63,7 +63,7 @@ export default function EditEvent() {
   };
 
   const handleAddRole = () => {
-    if (newRole.trim() && roleDescription.trim() && privileges.trim() && rolePrice && maxRegistration) {
+    if (newRole.trim() && roleDescription.trim() && privileges.trim() && rolePrice && maxRegistrations) {
       if (editIndex !== null) {
         setEventDetails(prev => {
           const updatedRoles = [...prev.eventRoles];
@@ -72,33 +72,32 @@ export default function EditEvent() {
             roleDescription: roleDescription.trim(),
             privileges: privileges.trim(),
             rolePrice: parseFloat(rolePrice),
-            maxRegistration: parseInt(maxRegistration),
+            maxRegistrations: parseInt(maxRegistrations),
           };
           return { ...prev, eventRoles: updatedRoles };
         });
-        setEditIndex(null); // reset edit index after update
+        setEditIndex(null);
       } else {
         setEventDetails(prev => ({
           ...prev,
           eventRoles: [
             ...prev.eventRoles,
-            { 
+            {
               roleName: newRole.trim(),
               roleDescription: roleDescription.trim(),
               privileges: privileges.trim(),
               rolePrice: parseFloat(rolePrice),
-              maxRegistration: parseInt(maxRegistration)
+              maxRegistrations: parseInt(maxRegistrations),
             },
           ],
         }));
       }
 
-      // Clear the input fields
       setNewRole('');
       setRoleDescription('');
       setPrivileges('');
       setRolePrice('');
-      setMaxRegistration('');
+      setMaxRegistrations('');
     } else {
       toast.error("All fields for role are required.");
     }
@@ -109,9 +108,9 @@ export default function EditEvent() {
     setNewRole(selectedRole.roleName);
     setRoleDescription(selectedRole.roleDescription);
     setPrivileges(selectedRole.privileges);
-    setRolePrice(selectedRole.rolePrice);  // Set the role price for editing
-    setMaxRegistration(selectedRole.maxRegistration);  // Set the max registration for editing
-    setEditIndex(index); // Set the role index to be edited
+    setRolePrice(selectedRole.rolePrice);
+    setMaxRegistrations(selectedRole.maxRegistrations);
+    setEditIndex(index);
   };
 
   const handleDeleteRole = (index) => {
@@ -141,7 +140,7 @@ export default function EditEvent() {
         roleDescription: role.roleDescription.trim(),
         privileges: role.privileges.split(',').map(p => p.trim()).filter(p => p),
         rolePrice: role.rolePrice,
-        maxRegistration: role.maxRegistration,
+        maxRegistrations: role.maxRegistrations,
       }));
 
       const updatedEvent = {
@@ -218,9 +217,9 @@ export default function EditEvent() {
             className="w-full p-2 mb-2 border rounded"
             value={rolePrice} onChange={(e) => setRolePrice(e.target.value)} />
 
-          <input type="number" placeholder="Max Registration"
+          <input type="number" placeholder="Max Registrations"
             className="w-full p-2 mb-2 border rounded"
-            value={maxRegistration} onChange={(e) => setMaxRegistration(e.target.value)} />
+            value={maxRegistrations} onChange={(e) => setMaxRegistrations(e.target.value)} />
 
           <button
             onClick={handleAddRole}
@@ -234,7 +233,7 @@ export default function EditEvent() {
                   <strong>{role.roleName}</strong> — {role.roleDescription}<br />
                   <small className="text-sm text-gray-600">Privileges: {role.privileges}</small><br />
                   <small className="text-sm text-gray-600">Price: ${role.rolePrice}</small><br />
-                  <small className="text-sm text-gray-600">Max Registrations: {role.maxRegistration}</small>
+                  <small className="text-sm text-gray-600">Max Registrations: {role.maxRegistrations}</small>
                 </div>
                 <div>
                   <button onClick={() => handleEditRole(index)} className="text-blue-600 hover:text-blue-800">Edit</button>
