@@ -87,24 +87,24 @@ function RegistrationForm() {
         </h2>
 
         {/* Display event metadata */}
-      <div className="text-center text-gray-600 mb-6">
-        {event.startDate && (
-          <p>
-            <span className="font-semibold">Date:</span>{" "}
-            {new Date(event.startDate).toLocaleDateString()}
-          </p>
-        )}
-        {event.location && (
-          <p>
-            <span className="font-semibold">Location:</span> {event.location}
-          </p>
-        )}
-        {event.time && (
-          <p>
-            <span className="font-semibold">Time:</span> {event.time}
-          </p>
-        )}
-      </div>
+        <div className="text-center text-gray-600 mb-6">
+          {event.startDate && (
+            <p>
+              <span className="font-semibold">Date:</span>{" "}
+              {new Date(event.startDate).toLocaleDateString()}
+            </p>
+          )}
+          {event.place && (
+            <p>
+              <span className="font-semibold">Location:</span> {event.place}
+            </p>
+          )}
+          {event.time && (
+            <p>
+              <span className="font-semibold">Time:</span> {event.time}
+            </p>
+          )}
+        </div>
 
         <form onSubmit={handleSubmit}>
           {/* Render all fields except ROLE first */}

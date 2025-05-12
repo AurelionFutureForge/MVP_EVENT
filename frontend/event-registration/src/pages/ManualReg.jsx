@@ -81,6 +81,27 @@ function ManualReg() {
           Register for {event.eventName}
         </h2>
 
+        {/* Display event metadata */}
+        <div className="text-center text-gray-600 mb-6">
+          {event.startDate && (
+            <p>
+              <span className="font-semibold">Date:</span>{" "}
+              {new Date(event.startDate).toLocaleDateString()}
+            </p>
+          )}
+          {event.place && (
+            <p>
+              <span className="font-semibold">Location:</span> {event.place}
+            </p>
+          )}
+          {event.time && (
+            <p>
+              <span className="font-semibold">Time:</span> {event.time}
+            </p>
+          )}
+        </div>
+
+
         <form onSubmit={handleSubmit}>
           {/* Dynamic Registration Fields excluding ROLE */}
           {event.registrationFields
