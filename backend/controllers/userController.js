@@ -280,6 +280,8 @@ exports.getRoleRegistrationsCount = async (req, res) => {
       result[reg._id] = reg.count;
     });
 
+    console.log("result:",result);
+
     res.status(200).json(result);
   } catch (error) {
     console.error(error);
