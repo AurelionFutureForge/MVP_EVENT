@@ -137,24 +137,6 @@ function RegistrationForm() {
                 </select>
               )}
 
-              {/* Handling radio buttons for 'ROLE' field specifically */}
-              {field.fieldType === "checkbox" && field.fieldName === "ROLE" && (
-                <div className="flex flex-col gap-2">
-                  {field.options.map((option, idx) => (
-                    <label key={idx} className="inline-flex items-center gap-2">
-                      <input
-                        type="radio"
-                        name={field.fieldName}
-                        value={option}
-                        checked={formData[field.fieldName] === option}
-                        onChange={handleChange}
-                      />
-                      <span>{option}</span>
-                    </label>
-                  ))}
-                </div>
-              )}
-
               {/* Dynamic checkbox handling for other checkbox fields */}
               {field.fieldType === "checkbox" && field.fieldName !== "ROLE" && (
                 <div className="flex flex-col gap-2">
@@ -165,6 +147,24 @@ function RegistrationForm() {
                         name={field.fieldName}
                         value={option}
                         checked={formData[field.fieldName]?.includes(option) || false}
+                        onChange={handleChange}
+                      />
+                      <span>{option}</span>
+                    </label>
+                  ))}
+                </div>
+              )}
+
+              {/* Handling radio buttons for 'ROLE' field specifically */}
+              {field.fieldType === "checkbox" && field.fieldName === "ROLE" && (
+                <div className="flex flex-col gap-2">
+                  {field.options.map((option, idx) => (
+                    <label key={idx} className="inline-flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        name={field.fieldName}
+                        value={option}
+                        checked={formData[field.fieldName] === option}
                         onChange={handleChange}
                       />
                       <span>{option}</span>
