@@ -269,6 +269,7 @@ export default function EventCreation() {
             <input
               type="date"
               name="startDate"
+              placeholder='start Date'
               className="w-full p-3 mb-4 border rounded-lg shadow-sm"
               onChange={handleChange}
               value={eventDetails.startDate}
@@ -276,6 +277,7 @@ export default function EventCreation() {
             <input
               type="date"
               name="endDate"
+              placeholder='ebnDate'
               className="w-full p-3 mb-4 border rounded-lg shadow-sm"
               onChange={handleChange}
               value={eventDetails.endDate}
