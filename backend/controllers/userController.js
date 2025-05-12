@@ -3,13 +3,13 @@ const User = require("../models/User");
 const QRCode = require("qrcode");
 const fs = require("fs");
 const path = require("path");
-const PDFDocument = require("pdfkit");  
+const PDFDocument = require("pdfkit");
 const Event = require("../models/Event");   // ADD this import at the top if not already
 
 // Function to generate PDF dynamically
 const generateTicketPDF = async (name, email, eventName, companyName, place, time, date, role, ticketID, qrCodeImage, pdfPath) => {
   return new Promise((resolve, reject) => {
-    
+
     //  Increased page height to fit content properly
     const doc = new PDFDocument({ size: [595.28, 1150], margin: 50 });  // Increased height for larger QR
     const stream = fs.createWriteStream(pdfPath);
@@ -17,7 +17,7 @@ const generateTicketPDF = async (name, email, eventName, companyName, place, tim
     doc.pipe(stream);
 
     //  Header Section (Event Branding)
-    doc.rect(0, 0, doc.page.width, 120).fill("#4CAF50"); 
+    doc.rect(0, 0, doc.page.width, 120).fill("#4CAF50");
     doc.fillColor("#fff")
       .font("Helvetica-Bold")
       .fontSize(28)
@@ -45,16 +45,16 @@ const generateTicketPDF = async (name, email, eventName, companyName, place, tim
 
     //  Larger QR Code Section (Centered)
     const qrSize = 280;  //  Bigger QR code
-    const centerX = (doc.page.width - qrSize) / 2;  
+    const centerX = (doc.page.width - qrSize) / 2;
 
     //  Adjusted spacing for QR code
     doc.moveDown(2);
     doc.fontSize(16).text("Scan this QR code at entry:", { align: "center" });
 
     const qrY = doc.y + 20;  // Space before QR code
-    doc.image(Buffer.from(qrCodeImage.split(",")[1], "base64"), centerX, qrY, {  
-      fit: [qrSize, qrSize],  
-      align: "center"  
+    doc.image(Buffer.from(qrCodeImage.split(",")[1], "base64"), centerX, qrY, {
+      fit: [qrSize, qrSize],
+      align: "center"
     });
 
     // Add more spacing after the QR code
@@ -77,7 +77,7 @@ const generateTicketPDF = async (name, email, eventName, companyName, place, tim
       .fontSize(14)
       .text("Powered by EVENT-MVP", {
         align: "center",
-        y: doc.page.height - footerHeight + 15,  
+        y: doc.page.height - footerHeight + 15,
       });
 
     doc.end();
@@ -180,11 +180,8 @@ const sendSuccessEmail = async (name, email, eventName, companyName, place, time
 };
 
 exports.registerUser = async (req, res) => {
-  const { formData, eventID} = req.body;
+  const { formData, eventID } = req.body;
   console.log("eventID:", eventID);
-
-  
-
   try {
     const event = await Event.findById(eventID);
     if (!event) {
@@ -234,7 +231,7 @@ exports.registerUser = async (req, res) => {
     const newUser = new User({
       eventId: event._id,
       companyName: event.companyName,
-      eventName : event.eventName ,
+      eventName: event.eventName,
       role: selectedRole.roleName,
       email,
       privileges,
@@ -263,8 +260,7 @@ exports.registerUser = async (req, res) => {
 
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: 'Error registering user',error: err.message || err });
+    res.status(500).json({ message: 'Error registering user', error: err.message || err });
   }
 };
 
-  

@@ -7,7 +7,7 @@ const Event = require("../models/Event");
 const nodemailer = require('nodemailer');
 
 const transporter = nodemailer.createTransport({
-  service: 'Gmail',
+  service: 'gmail',
   auth: {
         user: "amthemithun@gmail.com",
         pass: "ptfk ykpn uygd yodb",
@@ -208,10 +208,10 @@ const assignPrivileges = async (req, res) => {
 
       // Send confirmation email
       const mailOptions = {
-        from: '"Event Admin" <youremail@gmail.com>',
+        from: '"Event Admin" <amthemithun@gmail.com>',
         to: email,
-        subject: `Access Granted: ${privilegeName} Role for ${eventName}`,
-        text: `Hi,\n\nYou have been assigned the "${privilegeName}" role for the event "${eventName}".\n\nYour login credentials are:\nEmail: ${email}\nPassword: ${password}\n\nPlease keep them secure.\n\nBest regards,\n${companyName} Team`
+        subject: `Access Granted: ${privilegeName} Privilege for ${eventName}`,
+        text: `Hi,\n\nYou have been assigned the "${privilegeName}" Privilege for the event "${eventName}".\n\nYour login credentials are:\nEmail: ${email}\nPassword: ${password}\n\nPlease keep them secure.\n\nBest regards,\n${companyName} Team`
       };
 
       await transporter.sendMail(mailOptions);
