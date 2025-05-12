@@ -265,3 +265,26 @@ exports.registerUser = async (req, res) => {
   }
 };
 
+exports.getRoleRegistrationsCount = async (req, res) => {
+   const { eventID } = req.params;
+
+  try {
+    const registrations = await User.aggregate([
+      { $match: { eventId: eventID } },
+      { $group: { _id: "$role", count: { $sum: 1 } } }
+    ]);
+
+    // Format response like: { "roleName1": count, "roleName2": count, ... }
+    const result = {};
+    registrations.forEach(reg => {
+      result[reg._id] = reg.count;
+    });
+
+    res.status(200).json(result);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ msg: "Failed to fetch role registrations" });
+  }
+};
+
+

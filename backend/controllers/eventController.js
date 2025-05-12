@@ -1,5 +1,4 @@
 const Event = require('../models/Event');
-const User = require('../models/User');
 
 // Create Event
 const createEvent = async (req, res) => {
@@ -251,27 +250,6 @@ const getEventById = async (req, res) => {
   }
 };
 
-const getRoleRegistrationsCount = async (req, res) => {
-   const { eventId } = req.params;
-
-  try {
-    const registrations = await User.aggregate([
-      { $match: { eventID: eventId } },
-      { $group: { _id: "$role", count: { $sum: 1 } } }
-    ]);
-
-    // Format response like: { "roleName1": count, "roleName2": count, ... }
-    const result = {};
-    registrations.forEach(reg => {
-      result[reg._id] = reg.count;
-    });
-
-    res.status(200).json(result);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ msg: "Failed to fetch role registrations" });
-  }
-};
 
 
 module.exports = { 
@@ -281,6 +259,5 @@ module.exports = {
   EditEvents, 
   UpdateEvents, 
   saveRegistrationFields, 
-  getEventById,
-  getRoleRegistrationsCount
+  getEventById
 };
