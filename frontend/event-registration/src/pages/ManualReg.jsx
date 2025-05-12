@@ -19,7 +19,7 @@ function ManualReg() {
         // Fetch role registrations count
         const regRes = await axios.get(`${BASE_URL}/users/${eventID}/role-registrations`);
         setRoleRegistrations(regRes.data);
-        console.log("regRes:",regRes);
+        console.log("regRes:",regRes.data);
 
         setLoading(false);
       } catch (error) {
