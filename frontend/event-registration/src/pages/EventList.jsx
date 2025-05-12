@@ -50,7 +50,7 @@ function EventList() {
     <div className="min-h-screen bg-gray-100 p-6">
       <div className="bg-white p-6 shadow-xl rounded-2xl max-w-7xl mx-auto">
         <h2 className="text-4xl font-extrabold text-gray-800 mb-6 text-center">
-          Select Event for Analytics
+          Select Events to View
         </h2>
         {loading ? (
           <p className="text-center text-lg text-gray-600">Loading events...</p>
