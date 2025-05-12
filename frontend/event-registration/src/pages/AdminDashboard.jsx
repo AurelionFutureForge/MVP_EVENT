@@ -1,9 +1,10 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+import { Menu } from 'lucide-react';
 
 // Utility to dynamically extract name & email from registrationData
 function extractNameAndEmail(registrationData = {}) {
@@ -54,6 +55,23 @@ function SummaryCard({ title, value, color }) {
     </div>
   );
 }
+
+const [showMenu, setShowMenu] = useState(false);
+const menuRef = useRef();
+
+useEffect(() => {
+  const handleClickOutside = (event) => {
+    if (menuRef.current && !menuRef.current.contains(event.target)) {
+      setShowMenu(false);
+    }
+  };
+
+  document.addEventListener("mousedown", handleClickOutside);
+
+  return () => {
+    document.removeEventListener("mousedown", handleClickOutside);
+  };
+}, []);
 
 function AdminDashboard() {
   const [users, setUsers] = useState([]);
@@ -120,7 +138,7 @@ function AdminDashboard() {
           .join(", ")
         : "No privileges assigned";
 
-      return [name, email, user.registrationData.role || user.registrationData.ROLE , contact, privileges];
+      return [name, email, user.registrationData.role || user.registrationData.ROLE, contact, privileges];
     });
 
     autoTable(pdf, {
@@ -171,7 +189,7 @@ function AdminDashboard() {
   };
 
   const totalRegistrations = users.length;
-  const uniqueRoles = [...new Set(users.map((u) => ( u.registrationData?.role || u.registrationData.ROLE) ).filter(Boolean))];
+  const uniqueRoles = [...new Set(users.map((u) => (u.registrationData?.role || u.registrationData.ROLE)).filter(Boolean))];
 
   const handleLogout = () => {
     localStorage.removeItem("adminToken");
@@ -268,124 +286,136 @@ function AdminDashboard() {
             </select>
           </div>
 
-          <div className="flex gap-2 justify-end w-full sm:w-auto">
+          <div className="flex justify-end mb-4 relative" ref={menuRef}>
             <button
-              onClick={downloadPDF}
-              className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition shadow"
+              onClick={() => setShowMenu((prev) => !prev)}
+              className="bg-gray-800 text-white p-2 rounded-full hover:bg-gray-900 shadow"
+              title="Menu"
             >
-              Download PDF
+              <Menu size={24} />
             </button>
 
-            <button
-              onClick={() => navigate("/admin/manage-access")}
-              className="bg-yellow-600 text-white px-4 py-2 rounded-lg hover:bg-yellow-700 transition shadow"
-            >
-              Manage Access
-            </button>
+            {showMenu && (
+              <div className="absolute right-0 mt-12 bg-white rounded-lg shadow-lg w-56 z-50 flex flex-col border border-gray-200">
+                <button
+                  onClick={downloadPDF}
+                  className="px-4 py-2 text-sm hover:bg-gray-100 text-left"
+                >
+                  📄 Download PDF
+                </button>
 
-            <button
-              onClick={() => navigate("/create-regform")}
-              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition shadow"
-            >
-              {registrationFields.length === 0 ? "Create Registration Form" : "Edit Registration Form"}
-            </button>
+                <button
+                  onClick={() => navigate("/admin/manage-access")}
+                  className="px-4 py-2 text-sm hover:bg-gray-100 text-left"
+                >
+                  🛠️ Manage Access
+                </button>
 
-            <button
-              onClick={() => navigate("/manual-registration")}  // Navigate to the manual registration page
-              className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition shadow"
-            >
-              Manual Registration
-            </button>
+                <button
+                  onClick={() => navigate("/create-regform")}
+                  className="px-4 py-2 text-sm hover:bg-gray-100 text-left"
+                >
+                  {registrationFields.length === 0 ? "📝 Create Registration Form" : "✏️ Edit Registration Form"}
+                </button>
 
-            <button
-              onClick={handleLogout}
-              className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition shadow"
-            >
-              Logout
-            </button>
+                <button
+                  onClick={() => navigate("/manual-registration")}
+                  className="px-4 py-2 text-sm hover:bg-gray-100 text-left"
+                >
+                  ➕ Manual Registration
+                </button>
+
+                <button
+                  onClick={handleLogout}
+                  className="px-4 py-2 text-sm hover:bg-gray-100 text-left text-red-600"
+                >
+                  🚪 Logout
+                </button>
+              </div>
+            )}
           </div>
         </div>
 
-        {/* Users Table */}
-        <div className="overflow-x-auto rounded-lg shadow">
-          <table className="w-full border-collapse">
-            <thead>
-              <tr className="bg-blue-500 text-white text-sm">
-                <th className="p-3">Name</th>
-                <th className="p-3">Email</th>
-                <th className="p-3">Role</th>
-                <th className="p-3">Contact</th>
-                <th className="p-3">Privileges</th>
-              </tr>
-            </thead>
-            <tbody>
-              {getFilteredUsers().map((user, index) => {
-                const { name, email } = extractNameAndEmail(user.registrationData);
-                const contact = extractContact(user.registrationData);
-                const privileges = user.privileges ?? [];
+          {/* Users Table */}
+          <div className="overflow-x-auto rounded-lg shadow">
+            <table className="w-full border-collapse">
+              <thead>
+                <tr className="bg-blue-500 text-white text-sm">
+                  <th className="p-3">Name</th>
+                  <th className="p-3">Email</th>
+                  <th className="p-3">Role</th>
+                  <th className="p-3">Contact</th>
+                  <th className="p-3">Privileges</th>
+                </tr>
+              </thead>
+              <tbody>
+                {getFilteredUsers().map((user, index) => {
+                  const { name, email } = extractNameAndEmail(user.registrationData);
+                  const contact = extractContact(user.registrationData);
+                  const privileges = user.privileges ?? [];
 
-                return (
-                  <tr
-                    key={index}
-                    className="text-center border-b hover:bg-gray-100 transition text-sm"
-                  >
-                    <td className="p-3">{name}</td>
-                    <td className="p-3">{email}</td>
-                   <td className="p-3">{user.registrationData?.role || user.registrationData?.ROLE}</td>
-                    <td className="p-3">{contact}</td>
-                    <td className="p-3">
-                      {privileges.length > 0 ? (
-                        <ul className="text-left space-y-1">
-                          {privileges.map((priv, idx) => (
-                            <li key={idx} className="flex items-center gap-1 text-xs">
-                              <span className="font-semibold">{priv.name?.toUpperCase()}</span> —{" "}
-                              {priv.claim ? (
-                                <span className="text-green-600">Claimed</span>
-                              ) : (
-                                <span className="text-red-600">Not Claimed</span>
-                              )}
-                            </li>
-                          ))}
-                        </ul>
-                      ) : (
-                        <span className="text-gray-500 text-xs italic">
-                          No privileges assigned
-                        </span>
-                      )}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+                  return (
+                    <tr
+                      key={index}
+                      className="text-center border-b hover:bg-gray-100 transition text-sm"
+                    >
+                      <td className="p-3">{name}</td>
+                      <td className="p-3">{email}</td>
+                      <td className="p-3">{user.registrationData?.role || user.registrationData?.ROLE}</td>
+                      <td className="p-3">{contact}</td>
+                      <td className="p-3">
+                        {privileges.length > 0 ? (
+                          <ul className="text-left space-y-1">
+                            {privileges.map((priv, idx) => (
+                              <li key={idx} className="flex items-center gap-1 text-xs">
+                                <span className="font-semibold">{priv.name?.toUpperCase()}</span> —{" "}
+                                {priv.claim ? (
+                                  <span className="text-green-600">Claimed</span>
+                                ) : (
+                                  <span className="text-red-600">Not Claimed</span>
+                                )}
+                              </li>
+                            ))}
+                          </ul>
+                        ) : (
+                          <span className="text-gray-500 text-xs italic">
+                            No privileges assigned
+                          </span>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
 
-          {getFilteredUsers().length === 0 && (
-            <p className="text-center text-gray-500 py-4 text-sm">
-              No matching users found.
-            </p>
-          )}
-        </div>
+            {getFilteredUsers().length === 0 && (
+              <p className="text-center text-gray-500 py-4 text-sm">
+                No matching users found.
+              </p>
+            )}
+          </div>
 
-        {/* Pagination Controls */}
-        <div className="flex justify-center mt-4">
-          <button
-            onClick={() => handlePagination(currentPage - 1)}
-            disabled={currentPage === 1}
-            className="px-4 py-2 bg-gray-400 text-white rounded-md mr-2"
-          >
-            Previous
-          </button>
-          <button
-            onClick={() => handlePagination(currentPage + 1)}
-            disabled={currentPage === totalPages}
-            className="px-4 py-2 bg-gray-400 text-white rounded-md"
-          >
-            Next
-          </button>
+          {/* Pagination Controls */}
+          <div className="flex justify-center mt-4">
+            <button
+              onClick={() => handlePagination(currentPage - 1)}
+              disabled={currentPage === 1}
+              className="px-4 py-2 bg-gray-400 text-white rounded-md mr-2"
+            >
+              Previous
+            </button>
+            <button
+              onClick={() => handlePagination(currentPage + 1)}
+              disabled={currentPage === totalPages}
+              className="px-4 py-2 bg-gray-400 text-white rounded-md"
+            >
+              Next
+            </button>
+          </div>
         </div>
       </div>
-    </div>
-  );
+      );
 }
 
-export default AdminDashboard;
+      export default AdminDashboard;
