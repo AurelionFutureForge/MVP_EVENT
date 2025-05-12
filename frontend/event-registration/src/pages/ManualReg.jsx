@@ -185,26 +185,36 @@ function ManualReg() {
             ))}
 
           {/* Display event roles as radio buttons */}
+          {/* Display event roles as radio buttons */}
           <div className="mb-4">
             <label className="block text-gray-700 font-semibold mb-2">
               Select Role <span className="text-red-600">*</span>
             </label>
-            {event.eventRoles.map((role, idx) => (
-              <div key={idx} className="flex items-center mb-2">
-                <input
-                  type="radio"
-                  name="role"
-                  value={role.roleName}
-                  checked={formData.role === role.roleName}
-                  onChange={handleChange}
-                  required
-                  className="mr-2"
-                />
-                <span className="font-medium text-gray-800">{role.roleName}</span>
-                <span className="text-gray-500 text-sm ml-2">({role.roleDescription})</span>
-              </div>
-            ))}
+            <div className="flex flex-col gap-3">
+              {event.eventRoles.map((role, idx) => (
+                <label
+                  key={idx}
+                  className="flex flex-col border rounded p-3 hover:shadow transition cursor-pointer"
+                >
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="radio"
+                      name="role"
+                      value={role.roleName}
+                      checked={formData.role === role.roleName}
+                      onChange={handleChange}
+                      required
+                    />
+                    <span className="font-medium">{role.roleName}</span>
+                  </div>
+                  {role.roleDescription && (
+                    <p className="text-gray-600 text-sm mt-1 ml-6">{role.roleDescription}</p>
+                  )}
+                </label>
+              ))}
+            </div>
           </div>
+
 
           <button
             type="submit"
