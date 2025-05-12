@@ -5,6 +5,7 @@ import { toast } from "react-hot-toast";
 function ManualReg() {
   const [event, setEvent] = useState(null);
   const [formData, setFormData] = useState({});
+  const [roleRegistrations, setRoleRegistrations] = useState({});
   const [loading, setLoading] = useState(true);
   const BASE_URL = import.meta.env.VITE_BACKEND_URL;
   const eventID = localStorage.getItem("selectedEvent");
@@ -14,9 +15,14 @@ function ManualReg() {
       try {
         const response = await axios.get(`${BASE_URL}/events/${eventID}`);
         setEvent(response.data);
+
+        // Fetch role registrations count
+        const regRes = await axios.get(`${BASE_URL}/events/${eventID}/role-registrations`);
+        setRoleRegistrations(regRes.data);
+
         setLoading(false);
       } catch (error) {
-        toast.error("Failed to fetch event details. Please try again.");
+        toast.error("Failed to fetch event details.");
         setLoading(false);
       }
     };
@@ -101,7 +107,6 @@ function ManualReg() {
           )}
         </div>
 
-
         <form onSubmit={handleSubmit}>
           {/* Dynamic Registration Fields excluding ROLE */}
           {event.registrationFields
@@ -185,36 +190,51 @@ function ManualReg() {
             ))}
 
           {/* Display event roles as radio buttons */}
-          {/* Display event roles as radio buttons */}
           <div className="mb-4">
             <label className="block text-gray-700 font-semibold mb-2">
               Select Role <span className="text-red-600">*</span>
             </label>
             <div className="flex flex-col gap-3">
-              {event.eventRoles.map((role, idx) => (
-                <label
-                  key={idx}
-                  className="flex flex-col border rounded p-3 hover:shadow transition cursor-pointer"
-                >
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="radio"
-                      name="role"
-                      value={role.roleName}
-                      checked={formData.role === role.roleName}
-                      onChange={handleChange}
-                      required
-                    />
-                    <span className="font-medium">{role.roleName}</span>
-                  </div>
-                  {role.roleDescription && (
-                    <p className="text-gray-600 text-sm mt-1 ml-6">{role.roleDescription}</p>
-                  )}
-                </label>
-              ))}
+              {event.eventRoles.map((role, idx) => {
+                const remaining = Math.max(role.maxRegistrations - (roleRegistrations[role.roleName] || 0), 0);
+
+                return (
+                  <label
+                    key={idx}
+                    className="flex flex-col border rounded p-3 hover:shadow transition cursor-pointer"
+                  >
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="radio"
+                        name="role"
+                        value={role.roleName}
+                        checked={formData.role === role.roleName}
+                        onChange={handleChange}
+                        required
+                        disabled={remaining <= 0}
+                      />
+                      <span className="font-medium">{role.roleName}</span>
+                    </div>
+                    {role.roleDescription && (
+                      <p className="text-gray-600 text-sm mt-1 ml-6">{role.roleDescription}</p>
+                    )}
+
+                    {/* Display remaining slots */}
+                    <div className="flex flex-wrap gap-4 text-sm mt-2 ml-6 text-gray-700">
+                      <span><strong>Price:</strong> ₹{role.rolePrice}</span>
+                      <span><strong>Max Slots:</strong> {role.maxRegistrations}</span>
+                      <span className={remaining <= 0 ? "text-red-600 font-bold" : ""}>
+                        <strong>Remaining:</strong> {remaining}
+                      </span>
+                    </div>
+
+                    {/* Show Sold Out message */}
+                    {remaining <= 0 && <span className="text-red-600 text-xs ml-2">(Sold Out)</span>}
+                  </label>
+                );
+              })}
             </div>
           </div>
-
 
           <button
             type="submit"
