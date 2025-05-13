@@ -265,7 +265,7 @@ exports.registerUser = async (req, res) => {
   }
 };
 
-exports.getRoleRegistrationsCount('/:eventId/role-registrations', async (req, res) => {
+exports.getRoleRegistrationsCount = async (req, res) => {
   const { eventID } = req.params;
 
   try {
@@ -296,6 +296,6 @@ exports.getRoleRegistrationsCount('/:eventId/role-registrations', async (req, re
     console.error('Error fetching role registration counts:', err);
     res.status(500).json({ message: 'Failed to fetch registration counts.' });
   }
-});
+};
 
 
