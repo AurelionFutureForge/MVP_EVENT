@@ -19,6 +19,8 @@ import EventLogin from './pages/EventLogin';
 import CreateRegistrationForm from './pages/CreateRegistrationForm';
 import EventList from './pages/EventList';
 import ManualReg from './pages/ManualReg';
+import Login from './pages/Login';
+
 
 const App = () => {
   return (
@@ -40,6 +42,8 @@ const App = () => {
         <Route path='/create-regform' element={<ProtectedRoute> <CreateRegistrationForm /> </ ProtectedRoute>} />
         <Route path='event-list' element={<ProtectedRoute> <EventList/> </ ProtectedRoute>} />
         <Route path='/manual-registration' element={<ProtectedRoute> <ManualReg /> </ ProtectedRoute>} />
+        <Route path='/login' element={<Login/>} />
+        
       </Routes>
     </div>
   );
