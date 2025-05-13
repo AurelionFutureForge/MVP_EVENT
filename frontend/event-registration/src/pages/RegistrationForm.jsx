@@ -7,7 +7,7 @@ function RegistrationForm() {
   const [event, setEvent] = useState(null);
   const [formData, setFormData] = useState({});
   const [loading, setLoading] = useState(true);
-  const [paymentSuccess, setPaymentSuccess] = useState(false); // Track payment state
+  const [paymentSuccess, setPaymentSuccess] = useState(false);
   const BASE_URL = import.meta.env.VITE_BACKEND_URL;
   const { eventID } = useParams();
 
@@ -58,7 +58,7 @@ function RegistrationForm() {
         });
         toast.success("Registration successful!");
         setFormData({});
-        setPaymentSuccess(false); // Reset after registration
+        setPaymentSuccess(false);
       } catch (error) {
         toast.error("Registration failed. Please try again.");
       }
@@ -68,7 +68,7 @@ function RegistrationForm() {
   };
 
   const handlePayment = () => {
-    setPaymentSuccess(true); // Simulate payment success
+    setPaymentSuccess(true);
     toast.success("Payment successful! Now you can register.");
   };
 
@@ -82,26 +82,25 @@ function RegistrationForm() {
     (field) => field.fieldName === "ROLE"
   );
 
-  // Determine selected role and price
   const selectedRole = event.eventRoles?.find(
     (role) => role.roleName === formData[roleField?.fieldName]
   );
   const rolePrice = selectedRole?.rolePrice || 0;
 
-  // Determine button text based on form data
-  const getButtonText = () => {
-    if (paymentSuccess) {
-      return "Register";
-    }
-    if (formData[roleField?.fieldName]) {
-      return `Pay ₹${rolePrice}`;
-    }
-    return "Register";
-  };
-
   return (
     <div className="min-h-screen bg-gray-100 p-6">
       <div className="bg-white p-6 shadow-xl rounded-2xl max-w-lg mx-auto">
+        {/* Company Poster Display */}
+        {event.companyPoster && (
+          <div className="flex justify-center mb-4">
+            <img
+              src={`${BASE_URL}${event.companyPoster}`}
+              alt="Company Poster"
+              className="max-h-32 object-contain"
+            />
+          </div>
+        )}
+
         <h2 className="text-4xl font-extrabold text-gray-800 mb-4 text-center">
           Register for {event.eventName}
         </h2>
@@ -202,6 +201,7 @@ function RegistrationForm() {
             </div>
           ))}
 
+          {/* Role selection */}
           {roleField && (
             <div className="mb-4">
               <label className="block text-gray-700 font-semibold mb-2">
@@ -276,4 +276,3 @@ function RegistrationForm() {
 }
 
 export default RegistrationForm;
-
