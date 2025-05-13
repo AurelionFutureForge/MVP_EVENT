@@ -7,6 +7,7 @@ function ManualReg() {
   const [formData, setFormData] = useState({});
   const [roleRegistrations, setRoleRegistrations] = useState({});
   const [loading, setLoading] = useState(true);
+  const [isPaymentInitiated, setIsPaymentInitiated] = useState(false); // New state variable
   const BASE_URL = import.meta.env.VITE_BACKEND_URL;
   const eventID = localStorage.getItem("selectedEvent");
 
@@ -230,7 +231,10 @@ function ManualReg() {
           {selectedRole && (
             <button
               type="button"
-              onClick={() => toast.success(`Initiate payment for ₹${selectedRole.rolePrice}`)}
+              onClick={() => {
+                setIsPaymentInitiated(true); // Set payment initiated to true when clicked
+                toast.success(`Initiate payment for ₹${selectedRole.rolePrice}`);
+              }}
               className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition shadow w-full mb-4"
             >
               Pay ₹{selectedRole.rolePrice}
@@ -239,6 +243,7 @@ function ManualReg() {
 
           <button
             type="submit"
+            disabled={!isPaymentInitiated} // Disable Register button until payment is initiated
             className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition shadow w-full"
           >
             Register
