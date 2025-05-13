@@ -1,9 +1,6 @@
 const Event = require('../models/Event');
 
 // Create Event
-const Event = require('../models/Event');
-
-// Create Event
 const createEvent = async (req, res) => {
   try {
     console.log("Incoming Request Body:", req.body);
