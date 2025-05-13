@@ -265,9 +265,6 @@ exports.registerUser = async (req, res) => {
   }
 };
 
-const mongoose = require('mongoose');
-const User = require('../models/User'); // Update to correct path
-
 exports.getRoleRegistrationsCount = async (req, res) => {
   const { eventID } = req.params;
 
