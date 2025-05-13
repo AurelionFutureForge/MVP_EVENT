@@ -86,7 +86,7 @@ function ManualReg() {
     <div className="min-h-screen bg-black p-6">
       <div className="bg-white p-6 shadow-xl rounded-2xl max-w-lg mx-auto">
         {event.companyPoster && (
-          <div className="flex justify-start mb-4">
+          <div className="flex justify-center mb-4">
             <img
               src={`${BASE_URL}${event.companyPoster}`}
               alt="Company Poster"

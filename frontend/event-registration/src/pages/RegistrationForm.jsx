@@ -85,7 +85,7 @@ function RegistrationForm() {
   const rolePrice = selectedRole?.rolePrice || 0;
 
   return (
-    <div className="min-h-screen bg-gray-100 p-6">
+    <div className="min-h-screen bg-black p-6">
       <div className="bg-white p-6 shadow-xl rounded-2xl max-w-lg mx-auto">
         {/* Company Poster Display */}
         {event.companyPoster && (
