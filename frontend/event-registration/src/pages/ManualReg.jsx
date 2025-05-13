@@ -207,7 +207,7 @@ function ManualReg() {
                       />
                       <div>
                         <div className="font-medium">{role.roleName}</div>
-                        <div className="text-sm text-gray-600">₹{role.rolePrice}</div>
+                        <div className="text-sm font-bold text-green-600">₹{role.rolePrice}</div>
                       </div>
                     </div>
 
