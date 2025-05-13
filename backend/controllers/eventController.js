@@ -153,7 +153,7 @@ const EditEvents = async (req, res) => {
   }
 };
 
-
+// Update event
 const UpdateEvents = async (req, res) => {
   try {
     const { companyName, eventName, eventRoles, place, time, startDate, endDate } = req.body;
@@ -164,7 +164,7 @@ const UpdateEvents = async (req, res) => {
 
     const formattedStartDate = new Date(startDate);
     const formattedEndDate = new Date(endDate);
-    if (isNaN(formattedStartDate.getTime()) || isNaN(formattedEndDate.getTime())) {
+    if (isNaN(formattedStartDate.getTime()) || isNaN(formattedEndDate.getTime())) { 
       return res.status(400).json({ msg: 'Invalid date format' });
     }
 
@@ -207,42 +207,22 @@ const UpdateEvents = async (req, res) => {
       };
     });
 
-    // Check if a new poster is provided
-    let companyPoster = req.file ? `/uploads/${req.file.filename}` : null;
-
-    const updatedEventData = {
-      companyName: companyName.trim(),
-      eventName: eventName.trim(),
-      eventRoles: processedRoles,
-      place,
-      time,
-      startDate: formattedStartDate.toISOString(),
-      endDate: formattedEndDate.toISOString(),
-    };
-
-    // If a new poster is uploaded, add it to the event data
-    if (companyPoster) {
-      // If the event already has a poster, remove the old one from the server
-      const event = await Event.findById(req.params.eventId);
-      if (event && event.companyPoster) {
-        const oldPosterPath = path.join(__dirname, '..', event.companyPoster);
-        if (fs.existsSync(oldPosterPath)) {
-          fs.unlinkSync(oldPosterPath); // Remove the old file
-        }
-      }
-
-      updatedEventData.companyPoster = companyPoster;
-    }
-
     const updatedEvent = await Event.findByIdAndUpdate(
       req.params.eventId,
-      updatedEventData,
+      {
+        companyName: companyName.trim(),
+        eventName: eventName.trim(),
+        eventRoles: processedRoles,
+        place,
+        time,
+        startDate: formattedStartDate.toISOString(),
+        endDate: formattedEndDate.toISOString()
+      },
       { new: true, runValidators: true }
     );
 
     if (!updatedEvent) return res.status(404).json({ msg: "Event not found" });
     res.json(updatedEvent);
-
   } catch (err) {
     console.error("Update error:", err);
     res.status(500).json({ msg: "Failed to update event", error: err.message });

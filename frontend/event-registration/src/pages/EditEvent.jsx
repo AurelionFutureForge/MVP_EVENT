@@ -15,15 +15,13 @@ export default function EditEvent() {
     endDate: '',
     time: '',
     eventRoles: [],
-    companyPoster: '',
   });
 
   const [newRole, setNewRole] = useState('');
   const [roleDescription, setRoleDescription] = useState('');
   const [privileges, setPrivileges] = useState('');
   const [rolePrice, setRolePrice] = useState('');
-  const [maxRegistrations, setMaxRegistrations] = useState('');
-  const [companyPoster, setCompanyPoster] = useState(null);
+  const [maxRegistrations, setMaxRegistrations] = useState(''); // ✅ renamed correctly
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [editIndex, setEditIndex] = useState(null);
@@ -49,7 +47,6 @@ export default function EditEvent() {
           endDate: event.endDate,
           time: event.time,
           eventRoles: rolesWithPrivilegesString,
-          companyPoster: event.companyPoster || '',
         });
       } catch (err) {
         console.error(err);
@@ -63,13 +60,6 @@ export default function EditEvent() {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setEventDetails({ ...eventDetails, [name]: value });
-  };
-
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setCompanyPoster(file);
-    }
   };
 
   const handleAddRole = () => {
@@ -144,37 +134,24 @@ export default function EditEvent() {
     if (!validateForm()) return;
 
     setLoading(true);
-
-    const formData = new FormData();
-
-    // Append the event details to the form data
-    formData.append('companyName', eventDetails.companyName);
-    formData.append('eventName', eventDetails.eventName);
-    formData.append('place', eventDetails.place);
-    formData.append('startDate', new Date(eventDetails.startDate).toISOString().split('T')[0]);
-    formData.append('endDate', new Date(eventDetails.endDate).toISOString().split('T')[0]);
-    formData.append('time', eventDetails.time);
-
-    // Add the event roles
-    eventDetails.eventRoles.forEach((role, index) => {
-      formData.append(`eventRoles[${index}][roleName]`, role.roleName);
-      formData.append(`eventRoles[${index}][roleDescription]`, role.roleDescription);
-      formData.append(`eventRoles[${index}][privileges]`, role.privileges);
-      formData.append(`eventRoles[${index}][rolePrice]`, role.rolePrice);
-      formData.append(`eventRoles[${index}][maxRegistrations]`, role.maxRegistrations);
-    });
-
-    // Append the company poster if a new file is selected
-    if (companyPoster) {
-      formData.append('companyPoster', companyPoster);
-    }
-
     try {
-      const res = await axios.put(`${BASE_URL}/events/${eventId}`, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
+      const sanitizedRoles = eventDetails.eventRoles.map(role => ({
+        roleName: role.roleName.trim(),
+        roleDescription: role.roleDescription.trim(),
+        privileges: role.privileges.split(',').map(p => p.trim()).filter(p => p),
+        rolePrice: role.rolePrice,
+        maxRegistrations: role.maxRegistrations,
+      }));
+
+      const updatedEvent = {
+        ...eventDetails,
+        eventRoles: sanitizedRoles,
+        startDate: new Date(eventDetails.startDate).toISOString().split('T')[0],
+        endDate: new Date(eventDetails.endDate).toISOString().split('T')[0],
+        time: eventDetails.time,
+      };
+
+      const res = await axios.put(`${BASE_URL}/events/${eventId}`, updatedEvent);
 
       if (res.status === 200) {
         toast.success("Event updated successfully!");
@@ -222,25 +199,6 @@ export default function EditEvent() {
           value={eventDetails.time}
         />
 
-        {/* Display the current company poster */}
-        {eventDetails.companyPoster && (
-          <div className="mb-4">
-            <img
-              src={eventDetails.companyPoster}
-              alt="Company Poster"
-              className="w-full max-w-xs mx-auto mb-2"
-            />
-          </div>
-        )}
-
-        {/* File input for company poster */}
-        <input
-          type="file"
-          name="companyPoster"
-          className="w-full p-2 mb-4 border rounded"
-          onChange={handleFileChange}
-        />
-
         <div className="mb-6">
           <h5 className="font-semibold mb-2">Add/Edit Roles & Privileges</h5>
           <input type="text" placeholder="Role Name"
@@ -270,28 +228,28 @@ export default function EditEvent() {
 
           <div className="mt-4 space-y-2">
             {eventDetails.eventRoles.map((role, index) => (
-              <div key={index} className="flex justify-between items-center">
-                <span>{role.roleName}</span>
-                <div className="space-x-2">
-                  <button
-                    onClick={() => handleEditRole(index)}
-                    className="text-blue-600 hover:text-blue-700"
-                  >Edit</button>
-                  <button
-                    onClick={() => handleDeleteRole(index)}
-                    className="text-red-600 hover:text-red-700"
-                  >Delete</button>
+              <div key={index} className="flex justify-between items-start p-2 bg-gray-100 rounded">
+                <div>
+                  <strong>{role.roleName}</strong> — {role.roleDescription}<br />
+                  <small className="text-sm text-gray-600">Privileges: {role.privileges}</small><br />
+                  <small className="text-sm text-gray-600">Price: ${role.rolePrice}</small><br />
+                  <small className="text-sm text-gray-600">Max Registrations: {role.maxRegistrations}</small>
+                </div>
+                <div>
+                  <button onClick={() => handleEditRole(index)} className="text-blue-600 hover:text-blue-800">Edit</button>
+                  <button onClick={() => handleDeleteRole(index)} className="text-red-600 hover:text-red-800">✕</button>
                 </div>
               </div>
             ))}
           </div>
         </div>
-        {error && <p className="text-red-600 mb-4">{error}</p>}
+
+        {error && <p className="text-red-600 mb-2">{error}</p>}
 
         <button
           onClick={handleSubmit}
-          className={`w-full py-3 text-white font-bold bg-green-600 rounded hover:bg-green-700 ${loading ? 'opacity-50' : ''}`}
           disabled={loading}
+          className="w-full py-3 bg-green-600 text-white rounded hover:bg-green-700 disabled:opacity-50"
         >
           {loading ? 'Updating...' : 'Update Event'}
         </button>
