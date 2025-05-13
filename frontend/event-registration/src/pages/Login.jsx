@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import PrivilegeLogin from './PrivilegeLogin';
-import AdminLogin from './AdminLogin';
+import AdminRegister from './AdminRegister';
 
 const Login = () => {
   const [loginType, setLoginType] = useState('privilege');
@@ -22,7 +22,7 @@ const Login = () => {
               className="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-400 transition duration-300"
             >
               <option value="privilege">Privilege Login</option>
-              <option value="admin">Admin Registration</option>
+              <option value="admin">Admin Register</option>
             </select>
           </div>
         </form>
