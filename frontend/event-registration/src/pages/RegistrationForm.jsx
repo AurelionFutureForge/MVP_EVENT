@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { toast } from "react-hot-toast";
 import { useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 function RegistrationForm() {
   const [event, setEvent] = useState(null);
@@ -11,6 +12,7 @@ function RegistrationForm() {
   const [paymentSuccess, setPaymentSuccess] = useState(false);
   const BASE_URL = import.meta.env.VITE_BACKEND_URL;
   const { eventID } = useParams();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchEventDetails = async () => {
@@ -52,6 +54,11 @@ function RegistrationForm() {
       }));
     }
   };
+  const eventName = event.eventName;
+  const place = event.place;
+  const time = event.time;
+  const startDate = event.startDate;
+  const endDate = event?.endDate || "";
 
   const handleSubmit = async (e = null) => {
     if (e) e.preventDefault();
@@ -63,6 +70,9 @@ function RegistrationForm() {
       toast.success("Registration successful!");
       setFormData({});
       setPaymentSuccess(false);
+      navigate('/success',{
+        state: eventName, place, time, startDate, endDate, eventID
+      });
     } catch (error) {
       toast.error("Registration failed. Please try again.");
     }
@@ -111,7 +121,7 @@ function RegistrationForm() {
           {event.startDate && (
             <p>
               <span className="font-semibold">Date:</span>{" "}
-              {new Date(event.startDate).toLocaleDateString()}
+              {new Date(event.startDate).toLocaleDateString()} - {new Date(event.endDate).toLocaleDateString()}
             </p>
           )}
           {event.place && (

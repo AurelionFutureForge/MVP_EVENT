@@ -5,7 +5,7 @@ import { FaCheckCircle, FaEnvelope, FaHome, FaQrcode, FaUser, FaCalendarAlt, FaM
 function SuccessPage() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { name, email, eventName, companyName, place, time, date, qrCode } = location.state || {};
+  const { eventName, place, time, startDate, endDate, eventID } = location.state || {};
   const [showConfetti, setShowConfetti] = useState(false);
 
   useEffect(() => {
@@ -40,30 +40,19 @@ function SuccessPage() {
             <FaCalendarAlt className="mr-2 text-purple-500" /> {eventName}
           </p>
           <p className="flex items-center justify-center mt-2">
-            <FaClock className="mr-2 text-yellow-500" /> {date} | {time} (IST)
+            <FaClock className="mr-2 text-yellow-500" />  {new Date(startDate).toLocaleDateString()} - {new Date(endDate).toLocaleDateString()} | {time} (IST)
           </p>
           <p className="flex items-center justify-center mt-2">
             <FaMapMarkerAlt className="mr-2 text-pink-500" /> {place}
           </p>
         </div>
 
-        {/* ✅ Center-aligned QR code with icon */}
-        <div className="flex flex-col items-center justify-center mt-8">
-          <FaQrcode className="text-blue-600 text-4xl mb-2" />
-          <img 
-            src={qrCode.startsWith("data:image") ? qrCode : `https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(qrCode)}&size=200x200`}
-            alt="QR Code"
-            className="w-48 h-48 border-4 border-blue-500 rounded-lg shadow-lg"
-          />
-          <p className="text-gray-500 mt-3">Scan this QR code at the event entry</p>
-        </div>
-
         {/* ✅ Navigation Button */}
         <button 
-          onClick={() => navigate("/")} 
+          onClick={() => navigate(`/register/${eventID}`)} 
           className="mt-8 bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-full flex items-center justify-center transition duration-300"
         >
-          <FaHome className="mr-2" /> Go to Home
+          <FaHome className="mr-2" /> 
         </button>
       </div>
     </div>
