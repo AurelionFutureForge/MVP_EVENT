@@ -15,7 +15,7 @@ const app = express();
 app.use(express.json());
 
 // ✅ Serve static files from the 'uploads' folder
-app.use("/uploads", express.static(path.join(__dirname, "src", "uploads")));
+app.use("/uploads", express.static(path.join(__dirname, "uploads"))); // ✅ NOT src/uploads
 
 // CORS config
 const corsOptions = {
