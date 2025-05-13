@@ -92,7 +92,7 @@ function RegistrationForm() {
           {event.startDate && (
             <p>
               <span className="font-semibold">Date:</span>{" "}
-              {new Date(event.startDate).toLocaleDateString()} - {new Date(event.endtDate).toLocaleDateString()}
+              {new Date(event.startDate).toLocaleDateString()} - {new Date(event.endDate).toLocaleDateString()}
             </p>
           )}
           {event.place && (
