@@ -53,14 +53,15 @@ function ManualReg() {
     }
   };
 
-  const handlePayment = () => {
+  const handlePayment = async () => {
     setPaymentSuccess(true);
-    toast.success("Payment successful! Now you can register.");
+    toast.success("Payment successful! Now registering.");
+
+    // After payment success, automatically submit the form
+    handleSubmit();
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
+  const handleSubmit = async () => {
     if (!paymentSuccess) {
       toast.error("Please complete the payment before registering.");
       return;
@@ -121,7 +122,7 @@ function ManualReg() {
           )}
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form className="space-y-6">
           {event.registrationFields
             .filter((field) => field.fieldName !== "ROLE")
             .map((field, idx) => (
@@ -259,19 +260,6 @@ function ManualReg() {
               Pay ₹{selectedRole?.rolePrice}
             </button>
           )}
-
-          {/* Register Button */}
-          <button
-            type="submit"
-            disabled={!paymentSuccess}
-            className={`mt-4 px-4 py-2 rounded-xl w-full transition shadow ${
-              paymentSuccess
-                ? "bg-blue-600 text-white hover:bg-blue-700"
-                : "bg-gray-600 text-white cursor-not-allowed"
-            }`}
-          >
-            Register
-          </button>
         </form>
       </div>
     </div>
