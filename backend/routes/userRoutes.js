@@ -3,5 +3,5 @@ const { registerUser,getRoleRegistrationsCount } = require("../controllers/userC
 
 const router = express.Router();
 router.post("/register", registerUser);
-router.get('/:eventId/role-registrations', getRoleRegistrationsCount);
+router.get('/:eventID/role-registrations', getRoleRegistrationsCount);
 module.exports = router;

@@ -294,7 +294,7 @@ exports.getRoleRegistrationsCount = async (req, res) => {
     res.json(registrationMap);
   } catch (err) {
     console.error('Error fetching role registration counts:', err);
-    res.status(500).json({ message: 'Failed to fetch registration counts.' });
+    res.status(500).json({ message: 'Failed to fetch registration counts.',err });
   }
 };
 
