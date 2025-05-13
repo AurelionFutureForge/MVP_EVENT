@@ -2,6 +2,7 @@ require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
+const path = require("path"); // ✅ Required to resolve paths
 
 // Import routes
 const authRoutes = require("./routes/authRoutes");
@@ -13,7 +14,10 @@ const privilegeRoutes = require('./routes/privilegeRoutes');
 const app = express();
 app.use(express.json());
 
-// CORS config (NO credentials needed since we're using headers for JWT)
+// ✅ Serve static files from the 'uploads' folder
+app.use("/uploads", express.static(path.join(__dirname, "uploads"))); // <--- Add this line
+
+// CORS config
 const corsOptions = {
   origin: ["https://mvp-event.vercel.app", "http://localhost:5173"],  
   methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
@@ -28,7 +32,7 @@ app.use("/admin", authRoutes);
 app.use("/users", userRoutes);
 app.use("/scan", scanRoutes);
 app.use("/events", eventRoutes);
-app.use('/privilege',privilegeRoutes);
+app.use("/privilege", privilegeRoutes);
 
 // Connect DB + start server
 mongoose.connect(process.env.MONGO_URI)
