@@ -1,6 +1,6 @@
 const express = require('express');
 const { createEvent, getEvents, getEventByDetails, EditEvents, UpdateEvents, saveRegistrationFields,getEventById} = require("../controllers/eventController");
-const upload = require('../uploads/uploadMiddleware')
+const upload = require('../uploadMiddleware')
 const router = express.Router();
 
 // Create event requires JWT token for authentication

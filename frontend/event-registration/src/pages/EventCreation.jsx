@@ -318,41 +318,43 @@ export default function EventCreation() {
               onChange={handleChange}
               value={eventDetails.time}
             />
-            <label><b>Start Date</b></label>
             <input
               type="date"
               name="startDate"
+              placeholder="Start Date"
               className="w-full p-3 mb-4 border rounded-lg shadow-sm"
               onChange={handleChange}
               value={eventDetails.startDate}
             />
-            <label><b>End Date</b></label>
             <input
               type="date"
               name="endDate"
+              placeholder="End Date"
               className="w-full p-3 mb-4 border rounded-lg shadow-sm"
               onChange={handleChange}
               value={eventDetails.endDate}
             />
 
-            <label><b>Upload Company Poster</b></label>
-            <input
-              type="file"
-              name="poster"
-              accept="image/*"
-              className="w-full p-3 mb-4 border rounded-lg shadow-sm"
-              onChange={handlePosterChange}
-            />
+            <div className="mb-6">
+              <label className="block mb-2 text-lg font-semibold">Upload Event Poster</label>
+              <input
+                type="file"
+                onChange={handlePosterChange}
+                className="w-full p-3 mb-4 border rounded-lg shadow-sm"
+              />
+            </div>
 
-            {error && <p className="text-red-600 mb-2">{error}</p>}
+            {error && <p className="text-red-600">{error}</p>}
 
-            <button
-              onClick={handleSubmit}
-              disabled={loading}
-              className="w-full py-3 mt-4 bg-blue-600 text-white font-semibold rounded-lg shadow hover:bg-blue-700 disabled:opacity-50"
-            >
-              {loading ? 'Creating Event...' : 'Create Event'}
-            </button>
+            <div className="flex justify-center space-x-4">
+              <button
+                onClick={handleSubmit}
+                disabled={loading}
+                className="px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg shadow hover:bg-blue-700 disabled:bg-gray-400"
+              >
+                {loading ? 'Creating Event...' : 'Create Event'}
+              </button>
+            </div>
           </div>
         )}
       </section>
