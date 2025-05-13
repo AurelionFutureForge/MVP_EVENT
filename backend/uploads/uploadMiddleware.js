@@ -1,21 +1,26 @@
-// backend/uploadMiddleware.js
-
 const multer = require('multer');
 const path = require('path');
+const fs = require('fs');
 
-// Set up storage engine for multer to define where and how the file will be saved
+// Define the uploads directory path
+const uploadDir = path.join(__dirname, '..', 'uploads');
+
+// Create the uploads directory if it doesn't exist
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+}
+
+// Set up storage engine for multer
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    // Upload files to the 'uploads' folder
-    cb(null, 'backend/uploads');
+    cb(null, uploadDir); // Save to 'uploads' folder
   },
   filename: (req, file, cb) => {
-    // Set file name with the original name and a timestamp to avoid conflicts
-    cb(null, `${Date.now()}-${file.originalname}`);
+    cb(null, `${Date.now()}-${file.originalname}`); // Add timestamp to avoid conflicts
   },
 });
 
-// Set up file filter to accept only image files (or change according to your needs)
+// Set up file filter for only image files
 const fileFilter = (req, file, cb) => {
   const allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
   if (allowedTypes.includes(file.mimetype)) {
@@ -25,10 +30,10 @@ const fileFilter = (req, file, cb) => {
   }
 };
 
-// Set up the multer upload instance
+// Set up multer upload with size limit and file filter
 const upload = multer({
   storage,
-  limits: { fileSize: 50 * 1024 * 1024 }, // 5MB file size limit
+  limits: { fileSize: 50 * 1024 * 1024 }, // 50MB max size
   fileFilter,
 });
 
