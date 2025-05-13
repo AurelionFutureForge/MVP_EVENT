@@ -5,8 +5,8 @@ const roleSchema = new mongoose.Schema({
   roleName: { type: String, required: true },
   roleDescription: { type: String, required: true },
   privileges: [{ type: String, required: true }],
-  rolePrice: { type: Number, required: true },          
-  maxRegistrations: { type: Number, required: true }    
+  rolePrice: { type: Number, required: true },
+  maxRegistrations: { type: Number, required: true }
 });
 
 // Registration Field Schema
@@ -25,7 +25,7 @@ const eventSchema = new mongoose.Schema({
   place: { type: String, required: true },
   time: { type: String, required: true },  // Time in AM/PM format
   startDate: { type: Date, required: true },  // Event start date
-  endDate: { type: Date, required: true },  // Event end date
+  endDate: { type: Date },  // Event end date
   registrationFields: [registrationFieldSchema],  // Array of dynamically added registration fields
   companyPoster: { type: String }
 });
