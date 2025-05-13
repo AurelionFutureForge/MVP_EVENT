@@ -39,11 +39,6 @@ function RegistrationForm() {
           ? [...(prev[name] || []), value]
           : (prev[name] || []).filter((v) => v !== value),
       }));
-    } else if (type === "radio") {
-      setFormData((prev) => ({
-        ...prev,
-        [name]: value,
-      }));
     } else {
       setFormData((prev) => ({
         ...prev,
@@ -67,17 +62,15 @@ function RegistrationForm() {
     }
   };
 
-  if (loading) {
-    return <div>Loading event details...</div>;
-  }
+  if (loading) return <div>Loading event details...</div>;
+  if (!event) return <div>No event found.</div>;
 
-  if (!event) {
-    return <div>No event found.</div>;
-  }
-
-  // Separate ROLE field to render last
-  const otherFields = event.registrationFields.filter((field) => field.fieldName !== "ROLE");
-  const roleField = event.registrationFields.find((field) => field.fieldName === "ROLE");
+  const otherFields = event.registrationFields.filter(
+    (field) => field.fieldName !== "ROLE"
+  );
+  const roleField = event.registrationFields.find(
+    (field) => field.fieldName === "ROLE"
+  );
 
   return (
     <div className="min-h-screen bg-gray-100 p-6">
@@ -86,7 +79,6 @@ function RegistrationForm() {
           Register for {event.eventName}
         </h2>
 
-        {/* Display event metadata */}
         <div className="text-center text-gray-600 mb-6">
           {event.startDate && (
             <p>
@@ -107,7 +99,6 @@ function RegistrationForm() {
         </div>
 
         <form onSubmit={handleSubmit}>
-          {/* Render all fields except ROLE first */}
           {otherFields.map((field, idx) => (
             <div key={idx} className="mb-4">
               <label className="block text-gray-700 font-semibold mb-2">
@@ -184,7 +175,6 @@ function RegistrationForm() {
             </div>
           ))}
 
-          {/* Render ROLE field last (as radio buttons) */}
           {roleField && (
             <div className="mb-4">
               <label className="block text-gray-700 font-semibold mb-2">
@@ -193,7 +183,9 @@ function RegistrationForm() {
               </label>
               <div className="flex flex-col gap-3">
                 {roleField.options.map((option, idx) => {
-                  const matchingRole = event.eventRoles?.find((role) => role.roleName === option);
+                  const matchingRole = event.eventRoles?.find(
+                    (role) => role.roleName === option
+                  );
                   const price = matchingRole?.rolePrice || 0;
 
                   return (
@@ -211,7 +203,9 @@ function RegistrationForm() {
                           required={roleField.required}
                         />
                         <span className="font-medium">{option}</span>
-                        <span className="text-sm text-blue-600 font-semibold ml-auto">Pay ₹{price}</span>
+                        <span className="text-sm text-blue-600 font-semibold ml-auto">
+                          Pay ₹{price}
+                        </span>
                       </div>
                       {matchingRole?.roleDescription && (
                         <p className="text-gray-600 text-sm mt-1 ml-6">
@@ -225,12 +219,29 @@ function RegistrationForm() {
             </div>
           )}
 
-          <button
-            type="submit"
-            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition shadow w-full"
-          >
-            Register
-          </button>
+          {/* Conditionally show pay or register button */}
+          {formData[roleField?.fieldName] ? (() => {
+            const selectedRole = event.eventRoles?.find(
+              (role) => role.roleName === formData[roleField.fieldName]
+            );
+            if (!selectedRole) return null;
+
+            return (
+              <button
+                type="submit"
+                className="mt-4 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition shadow w-full"
+              >
+                Pay ₹{selectedRole.rolePrice}
+              </button>
+            );
+          })() : (
+            <button
+              type="submit"
+              className="mt-4 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition shadow w-full"
+            >
+              Register
+            </button>
+          )}
         </form>
       </div>
     </div>
