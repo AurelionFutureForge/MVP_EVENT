@@ -93,7 +93,7 @@ function RegistrationForm() {
             <img
               src={`${BASE_URL}${event.companyPoster}`}
               alt="Company Poster"
-              className="max-h-32 object-contain"
+              className="max-h-32 object-contain rounded-xl"
             />
           </div>
         )}
