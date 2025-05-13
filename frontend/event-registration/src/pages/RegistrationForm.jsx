@@ -193,13 +193,14 @@ function RegistrationForm() {
               </label>
               <div className="flex flex-col gap-3">
                 {roleField.options.map((option, idx) => {
-                  // Find role description from eventRoles
-                  const matchingRole = event.eventRoles?.find(
-                    (role) => role.roleName === option
-                  );
+                  const matchingRole = event.eventRoles?.find((role) => role.roleName === option);
+                  const price = matchingRole?.rolePrice || 0;
 
                   return (
-                    <label key={idx} className="flex flex-col border rounded p-3 hover:shadow transition cursor-pointer">
+                    <label
+                      key={idx}
+                      className="flex flex-col border rounded p-3 hover:shadow transition cursor-pointer"
+                    >
                       <div className="flex items-center gap-2">
                         <input
                           type="radio"
@@ -210,9 +211,12 @@ function RegistrationForm() {
                           required={roleField.required}
                         />
                         <span className="font-medium">{option}</span>
+                        <span className="text-sm text-blue-600 font-semibold ml-auto">Pay ₹{price}</span>
                       </div>
-                      {matchingRole && (
-                        <p className="text-gray-600 text-sm mt-1 ml-6">{matchingRole.roleDescription}</p>
+                      {matchingRole?.roleDescription && (
+                        <p className="text-gray-600 text-sm mt-1 ml-6">
+                          {matchingRole.roleDescription}
+                        </p>
                       )}
                     </label>
                   );
