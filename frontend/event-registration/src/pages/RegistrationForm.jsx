@@ -7,7 +7,7 @@ function RegistrationForm() {
   const [event, setEvent] = useState(null);
   const [formData, setFormData] = useState({});
   const [loading, setLoading] = useState(true);
-  const [paymentSuccess, setPaymentSuccess] = useState(false);  // Track payment state
+  const [paymentSuccess, setPaymentSuccess] = useState(false); // Track payment state
   const BASE_URL = import.meta.env.VITE_BACKEND_URL;
   const { eventID } = useParams();
 
@@ -68,7 +68,7 @@ function RegistrationForm() {
   };
 
   const handlePayment = () => {
-    setPaymentSuccess(true);  // Simulate payment success
+    setPaymentSuccess(true); // Simulate payment success
     toast.success("Payment successful! Now you can register.");
   };
 
@@ -82,18 +82,19 @@ function RegistrationForm() {
     (field) => field.fieldName === "ROLE"
   );
 
+  // Determine selected role and price
+  const selectedRole = event.eventRoles?.find(
+    (role) => role.roleName === formData[roleField?.fieldName]
+  );
+  const rolePrice = selectedRole?.rolePrice || 0;
+
   // Determine button text based on form data
   const getButtonText = () => {
     if (paymentSuccess) {
       return "Register";
     }
     if (formData[roleField?.fieldName]) {
-      const selectedRole = event.eventRoles?.find(
-        (role) => role.roleName === formData[roleField.fieldName]
-      );
-      if (selectedRole) {
-        return `Pay ₹${selectedRole.rolePrice}`;
-      }
+      return `Pay ₹${rolePrice}`;
     }
     return "Register";
   };
@@ -245,18 +246,28 @@ function RegistrationForm() {
             </div>
           )}
 
+          {/* Payment Button */}
+          {formData[roleField?.fieldName] && !paymentSuccess && (
+            <button
+              type="button"
+              className="mt-4 px-4 py-2 rounded-lg w-full bg-green-600 text-white hover:bg-green-700"
+              onClick={handlePayment}
+            >
+              Pay ₹{rolePrice}
+            </button>
+          )}
+
+          {/* Register Button */}
           <button
-            type="button"
+            type="submit"
             className={`mt-4 px-4 py-2 rounded-lg w-full transition shadow ${
               paymentSuccess
                 ? "bg-blue-600 text-white hover:bg-blue-700"
-                : formData[roleField?.fieldName]
-                ? "bg-green-600 text-white hover:bg-green-700"
-                : "bg-blue-600 text-white hover:bg-blue-700"
+                : "bg-gray-600 text-white cursor-not-allowed"
             }`}
-            onClick={paymentSuccess ? handleSubmit : handlePayment}
+            disabled={!paymentSuccess}
           >
-            {getButtonText()}
+            Register
           </button>
         </form>
       </div>
@@ -265,3 +276,4 @@ function RegistrationForm() {
 }
 
 export default RegistrationForm;
+
