@@ -1,17 +1,30 @@
 const Event = require('../models/Event');
 
 // Create Event
+const Event = require('../models/Event');
+
+// Create Event
 const createEvent = async (req, res) => {
   try {
     console.log("Incoming Request Body:", req.body);
-    const { companyName, eventName, eventRoles, place, time, startDate, endDate } = req.body;
+    let { companyName, eventName, eventRoles, place, time, startDate, endDate } = req.body;
 
     // Handle the uploaded file
-    const companyPoster = req.file ? `/uploads/${req.file.filename}` : null; // Get the file path if uploaded
+    const companyPoster = req.file ? `/uploads/${req.file.filename}` : null;
 
     const trimmedCompanyName = companyName.trim();
     const trimmedEventName = eventName.trim();
 
+    // Parse eventRoles if it's a JSON string (multipart/form-data)
+    if (typeof eventRoles === 'string') {
+      try {
+        eventRoles = JSON.parse(eventRoles);
+      } catch (err) {
+        return res.status(400).json({ msg: 'Invalid eventRoles format. Should be a valid JSON array.' });
+      }
+    }
+
+    // Check for existing event
     const existingEvent = await Event.findOne({
       companyName: { $regex: new RegExp(`^${trimmedCompanyName}$`, 'i') },
       eventName: { $regex: new RegExp(`^${trimmedEventName}$`, 'i') }
@@ -21,16 +34,18 @@ const createEvent = async (req, res) => {
       return res.status(400).json({ msg: 'An event with this company and event name already exists' });
     }
 
+    // Validate dates
     if (!startDate || !endDate) {
       return res.status(400).json({ msg: 'Start date and End date are required' });
     }
 
     const formattedStartDate = new Date(startDate);
     const formattedEndDate = new Date(endDate);
-    if (isNaN(formattedStartDate.getTime()) || isNaN(formattedEndDate.getTime())) { 
+    if (isNaN(formattedStartDate.getTime()) || isNaN(formattedEndDate.getTime())) {
       return res.status(400).json({ msg: 'Invalid date format' });
     }
 
+    // Validate eventRoles
     if (!Array.isArray(eventRoles) || eventRoles.length === 0) {
       return res.status(400).json({ msg: 'At least one role is required' });
     }
@@ -39,7 +54,7 @@ const createEvent = async (req, res) => {
       let privilegesArray = [];
 
       if (Array.isArray(role.privileges)) {
-        privilegesArray = role.privileges.flatMap(p => 
+        privilegesArray = role.privileges.flatMap(p =>
           p.split(',').map(item => item.trim()).filter(item => item)
         );
       }
@@ -48,7 +63,8 @@ const createEvent = async (req, res) => {
         throw new Error(`Role '${role.roleName}' must have at least one valid privilege`);
       }
 
-      if (role.rolePrice === undefined || isNaN(Number(role.rolePrice)) || Number(role.rolePrice) < 0) {
+      const rolePrice = role.rolePrice ?? role.price;
+      if (rolePrice === undefined || isNaN(Number(rolePrice)) || Number(rolePrice) < 0) {
         throw new Error(`Role '${role.roleName}' must have a valid non-negative price`);
       }
 
@@ -60,7 +76,7 @@ const createEvent = async (req, res) => {
         roleName: role.roleName.trim(),
         roleDescription: role.roleDescription.trim(),
         privileges: privilegesArray,
-        rolePrice: Number(role.rolePrice),
+        rolePrice: Number(rolePrice),
         maxRegistrations: Number(role.maxRegistrations)
       };
     });
@@ -73,7 +89,7 @@ const createEvent = async (req, res) => {
       time,
       startDate: formattedStartDate.toISOString(),
       endDate: formattedEndDate.toISOString(),
-      companyPoster, // Store the file path in the event data
+      companyPoster, // Save poster path
     });
 
     await newEvent.save();
@@ -84,7 +100,6 @@ const createEvent = async (req, res) => {
     res.status(500).json({ msg: 'Server error', error: error.message });
   }
 };
-
 
 // Get all events of a company
 const getEvents = async (req, res) => {
