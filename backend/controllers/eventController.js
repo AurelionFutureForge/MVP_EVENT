@@ -6,6 +6,10 @@ const createEvent = async (req, res) => {
     console.log("Incoming Request Body:", req.body);
     let { companyName, eventName, eventRoles, place, time, startDate, endDate } = req.body;
 
+    console.log('Incoming Request:', req.body);
+    console.log('File Upload:', req.file);
+
+
     // Handle the uploaded file
     const companyPoster = req.file ? `/uploads/${req.file.filename}` : null;
 

@@ -132,7 +132,7 @@ export default function EventCreation() {
       formData.append("companyEmail", loggedInEmail);
       formData.append("eventRoles", JSON.stringify(sanitizedRoles));
       if (eventDetails.poster) {
-        formData.append("poster", eventDetails.poster);
+        formData.append("companyPoster", eventDetails.poster);
       }
 
       const response = await axios.post(`${BASE_URL}/events/create-event`, formData, {
