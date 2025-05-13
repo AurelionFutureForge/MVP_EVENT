@@ -7,8 +7,7 @@ function ManualReg() {
   const [formData, setFormData] = useState({});
   const [roleRegistrations, setRoleRegistrations] = useState({});
   const [loading, setLoading] = useState(true);
-  const [isPaymentInitiated, setIsPaymentInitiated] = useState(false); // New state variable
-  const [isPaymentButtonClicked, setIsPaymentButtonClicked] = useState(false); // Track button click
+  const [paymentSuccess, setPaymentSuccess] = useState(false); // Track payment
   const BASE_URL = import.meta.env.VITE_BACKEND_URL;
   const eventID = localStorage.getItem("selectedEvent");
 
@@ -54,8 +53,19 @@ function ManualReg() {
     }
   };
 
+  const handlePayment = () => {
+    setPaymentSuccess(true);
+    toast.success("Payment successful! Now you can register.");
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!paymentSuccess) {
+      toast.error("Please complete the payment before registering.");
+      return;
+    }
+
     try {
       await axios.post(`${BASE_URL}/users/register`, {
         formData,
@@ -63,6 +73,7 @@ function ManualReg() {
       });
       toast.success("Registration successful!");
       setFormData({});
+      setPaymentSuccess(false);
     } catch (error) {
       toast.error("Registration failed. Please try again.");
     }
@@ -229,24 +240,26 @@ function ManualReg() {
             </div>
           </div>
 
-          {!isPaymentButtonClicked && selectedRole && (
+          {/* Payment Button */}
+          {formData.role && !paymentSuccess && (
             <button
               type="button"
-              onClick={() => {
-                setIsPaymentInitiated(true); // Set payment initiated to true when clicked
-                setIsPaymentButtonClicked(true); // Hide the payment button after click
-                toast.success(`Initiate payment for ₹${selectedRole.rolePrice}`);
-              }}
-              className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition shadow w-full mb-4"
+              className="mt-4 px-4 py-2 rounded-lg w-full bg-green-600 text-white hover:bg-green-700"
+              onClick={handlePayment}
             >
-              Pay ₹{selectedRole.rolePrice}
+              Pay ₹{selectedRole?.rolePrice}
             </button>
           )}
 
+          {/* Register Button */}
           <button
             type="submit"
-            disabled={!isPaymentInitiated} // Disable Register button until payment is initiated
-            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition shadow w-full"
+            disabled={!paymentSuccess}
+            className={`mt-4 px-4 py-2 rounded-lg w-full transition shadow ${
+              paymentSuccess
+                ? "bg-blue-600 text-white hover:bg-blue-700"
+                : "bg-gray-600 text-white cursor-not-allowed"
+            }`}
           >
             Register
           </button>
