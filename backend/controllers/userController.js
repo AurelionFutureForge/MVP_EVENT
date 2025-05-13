@@ -265,31 +265,37 @@ exports.registerUser = async (req, res) => {
   }
 };
 
-exports.getRoleRegistrationsCount = async (req, res) => {
+exports.getRoleRegistrationsCount('/:eventId/role-registrations', async (req, res) => {
   const { eventID } = req.params;
 
-  // Validate eventID
-  if (!mongoose.Types.ObjectId.isValid(eventID)) {
-    return res.status(400).json({ msg: "Invalid event ID" });
-  }
-
   try {
-    const registrations = await User.aggregate([
+    // Step 1: Aggregate count of users per role for the event
+    const roleCounts = await User.aggregate([
       { $match: { eventId: new mongoose.Types.ObjectId(eventID) } },
-      { $group: { _id: "$role", count: { $sum: 1 } } }
+      { $group: { _id: '$role', count: { $sum: 1 } } }
     ]);
 
-    const result = {};
-    registrations.forEach(reg => {
-      result[reg._id] = reg.count;
+    // Convert to { roleName: count } object
+    const registrationMap = {};
+    roleCounts.forEach((r) => {
+      registrationMap[r._id] = r.count;
     });
 
-    res.status(200).json(result);
-  } catch (error) {
-    console.error("Aggregation Error:", error?.message || error);
-    res.status(500).json({ msg: "Failed to fetch role registrations", error: error?.message || error });
-  }
-};
+    // Optional: Also check for roles that are not yet filled and set count to 0
+    const event = await Event.findById(eventID);
+    if (event && event.eventRoles) {
+      event.eventRoles.forEach(role => {
+        if (!(role.roleName in registrationMap)) {
+          registrationMap[role.roleName] = 0;
+        }
+      });
+    }
 
+    res.json(registrationMap);
+  } catch (err) {
+    console.error('Error fetching role registration counts:', err);
+    res.status(500).json({ message: 'Failed to fetch registration counts.' });
+  }
+});
 
 
