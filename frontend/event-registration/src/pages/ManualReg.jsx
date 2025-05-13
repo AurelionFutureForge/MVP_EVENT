@@ -18,7 +18,6 @@ function ManualReg() {
 
         const regRes = await axios.get(`${BASE_URL}/users/${eventID}/role-registrations`);
         setRoleRegistrations(regRes.data);
-        console.log("regRes:", regRes.data);
 
         setLoading(false);
       } catch (error) {
@@ -67,13 +66,12 @@ function ManualReg() {
     }
   };
 
-  if (loading) {
-    return <div>Loading event details...</div>;
-  }
+  if (loading) return <div>Loading event details...</div>;
+  if (!event) return <div>No event found.</div>;
 
-  if (!event) {
-    return <div>No event found.</div>;
-  }
+  const selectedRole = event?.eventRoles?.find(
+    (role) => role.roleName === formData.role
+  );
 
   return (
     <div className="min-h-screen bg-gray-100 p-6">
@@ -162,9 +160,9 @@ function ManualReg() {
                 )}
 
                 {field.fieldType === "checkbox" && (
-                  <div className="flex items-center space-x-2">
+                  <div className="flex flex-wrap items-center gap-2">
                     {field.options.map((option, optionIdx) => (
-                      <div key={optionIdx} className="flex items-center">
+                      <label key={optionIdx} className="flex items-center gap-1">
                         <input
                           type="checkbox"
                           name={field.fieldName}
@@ -173,8 +171,8 @@ function ManualReg() {
                           onChange={handleChange}
                           className="w-4 h-4"
                         />
-                        <label className="text-gray-700">{option}</label>
-                      </div>
+                        <span className="text-gray-700">{option}</span>
+                      </label>
                     ))}
                   </div>
                 )}
@@ -228,6 +226,16 @@ function ManualReg() {
               })}
             </div>
           </div>
+
+          {selectedRole && (
+            <button
+              type="button"
+              onClick={() => toast.success(`Initiate payment for ₹${selectedRole.rolePrice}`)}
+              className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition shadow w-full mb-4"
+            >
+              Pay ₹{selectedRole.rolePrice}
+            </button>
+          )}
 
           <button
             type="submit"
