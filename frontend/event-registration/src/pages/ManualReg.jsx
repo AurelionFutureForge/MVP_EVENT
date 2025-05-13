@@ -62,11 +62,6 @@ function ManualReg() {
   };
 
   const handleSubmit = async () => {
-    if (!paymentSuccess) {
-      toast.error("Please complete the payment before registering.");
-      return;
-    }
-
     try {
       await axios.post(`${BASE_URL}/users/register`, {
         formData,
