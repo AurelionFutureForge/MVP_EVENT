@@ -50,7 +50,6 @@ function RegistrationForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      console.log(formData);
       await axios.post(`${BASE_URL}/users/register`, {
         formData,
         eventID,
@@ -71,6 +70,19 @@ function RegistrationForm() {
   const roleField = event.registrationFields.find(
     (field) => field.fieldName === "ROLE"
   );
+
+  // Determine button text based on form data
+  const getButtonText = () => {
+    if (formData[roleField?.fieldName]) {
+      const selectedRole = event.eventRoles?.find(
+        (role) => role.roleName === formData[roleField.fieldName]
+      );
+      if (selectedRole) {
+        return `Pay ₹${selectedRole.rolePrice}`;
+      }
+    }
+    return "Register";
+  };
 
   return (
     <div className="min-h-screen bg-gray-100 p-6">
@@ -219,22 +231,15 @@ function RegistrationForm() {
             </div>
           )}
 
-          {/* Conditionally show pay or register button */}
-                    {selectedRole && (
-            <button
-              type="button"
-              onClick={() => toast.success(`Initiate payment for ₹${selectedRole.rolePrice}`)}
-              className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition shadow w-full mb-4"
-            >
-              Pay ₹{selectedRole.rolePrice}
-            </button>
-          )}
-
           <button
             type="submit"
-            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition shadow w-full"
+            className={`mt-4 px-4 py-2 rounded-lg w-full transition shadow ${
+              formData[roleField?.fieldName]
+                ? "bg-green-600 text-white hover:bg-green-700"
+                : "bg-blue-600 text-white hover:bg-blue-700"
+            }`}
           >
-            Register
+            {getButtonText()}
           </button>
         </form>
       </div>
