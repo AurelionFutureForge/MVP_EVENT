@@ -290,7 +290,7 @@ exports.getRoleRegistrationsCount('/:eventId/role-registrations', async (req, re
         }
       });
     }
-
+    console.log("regMap",registrationMap);
     res.json(registrationMap);
   } catch (err) {
     console.error('Error fetching role registration counts:', err);
