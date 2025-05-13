@@ -7,6 +7,7 @@ function RegistrationForm() {
   const [event, setEvent] = useState(null);
   const [formData, setFormData] = useState({});
   const [loading, setLoading] = useState(true);
+  const [paymentSuccess, setPaymentSuccess] = useState(false);  // Track payment state
   const BASE_URL = import.meta.env.VITE_BACKEND_URL;
   const { eventID } = useParams();
 
@@ -49,16 +50,26 @@ function RegistrationForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    try {
-      await axios.post(`${BASE_URL}/users/register`, {
-        formData,
-        eventID,
-      });
-      toast.success("Registration successful!");
-      setFormData({});
-    } catch (error) {
-      toast.error("Registration failed. Please try again.");
+    if (paymentSuccess) {
+      try {
+        await axios.post(`${BASE_URL}/users/register`, {
+          formData,
+          eventID,
+        });
+        toast.success("Registration successful!");
+        setFormData({});
+        setPaymentSuccess(false); // Reset after registration
+      } catch (error) {
+        toast.error("Registration failed. Please try again.");
+      }
+    } else {
+      toast.error("Please complete the payment before registering.");
     }
+  };
+
+  const handlePayment = () => {
+    setPaymentSuccess(true);  // Simulate payment success
+    toast.success("Payment successful! Now you can register.");
   };
 
   if (loading) return <div>Loading event details...</div>;
@@ -73,6 +84,9 @@ function RegistrationForm() {
 
   // Determine button text based on form data
   const getButtonText = () => {
+    if (paymentSuccess) {
+      return "Register";
+    }
     if (formData[roleField?.fieldName]) {
       const selectedRole = event.eventRoles?.find(
         (role) => role.roleName === formData[roleField.fieldName]
@@ -232,12 +246,15 @@ function RegistrationForm() {
           )}
 
           <button
-            type="submit"
+            type="button"
             className={`mt-4 px-4 py-2 rounded-lg w-full transition shadow ${
-              formData[roleField?.fieldName]
+              paymentSuccess
+                ? "bg-blue-600 text-white hover:bg-blue-700"
+                : formData[roleField?.fieldName]
                 ? "bg-green-600 text-white hover:bg-green-700"
                 : "bg-blue-600 text-white hover:bg-blue-700"
             }`}
+            onClick={paymentSuccess ? handleSubmit : handlePayment}
           >
             {getButtonText()}
           </button>
