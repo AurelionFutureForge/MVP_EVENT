@@ -94,6 +94,8 @@ const createEvent = async (req, res) => {
     });
 
     await newEvent.save();
+
+    console.log("Company poster URL:", `/uploads/${req.file.filename}`);
     res.status(201).json({ msg: 'Event created', event: newEvent });
 
   } catch (error) {

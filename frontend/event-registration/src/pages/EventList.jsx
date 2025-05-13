@@ -71,7 +71,7 @@ function EventList() {
                       📍 <span className="font-medium">{event.place}</span>
                     </p>
                     <p className="text-gray-700">
-                      📅 <span className="font-medium">{event.StartDate}-{event.endDate}</span>
+                      📅 <span className="font-medium">{new Date(event.startDate).toLocaleDateString()}-{new Date(event.endDate).toLocaleDateString()}</span>
                     </p>
                     <p className="text-gray-700">
                       ⏰ <span className="font-medium">{event.time}</span>
