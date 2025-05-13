@@ -28,7 +28,7 @@ const Login = () => {
         </form>
 
         <div className="mt-6">
-          {loginType === 'privilege' ? <PrivilegeLogin /> : <AdminRegistartion />}
+          {loginType === 'privilege' ? <PrivilegeLogin /> : <AdminRegister/>}
         </div>
       </div>
     </div>
