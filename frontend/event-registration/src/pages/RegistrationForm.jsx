@@ -6,6 +6,7 @@ import { useParams } from "react-router-dom";
 function RegistrationForm() {
   const [event, setEvent] = useState(null);
   const [formData, setFormData] = useState({});
+  const [roleRegistrations, setRoleRegistrations] = useState({});
   const [loading, setLoading] = useState(true);
   const [paymentSuccess, setPaymentSuccess] = useState(false);
   const BASE_URL = import.meta.env.VITE_BACKEND_URL;
@@ -16,6 +17,10 @@ function RegistrationForm() {
       try {
         const response = await axios.get(`${BASE_URL}/events/${eventID}`);
         setEvent(response.data);
+
+        const regRes = await axios.get(`${BASE_URL}/users/${eventID}/role-registrations`);
+        setRoleRegistrations(regRes.data);
+
         setLoading(false);
       } catch (error) {
         toast.error("Failed to fetch event details. Please try again.");
@@ -211,6 +216,7 @@ function RegistrationForm() {
                     (role) => role.roleName === option
                   );
                   const price = matchingRole?.rolePrice || 0;
+                  const remaining = Math.max(matchingRole.maxRegistrations - (roleRegistrations[matchingRole.roleName] || 0), 0);
 
                   return (
                     <label
@@ -225,6 +231,7 @@ function RegistrationForm() {
                           checked={formData[roleField.fieldName] === option}
                           onChange={handleChange}
                           required={roleField.required}
+                          disabled={remaining <= 0}
                         />
                         <span className="font-medium">{option}</span>
                         <span className="text-sm text-blue-600 font-semibold ml-auto">
@@ -236,6 +243,8 @@ function RegistrationForm() {
                           {matchingRole.roleDescription}
                         </p>
                       )}
+
+                      {remaining <= 0 && <span className="text-red-600 text-xs ml-2">(Sold Out)</span>}
                     </label>
                   );
                 })}
