@@ -265,12 +265,20 @@ exports.registerUser = async (req, res) => {
   }
 };
 
+const mongoose = require('mongoose');
+const User = require('../models/User'); // Update to correct path
+
 exports.getRoleRegistrationsCount = async (req, res) => {
   const { eventID } = req.params;
 
+  // Validate eventID
+  if (!mongoose.Types.ObjectId.isValid(eventID)) {
+    return res.status(400).json({ msg: "Invalid event ID" });
+  }
+
   try {
     const registrations = await User.aggregate([
-      { $match: { eventId: new mongoose.Types.ObjectId(eventID) } },  // <-- FIXED
+      { $match: { eventId: new mongoose.Types.ObjectId(eventID) } },
       { $group: { _id: "$role", count: { $sum: 1 } } }
     ]);
 
@@ -281,9 +289,10 @@ exports.getRoleRegistrationsCount = async (req, res) => {
 
     res.status(200).json(result);
   } catch (error) {
-    console.log(error);
-    res.status(500).json({ msg: "Failed to fetch role registrations", error });
+    console.error("Aggregation Error:", error?.message || error);
+    res.status(500).json({ msg: "Failed to fetch role registrations", error: error?.message || error });
   }
 };
+
 
 
