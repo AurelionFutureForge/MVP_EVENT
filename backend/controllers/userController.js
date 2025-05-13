@@ -1,5 +1,6 @@
 const nodemailer = require("nodemailer");
 const User = require("../models/User");
+const mongoose = require('mongoose');
 const QRCode = require("qrcode");
 const fs = require("fs");
 const path = require("path");
