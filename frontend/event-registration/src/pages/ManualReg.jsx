@@ -89,6 +89,15 @@ function ManualReg() {
   return (
     <div className="min-h-screen bg-gray-100 p-6">
       <div className="bg-white p-6 shadow-xl rounded-2xl max-w-lg mx-auto">
+        {event.companyPoster && (
+          <div className="flex justify-center mb-4">
+            <img
+              src={`${BASE_URL}${event.companyPoster}`}
+              alt="Company Poster"
+              className="max-h-32 object-contain"
+            />
+          </div>
+        )}
         <h2 className="text-4xl font-extrabold text-gray-800 mb-4 text-center">
           Register for {event.eventName}
         </h2>

@@ -318,6 +318,7 @@ export default function EventCreation() {
               onChange={handleChange}
               value={eventDetails.time}
             />
+            <label><b>Start Date</b></label>
             <input
               type="date"
               name="startDate"
@@ -326,6 +327,7 @@ export default function EventCreation() {
               onChange={handleChange}
               value={eventDetails.startDate}
             />
+            <label>End Date</label>
             <input
               type="date"
               name="endDate"
@@ -336,9 +338,10 @@ export default function EventCreation() {
             />
 
             <div className="mb-6">
-              <label className="block mb-2 text-lg font-semibold">Upload Event Poster</label>
+              <label className="block mb-2 text-lg font-semibold">Upload Event Logo</label>
               <input
                 type="file"
+                placeholder='Upload the event logo to appear in the registration form'
                 onChange={handlePosterChange}
                 className="w-full p-3 mb-4 border rounded-lg shadow-sm"
               />
