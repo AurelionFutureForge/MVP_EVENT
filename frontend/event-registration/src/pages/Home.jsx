@@ -24,7 +24,7 @@ function Home() {
           Seamlessly register and manage attendees for your events with our QR-based system.
         </p>
         <div className="mt-6 space-y-4 md:space-y-0 md:space-x-4 flex flex-col md:flex-row">
-          <Link to="/login" className="px-6 py-3 bg-blue-700 text-white font-semibold rounded-lg shadow hover:bg-blue-800 transition">
+          <Link to="/login" className="px-12 py-3 bg-blue-700 text-white font-semibold rounded-lg shadow hover:bg-blue-800 transition">
            Login 
           </Link>
           <Link to="/admin/register" className="px-6 py-3 bg-white text-blue-600 font-semibold rounded-lg shadow hover:bg-gray-100 transition">
