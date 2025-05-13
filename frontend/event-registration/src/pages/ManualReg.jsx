@@ -16,10 +16,9 @@ function ManualReg() {
         const response = await axios.get(`${BASE_URL}/events/${eventID}`);
         setEvent(response.data);
 
-        // Fetch role registrations count
         const regRes = await axios.get(`${BASE_URL}/users/${eventID}/role-registrations`);
         setRoleRegistrations(regRes.data);
-        console.log("regRes:",regRes.data);
+        console.log("regRes:", regRes.data);
 
         setLoading(false);
       } catch (error) {
@@ -46,11 +45,6 @@ function ManualReg() {
           ? [...(formData[name] || []), value]
           : (formData[name] || []).filter((v) => v !== value),
       });
-    } else if (type === "radio") {
-      setFormData({
-        ...formData,
-        [name]: value,
-      });
     } else {
       setFormData({
         ...formData,
@@ -63,11 +57,11 @@ function ManualReg() {
     e.preventDefault();
     try {
       await axios.post(`${BASE_URL}/users/register`, {
-        formData, // send as formData object
+        formData,
         eventID,
       });
       toast.success("Registration successful!");
-      setFormData({});  // clear form
+      setFormData({});
     } catch (error) {
       toast.error("Registration failed. Please try again.");
     }
@@ -88,7 +82,6 @@ function ManualReg() {
           Register for {event.eventName}
         </h2>
 
-        {/* Display event metadata */}
         <div className="text-center text-gray-600 mb-6">
           {event.startDate && (
             <p>
@@ -109,9 +102,8 @@ function ManualReg() {
         </div>
 
         <form onSubmit={handleSubmit}>
-          {/* Dynamic Registration Fields excluding ROLE */}
           {event.registrationFields
-            .filter(field => field.fieldName !== "ROLE") // Exclude the ROLE field
+            .filter((field) => field.fieldName !== "ROLE")
             .map((field, idx) => (
               <div key={idx} className="mb-4">
                 <label className="block text-gray-700 font-semibold mb-2">
@@ -169,7 +161,6 @@ function ManualReg() {
                   </select>
                 )}
 
-                {/* Handle checkboxes */}
                 {field.fieldType === "checkbox" && (
                   <div className="flex items-center space-x-2">
                     {field.options.map((option, optionIdx) => (
@@ -190,7 +181,6 @@ function ManualReg() {
               </div>
             ))}
 
-          {/* Display event roles as radio buttons */}
           <div className="mb-4">
             <label className="block text-gray-700 font-semibold mb-2">
               Select Role <span className="text-red-600">*</span>
@@ -204,7 +194,7 @@ function ManualReg() {
                     key={idx}
                     className="flex flex-col border rounded p-3 hover:shadow transition cursor-pointer"
                   >
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-start gap-2">
                       <input
                         type="radio"
                         name="role"
@@ -213,23 +203,25 @@ function ManualReg() {
                         onChange={handleChange}
                         required
                         disabled={remaining <= 0}
+                        className="mt-1"
                       />
-                      <span className="font-medium">{role.roleName}</span>
+                      <div>
+                        <div className="font-medium">{role.roleName}</div>
+                        <div className="text-sm text-gray-600">₹{role.rolePrice}</div>
+                      </div>
                     </div>
+
                     {role.roleDescription && (
                       <p className="text-gray-600 text-sm mt-1 ml-6">{role.roleDescription}</p>
                     )}
 
-                    {/* Display remaining slots */}
                     <div className="flex flex-wrap gap-4 text-sm mt-2 ml-6 text-gray-700">
-                      <span><strong>Price:</strong> ₹{role.rolePrice}</span>
                       <span><strong>Max Slots:</strong> {role.maxRegistrations}</span>
                       <span className={remaining <= 0 ? "text-red-600 font-bold" : ""}>
                         <strong>Remaining:</strong> {remaining}
                       </span>
                     </div>
 
-                    {/* Show Sold Out message */}
                     {remaining <= 0 && <span className="text-red-600 text-xs ml-2">(Sold Out)</span>}
                   </label>
                 );
