@@ -8,6 +8,7 @@ const createEvent = async (req, res) => {
 
     console.log('Incoming Request:', req.body);
     console.log('File Upload:', req.file);
+    console.log("Company poster URL:", `/uploads/${req.file.filename}`);
 
 
     // Handle the uploaded file
@@ -94,8 +95,6 @@ const createEvent = async (req, res) => {
     });
 
     await newEvent.save();
-
-    console.log("Company poster URL:", `/uploads/${req.file.filename}`);
     res.status(201).json({ msg: 'Event created', event: newEvent });
 
   } catch (error) {
