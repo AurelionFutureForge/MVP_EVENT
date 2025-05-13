@@ -39,6 +39,11 @@ function RegistrationForm() {
           ? [...(prev[name] || []), value]
           : (prev[name] || []).filter((v) => v !== value),
       }));
+    } else if (type === "radio") {
+      setFormData((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
     } else {
       setFormData((prev) => ({
         ...prev,
@@ -62,15 +67,19 @@ function RegistrationForm() {
     }
   };
 
-  if (loading) return <div>Loading event details...</div>;
-  if (!event) return <div>No event found.</div>;
+  if (loading) {
+    return <div>Loading event details...</div>;
+  }
 
-  const otherFields = event.registrationFields.filter(
-    (field) => field.fieldName !== "ROLE"
-  );
-  const roleField = event.registrationFields.find(
-    (field) => field.fieldName === "ROLE"
-  );
+  if (!event) {
+    return <div>No event found.</div>;
+  }
+
+  const otherFields = event.registrationFields.filter((field) => field.fieldName !== "ROLE");
+  const roleField = event.registrationFields.find((field) => field.fieldName === "ROLE");
+  const selectedRoleName = formData[roleField?.fieldName];
+  const selectedRole = event.eventRoles?.find((role) => role.roleName === selectedRoleName);
+  const selectedPrice = selectedRole?.rolePrice || 0;
 
   return (
     <div className="min-h-screen bg-gray-100 p-6">
@@ -83,7 +92,7 @@ function RegistrationForm() {
           {event.startDate && (
             <p>
               <span className="font-semibold">Date:</span>{" "}
-              {new Date(event.startDate).toLocaleDateString()}
+              {new Date(event.startDate).toLocaleDateString()} - {new Date(event.endtDate).toLocaleDateString()}
             </p>
           )}
           {event.place && (
@@ -99,6 +108,7 @@ function RegistrationForm() {
         </div>
 
         <form onSubmit={handleSubmit}>
+          {/* Render all fields except ROLE */}
           {otherFields.map((field, idx) => (
             <div key={idx} className="mb-4">
               <label className="block text-gray-700 font-semibold mb-2">
@@ -175,6 +185,7 @@ function RegistrationForm() {
             </div>
           ))}
 
+          {/* Render ROLE field */}
           {roleField && (
             <div className="mb-4">
               <label className="block text-gray-700 font-semibold mb-2">
@@ -183,9 +194,7 @@ function RegistrationForm() {
               </label>
               <div className="flex flex-col gap-3">
                 {roleField.options.map((option, idx) => {
-                  const matchingRole = event.eventRoles?.find(
-                    (role) => role.roleName === option
-                  );
+                  const matchingRole = event.eventRoles?.find((role) => role.roleName === option);
                   const price = matchingRole?.rolePrice || 0;
 
                   return (
@@ -204,7 +213,7 @@ function RegistrationForm() {
                         />
                         <span className="font-medium">{option}</span>
                         <span className="text-sm text-blue-600 font-semibold ml-auto">
-                          Pay ₹{price}
+                          ₹{price}
                         </span>
                       </div>
                       {matchingRole?.roleDescription && (
@@ -219,29 +228,13 @@ function RegistrationForm() {
             </div>
           )}
 
-          {/* Conditionally show pay or register button */}
-          {formData[roleField?.fieldName] ? (() => {
-            const selectedRole = event.eventRoles?.find(
-              (role) => role.roleName === formData[roleField.fieldName]
-            );
-            if (!selectedRole) return null;
-
-            return (
-              <button
-                type="submit"
-                className="mt-4 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition shadow w-full"
-              >
-                Pay ₹{selectedRole.rolePrice}
-              </button>
-            );
-          })() : (
-            <button
-              type="submit"
-              className="mt-4 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition shadow w-full"
-            >
-              Register
-            </button>
-          )}
+          {/* Dynamic Pay button or default Register */}
+          <button
+            type="submit"
+            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition shadow w-full"
+          >
+            {selectedRole ? `Pay ₹${selectedPrice}` : "Register"}
+          </button>
         </form>
       </div>
     </div>
