@@ -8,6 +8,7 @@ function ManualReg() {
   const [roleRegistrations, setRoleRegistrations] = useState({});
   const [loading, setLoading] = useState(true);
   const [isPaymentInitiated, setIsPaymentInitiated] = useState(false); // New state variable
+  const [isPaymentButtonClicked, setIsPaymentButtonClicked] = useState(false); // Track button click
   const BASE_URL = import.meta.env.VITE_BACKEND_URL;
   const eventID = localStorage.getItem("selectedEvent");
 
@@ -228,11 +229,12 @@ function ManualReg() {
             </div>
           </div>
 
-          {selectedRole && (
+          {!isPaymentButtonClicked && selectedRole && (
             <button
               type="button"
               onClick={() => {
                 setIsPaymentInitiated(true); // Set payment initiated to true when clicked
+                setIsPaymentButtonClicked(true); // Hide the payment button after click
                 toast.success(`Initiate payment for ₹${selectedRole.rolePrice}`);
               }}
               className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition shadow w-full mb-4"
