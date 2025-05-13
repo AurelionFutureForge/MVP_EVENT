@@ -87,192 +87,148 @@ function ManualReg() {
   );
 
   return (
-    <div className="min-h-screen bg-gray-100 p-6">
-      <div className="bg-white p-6 shadow-xl rounded-2xl max-w-lg mx-auto">
+    <div className="min-h-screen bg-black text-white p-6">
+      <div className="bg-gray-800 p-6 shadow-xl rounded-2xl max-w-4xl mx-auto flex">
+        {/* Event Poster on the Left */}
         {event.companyPoster && (
-          <div className="flex justify-center mb-4">
+          <div className="flex justify-center mr-6">
             <img
               src={`${BASE_URL}${event.companyPoster}`}
               alt="Company Poster"
-              className="max-h-32 object-contain"
+              className="max-h-48 object-contain rounded-lg shadow-lg"
             />
           </div>
         )}
-        <h2 className="text-4xl font-extrabold text-gray-800 mb-4 text-center">
-          Register for {event.eventName}
-        </h2>
+        {/* Form Section */}
+        <div className="flex-1">
+          <h2 className="text-4xl font-extrabold text-gray-200 mb-4 text-center">
+            Register for {event.eventName}
+          </h2>
 
-        <div className="text-center text-gray-600 mb-6">
-          {event.startDate && (
-            <p>
-              <span className="font-semibold">Date:</span>{" "}
-              {new Date(event.startDate).toLocaleDateString()} - {new Date(event.endDate).toLocaleDateString()}
-            </p>
-          )}
-          {event.place && (
-            <p>
-              <span className="font-semibold">Location:</span> {event.place}
-            </p>
-          )}
-          {event.time && (
-            <p>
-              <span className="font-semibold">Time:</span> {event.time}
-            </p>
-          )}
-        </div>
-
-        <form onSubmit={handleSubmit}>
-          {event.registrationFields
-            .filter((field) => field.fieldName !== "ROLE")
-            .map((field, idx) => (
-              <div key={idx} className="mb-4">
-                <label className="block text-gray-700 font-semibold mb-2">
-                  {field.fieldName.charAt(0).toUpperCase() + field.fieldName.slice(1)}{" "}
-                  {field.required && <span className="text-red-600">*</span>}
-                </label>
-
-                {field.fieldType === "text" && (
-                  <input
-                    type="text"
-                    name={field.fieldName}
-                    value={formData[field.fieldName] || ""}
-                    onChange={handleChange}
-                    required={field.required}
-                    className="border rounded px-4 py-2 w-full"
-                  />
-                )}
-
-                {field.fieldType === "email" && (
-                  <input
-                    type="email"
-                    name={field.fieldName}
-                    value={formData[field.fieldName] || ""}
-                    onChange={handleChange}
-                    required={field.required}
-                    className="border rounded px-4 py-2 w-full"
-                  />
-                )}
-
-                {field.fieldType === "number" && (
-                  <input
-                    type="number"
-                    name={field.fieldName}
-                    value={formData[field.fieldName] || ""}
-                    onChange={handleChange}
-                    required={field.required}
-                    className="border rounded px-4 py-2 w-full"
-                  />
-                )}
-
-                {field.fieldType === "select" && (
-                  <select
-                    name={field.fieldName}
-                    value={formData[field.fieldName] || ""}
-                    onChange={handleChange}
-                    required={field.required}
-                    className="border rounded px-4 py-2 w-full"
-                  >
-                    <option value="">Select an option</option>
-                    {field.options.map((option, optionIdx) => (
-                      <option key={optionIdx} value={option}>
-                        {option}
-                      </option>
-                    ))}
-                  </select>
-                )}
-
-                {field.fieldType === "checkbox" && (
-                  <div className="flex flex-wrap items-center gap-2">
-                    {field.options.map((option, optionIdx) => (
-                      <label key={optionIdx} className="flex items-center gap-1">
-                        <input
-                          type="checkbox"
-                          name={field.fieldName}
-                          value={option}
-                          checked={formData[field.fieldName]?.includes(option) || false}
-                          onChange={handleChange}
-                          className="w-4 h-4"
-                        />
-                        <span className="text-gray-700">{option}</span>
-                      </label>
-                    ))}
-                  </div>
-                )}
-              </div>
-            ))}
-
-          <div className="mb-4">
-            <label className="block text-gray-700 font-semibold mb-2">
-              Select Role <span className="text-red-600">*</span>
-            </label>
-            <div className="flex flex-col gap-3">
-              {event.eventRoles.map((role, idx) => {
-                const remaining = Math.max(role.maxRegistrations - (roleRegistrations[role.roleName] || 0), 0);
-
-                return (
-                  <label
-                    key={idx}
-                    className="flex flex-col border rounded p-3 hover:shadow transition cursor-pointer"
-                  >
-                    <div className="flex items-start gap-2">
-                      <input
-                        type="radio"
-                        name="role"
-                        value={role.roleName}
-                        checked={formData.role === role.roleName}
-                        onChange={handleChange}
-                        required
-                        disabled={remaining <= 0}
-                        className="mt-1"
-                      />
-                      <div>
-                        <div className="font-medium">{role.roleName}</div>
-                        <div className="text-sm font-bold text-green-600">₹{role.rolePrice}</div>
-                      </div>
-                    </div>
-
-                    {role.roleDescription && (
-                      <p className="text-gray-600 text-sm mt-1 ml-6">{role.roleDescription}</p>
-                    )}
-
-                    <div className="flex flex-wrap gap-4 text-sm mt-2 ml-6 text-gray-700">
-                      <span><strong>Max Slots:</strong> {role.maxRegistrations}</span>
-                      <span className={remaining <= 0 ? "text-red-600 font-bold" : ""}>
-                        <strong>Remaining:</strong> {remaining}
-                      </span>
-                    </div>
-
-                    {remaining <= 0 && <span className="text-red-600 text-xs ml-2">(Sold Out)</span>}
-                  </label>
-                );
-              })}
-            </div>
+          <div className="text-center text-gray-400 mb-6">
+            {event.startDate && (
+              <p>
+                <span className="font-semibold">Date:</span>{" "}
+                {new Date(event.startDate).toLocaleDateString()} - {new Date(event.endDate).toLocaleDateString()}
+              </p>
+            )}
+            {event.place && (
+              <p>
+                <span className="font-semibold">Location:</span> {event.place}
+              </p>
+            )}
+            {event.time && (
+              <p>
+                <span className="font-semibold">Time:</span> {event.time}
+              </p>
+            )}
           </div>
 
-          {/* Payment Button */}
-          {formData.role && !paymentSuccess && (
-            <button
-              type="button"
-              className="mt-4 px-4 py-2 rounded-lg w-full bg-green-600 text-white hover:bg-green-700"
-              onClick={handlePayment}
-            >
-              Pay ₹{selectedRole?.rolePrice}
-            </button>
-          )}
+          <form onSubmit={handleSubmit}>
+            {event.registrationFields
+              .filter((field) => field.fieldName !== "ROLE")
+              .map((field, idx) => (
+                <div key={idx} className="mb-4">
+                  <label className="block text-gray-300 font-semibold mb-2">
+                    {field.fieldName.charAt(0).toUpperCase() + field.fieldName.slice(1)}{" "}
+                    {field.required && <span className="text-red-600">*</span>}
+                  </label>
 
-          {/* Register Button */}
-          <button
-            type="submit"
-            disabled={!paymentSuccess}
-            className={`mt-4 px-4 py-2 rounded-lg w-full transition shadow ${
-              paymentSuccess
-                ? "bg-blue-600 text-white hover:bg-blue-700"
-                : "bg-gray-600 text-white cursor-not-allowed"
-            }`}
-          >
-            Register
-          </button>
-        </form>
+                  {field.fieldType === "text" && (
+                    <input
+                      type="text"
+                      name={field.fieldName}
+                      value={formData[field.fieldName] || ""}
+                      onChange={handleChange}
+                      required={field.required}
+                      className="border rounded-lg px-4 py-2 w-full bg-gray-700 text-white focus:outline-none"
+                    />
+                  )}
+
+                  {field.fieldType === "email" && (
+                    <input
+                      type="email"
+                      name={field.fieldName}
+                      value={formData[field.fieldName] || ""}
+                      onChange={handleChange}
+                      required={field.required}
+                      className="border rounded-lg px-4 py-2 w-full bg-gray-700 text-white focus:outline-none"
+                    />
+                  )}
+
+                  {field.fieldType === "number" && (
+                    <input
+                      type="number"
+                      name={field.fieldName}
+                      value={formData[field.fieldName] || ""}
+                      onChange={handleChange}
+                      required={field.required}
+                      className="border rounded-lg px-4 py-2 w-full bg-gray-700 text-white focus:outline-none"
+                    />
+                  )}
+
+                  {field.fieldType === "select" && (
+                    <select
+                      name={field.fieldName}
+                      value={formData[field.fieldName] || ""}
+                      onChange={handleChange}
+                      required={field.required}
+                      className="border rounded-lg px-4 py-2 w-full bg-gray-700 text-white focus:outline-none"
+                    >
+                      <option value="">Select an option</option>
+                      {field.options.map((option, optionIdx) => (
+                        <option key={optionIdx} value={option}>
+                          {option}
+                        </option>
+                      ))}
+                    </select>
+                  )}
+
+                  {field.fieldType === "checkbox" && (
+                    <div className="flex flex-wrap items-center gap-2">
+                      {field.options.map((option, optionIdx) => (
+                        <label key={optionIdx} className="flex items-center gap-1">
+                          <input
+                            type="checkbox"
+                            name={field.fieldName}
+                            value={option}
+                            checked={formData[field.fieldName]?.includes(option) || false}
+                            onChange={handleChange}
+                            className="w-4 h-4"
+                          />
+                          <span className="text-gray-300">{option}</span>
+                        </label>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))}
+
+            {/* Payment Button */}
+            {formData.role && !paymentSuccess && (
+              <button
+                type="button"
+                className="mt-4 px-4 py-2 rounded-lg w-full bg-green-600 text-white hover:bg-green-700"
+                onClick={handlePayment}
+              >
+                Pay ₹{selectedRole?.rolePrice}
+              </button>
+            )}
+
+            {/* Register Button */}
+            <button
+              type="submit"
+              disabled={!paymentSuccess}
+              className={`mt-4 px-4 py-2 rounded-lg w-full transition shadow ${
+                paymentSuccess
+                  ? "bg-blue-600 text-white hover:bg-blue-700"
+                  : "bg-gray-600 text-white cursor-not-allowed"
+              }`}
+            >
+              Register
+            </button>
+          </form>
+        </div>
       </div>
     </div>
   );
