@@ -6,6 +6,9 @@ const createEvent = async (req, res) => {
     console.log("Incoming Request Body:", req.body);
     const { companyName, eventName, eventRoles, place, time, startDate, endDate } = req.body;
 
+    // Handle the uploaded file
+    const companyPoster = req.file ? `/uploads/${req.file.filename}` : null; // Get the file path if uploaded
+
     const trimmedCompanyName = companyName.trim();
     const trimmedEventName = eventName.trim();
 
@@ -69,7 +72,8 @@ const createEvent = async (req, res) => {
       place,
       time,
       startDate: formattedStartDate.toISOString(),
-      endDate: formattedEndDate.toISOString()
+      endDate: formattedEndDate.toISOString(),
+      companyPoster, // Store the file path in the event data
     });
 
     await newEvent.save();
@@ -80,6 +84,7 @@ const createEvent = async (req, res) => {
     res.status(500).json({ msg: 'Server error', error: error.message });
   }
 };
+
 
 // Get all events of a company
 const getEvents = async (req, res) => {

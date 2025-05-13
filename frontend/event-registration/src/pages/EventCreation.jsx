@@ -14,6 +14,7 @@ export default function EventCreation() {
     endDate: '',
     time: '',
     eventRoles: [],
+    poster: null
   });
 
   const [loading, setLoading] = useState(false);
@@ -57,6 +58,10 @@ export default function EventCreation() {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setEventDetails({ ...eventDetails, [name]: value });
+  };
+
+  const handlePosterChange = (e) => {
+    setEventDetails({ ...eventDetails, poster: e.target.files[0] });
   };
 
   const handleAddRole = () => {
@@ -117,19 +122,39 @@ export default function EventCreation() {
         maxRegistrations: role.maxRegistrations
       }));
 
-      const response = await axios.post(`${BASE_URL}/events/create-event`, {
-        ...eventDetails,
-        companyEmail: loggedInEmail,
-        eventRoles: sanitizedRoles,
-        startDate: new Date(eventDetails.startDate).toISOString().split('T')[0],
-        endDate: new Date(eventDetails.endDate).toISOString().split('T')[0],
+      const formData = new FormData();
+      formData.append("companyName", eventDetails.companyName);
+      formData.append("eventName", eventDetails.eventName);
+      formData.append("place", eventDetails.place);
+      formData.append("time", eventDetails.time);
+      formData.append("startDate", new Date(eventDetails.startDate).toISOString().split('T')[0]);
+      formData.append("endDate", new Date(eventDetails.endDate).toISOString().split('T')[0]);
+      formData.append("companyEmail", loggedInEmail);
+      formData.append("eventRoles", JSON.stringify(sanitizedRoles));
+      if (eventDetails.poster) {
+        formData.append("poster", eventDetails.poster);
+      }
+
+      const response = await axios.post(`${BASE_URL}/events/create-event`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
       });
 
       if (response.status === 201) {
         toast.success("Event created successfully!");
         setEvents([...events, response.data.event]);
         setShowForm(false);
-        setEventDetails({ companyName: '', eventName: '', place: '', startDate: '', endDate: '', time: '', eventRoles: [] });
+        setEventDetails({
+          companyName: '',
+          eventName: '',
+          place: '',
+          startDate: '',
+          endDate: '',
+          time: '',
+          eventRoles: [],
+          poster: null
+        });
       }
     } catch (error) {
       console.error("Error creating event:", error.response?.data || error.message);
@@ -308,6 +333,15 @@ export default function EventCreation() {
               className="w-full p-3 mb-4 border rounded-lg shadow-sm"
               onChange={handleChange}
               value={eventDetails.endDate}
+            />
+
+            <label><b>Upload Company Poster</b></label>
+            <input
+              type="file"
+              name="poster"
+              accept="image/*"
+              className="w-full p-3 mb-4 border rounded-lg shadow-sm"
+              onChange={handlePosterChange}
             />
 
             {error && <p className="text-red-600 mb-2">{error}</p>}

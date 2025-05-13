@@ -26,7 +26,8 @@ const eventSchema = new mongoose.Schema({
   time: { type: String, required: true },  // Time in AM/PM format
   startDate: { type: Date, required: true },  // Event start date
   endDate: { type: Date, required: true },  // Event end date
-  registrationFields: [registrationFieldSchema]  // Array of dynamically added registration fields
+  registrationFields: [registrationFieldSchema],  // Array of dynamically added registration fields
+  companyPoster: { type: String }
 });
 
 const Event = mongoose.model('Event', eventSchema);
