@@ -71,7 +71,8 @@ function PrivilegeLogin() {
   };
 
   return (
-    <div className="min-h-screen flex justify-center items-center bg-gray-100">
+    <div className="flex items-center justify-center min-h-screen bg-gradient-to-r from-blue-500 to-indigo-600 p-6">
+      <div className="shadow-1xl rounded-3xl px-10 py-12 w-full max-w-2xl transition-all duration-300">
       <form
         onSubmit={handleSubmit}
         className="bg-white p-6 rounded-xl shadow-xl w-full max-w-md"
@@ -132,6 +133,7 @@ function PrivilegeLogin() {
           Login
         </button>
       </form>
+    </div>
     </div>
   );
 }
