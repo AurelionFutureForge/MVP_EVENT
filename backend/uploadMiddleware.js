@@ -2,8 +2,8 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 
-// Define the uploads directory path
-const uploadDir = path.join(__dirname, '..', 'uploads');
+// Define the uploads directory path according to Render's structure
+const uploadDir = path.resolve('/opt/render/project/src/uploads');
 
 // Create the uploads directory if it doesn't exist
 if (!fs.existsSync(uploadDir)) {
@@ -13,7 +13,7 @@ if (!fs.existsSync(uploadDir)) {
 // Set up storage engine for multer
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, uploadDir); // Save to 'uploads' folder
+    cb(null, uploadDir); // Save to '/opt/render/project/src/uploads' folder
   },
   filename: (req, file, cb) => {
     cb(null, `${Date.now()}-${file.originalname}`); // Add timestamp to avoid conflicts
@@ -22,7 +22,7 @@ const storage = multer.diskStorage({
 
 // Set up file filter for only image files
 const fileFilter = (req, file, cb) => {
-  const allowedTypes = ['image/jpeg', 'image/png', 'image/gif','image/jpg'];
+  const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/jpg'];
   if (allowedTypes.includes(file.mimetype)) {
     cb(null, true); // Accept the file
   } else {
