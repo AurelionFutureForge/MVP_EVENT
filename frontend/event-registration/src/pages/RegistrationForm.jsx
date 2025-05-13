@@ -48,28 +48,25 @@ function RegistrationForm() {
     }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (paymentSuccess) {
-      try {
-        await axios.post(`${BASE_URL}/users/register`, {
-          formData,
-          eventID,
-        });
-        toast.success("Registration successful!");
-        setFormData({});
-        setPaymentSuccess(false);
-      } catch (error) {
-        toast.error("Registration failed. Please try again.");
-      }
-    } else {
-      toast.error("Please complete the payment before registering.");
+  const handleSubmit = async (e = null) => {
+    if (e) e.preventDefault();
+    try {
+      await axios.post(`${BASE_URL}/users/register`, {
+        formData,
+        eventID,
+      });
+      toast.success("Registration successful!");
+      setFormData({});
+      setPaymentSuccess(false);
+    } catch (error) {
+      toast.error("Registration failed. Please try again.");
     }
   };
 
-  const handlePayment = () => {
+  const handlePayment = async () => {
     setPaymentSuccess(true);
-    toast.success("Payment successful! Now you can register.");
+    toast.success("Payment successful! Registering now...");
+    await handleSubmit(); // Automatically submit the form after payment
   };
 
   if (loading) return <div>Loading event details...</div>;
@@ -86,8 +83,6 @@ function RegistrationForm() {
     (role) => role.roleName === formData[roleField?.fieldName]
   );
   const rolePrice = selectedRole?.rolePrice || 0;
-
-  console.log(event.companyPoster);
 
   return (
     <div className="min-h-screen bg-gray-100 p-6">
@@ -248,8 +243,8 @@ function RegistrationForm() {
             </div>
           )}
 
-          {/* Payment Button */}
-          {formData[roleField?.fieldName] && !paymentSuccess && (
+          {/* Payment Button (Only show before payment) */}
+          {!paymentSuccess && formData[roleField?.fieldName] && (
             <button
               type="button"
               className="mt-4 px-4 py-2 rounded-lg w-full bg-green-600 text-white hover:bg-green-700"
@@ -258,19 +253,6 @@ function RegistrationForm() {
               Pay ₹{rolePrice}
             </button>
           )}
-
-          {/* Register Button */}
-          <button
-            type="submit"
-            className={`mt-4 px-4 py-2 rounded-lg w-full transition shadow ${
-              paymentSuccess
-                ? "bg-blue-600 text-white hover:bg-blue-700"
-                : "bg-gray-600 text-white cursor-not-allowed"
-            }`}
-            disabled={!paymentSuccess}
-          >
-            Register
-          </button>
         </form>
       </div>
     </div>
