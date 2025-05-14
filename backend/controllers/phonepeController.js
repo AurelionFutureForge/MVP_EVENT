@@ -22,7 +22,7 @@ const initiatePayment = async (req, res) => {
       return res.status(500).json({ error: 'Missing necessary environment variables' });
     }
 
-    const apiPath =  "/apis/pg-sandbox/pg/v1/initiate";
+    const apiPath =  "/apis/pg-sandbox/pg/v1/pay";
     const transactionId = `TXN_${Date.now()}`;
     const redirectUrl = `https://mvp-event.vercel.app/payment-success?transactionId=${transactionId}`;
     const callbackUrl = 'https://mvp-event.onrender.com/api/phonepe/verify-payment';
