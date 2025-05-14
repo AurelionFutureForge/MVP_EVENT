@@ -47,7 +47,7 @@ const initiatePayment = async (req, res) => {
     console.log("Full Endpoint:", `${baseUrl}/pg/v1/pay`);
 
     const response = await axios.post(
-      `${baseUrl}/pg/v1/pay`,
+      `${baseUrl}/v1/pay`,
       { request: base64Payload },
       {
         headers: {
@@ -86,7 +86,7 @@ const initiatePayment = async (req, res) => {
     const baseUrl = process.env.PHONEPE_BASE_URL;
 
     // Construct the string to hash
-    const path = `/v1/status/${merchantId}/${transactionId}`;
+    const path = `/pg/v1/status/${merchantId}/${transactionId}`;
     const stringToHash = path + saltKey;
     const xVerify = crypto.createHash('sha256').update(stringToHash).digest('hex') + "###" + saltIndex;
 
