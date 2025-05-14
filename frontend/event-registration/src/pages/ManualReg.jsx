@@ -68,7 +68,7 @@ function ManualReg() {
       localStorage.setItem("eventID", eventID);
 
       const res = await axios.post(`${BASE_URL}/api/phonepe/initiate-payment`, {
-        amount, email: formData.email, eventId: eventID, formData
+        amount, email: formData.EMAIL, eventId: eventID
       });
 
       const { redirectUrl } = res.data;
