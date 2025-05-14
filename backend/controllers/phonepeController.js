@@ -1,7 +1,6 @@
-const User = require('../models/User')
+const User = require('../models/User');
 const axios = require('axios');
 const crypto = require('crypto');
-
 
 const initiatePayment = async (req, res) => {
   try {
@@ -61,8 +60,6 @@ const initiatePayment = async (req, res) => {
 
     console.log('PhonePe Response:', response.data);
 
-    console.log('Generated xVerify Hash:', xVerify);
-
     const redirectLink = response.data.data.instrumentResponse.redirectInfo.url;
 
     console.log('Redirect URL:', redirectLink);
@@ -70,21 +67,21 @@ const initiatePayment = async (req, res) => {
     res.json({ redirectUrl: redirectLink });
 
   } catch (err) {
-  console.error('Error during payment initiation:', err.message);
-  if (err.response) {
-    console.error('Error Response:', err.response.data);
-    console.error('Status Code:', err.response.status);
-    console.error('Headers:', err.response.headers);
-  } else if (err.request) {
-    console.error('Request made but no response received:', err.request);
-  } else {
-    console.error('Unknown error:', err);
+    console.error('Error during payment initiation:', err.message);
+    if (err.response) {
+      console.error('Error Response:', err.response.data);
+      console.error('Status Code:', err.response.status);
+      console.error('Headers:', err.response.headers);
+    } else if (err.request) {
+      console.error('Request made but no response received:', err.request);
+    } else {
+      console.error('Unknown error:', err);
+    }
+    res.status(500).json({ error: 'Payment initiation failed' });
   }
-  res.status(500).json({ error: 'Payment initiation failed' });
-}
-
 };
- const verifyPayment = async (req, res) => {
+
+const verifyPayment = async (req, res) => {
   const { transactionId, email, eventId } = req.body;
 
   try {
@@ -125,4 +122,4 @@ const initiatePayment = async (req, res) => {
   }
 };
 
-module.exports = {initiatePayment,verifyPayment};
+module.exports = { initiatePayment, verifyPayment };
