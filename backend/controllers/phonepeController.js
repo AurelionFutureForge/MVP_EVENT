@@ -35,7 +35,12 @@ const crypto = require('crypto');
     const stringToHash = base64Payload + "/pg/v1/pay" + saltKey;
     const xVerify = crypto.createHash('sha256').update(stringToHash).digest("hex") + "###" + saltIndex;
 
-     console.log('Base64 Encoded Payload:', base64Payload);
+    console.log('Base64 Encoded Payload:', base64Payload);
+    console.log("stringToHash:", stringToHash); 
+    console.log("X-VERIFY:", xVerify);
+
+    console.log("Full Endpoint:", `${baseUrl}/pg/v1/pay`);
+
 
     const response = await axios.post(
       `${baseUrl}/pg/v1/pay`,
