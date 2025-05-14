@@ -3,7 +3,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const path = require("path"); // ✅ Required to resolve paths
-import phonepeRoutes from './routes/phonepeRoutes.js';
+
 
 // Import routes
 const authRoutes = require("./routes/authRoutes");
@@ -11,6 +11,7 @@ const userRoutes = require("./routes/userRoutes");
 const scanRoutes = require("./routes/scanRoutes");
 const eventRoutes = require("./routes/eventRoutes");
 const privilegeRoutes = require('./routes/privilegeRoutes');
+const phonepeRoutes = require('./routes/phonepeRoutes')
 
 const app = express();
 app.use(express.json());
