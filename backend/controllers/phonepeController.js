@@ -1,9 +1,8 @@
-// controllers/phonepeController.js
-import axios from 'axios';
-import crypto from 'crypto';
 const User = require('../models/User')
+const axios = require('axios');
+const crypto = require('crypto');
 
-export const initiatePayment = async (req, res) => {
+ const initiatePayment = async (req, res) => {
   try {
     const { amount, email, eventId } = req.body;
 
@@ -53,7 +52,7 @@ export const initiatePayment = async (req, res) => {
   }
 };
 
-export const verifyPayment = async (req, res) => {
+ const verifyPayment = async (req, res) => {
   const { transactionId, email, eventId } = req.body;
 
   try {
@@ -93,3 +92,5 @@ export const verifyPayment = async (req, res) => {
     res.status(500).json({ success: false, error: "Internal server error during payment verification" });
   }
 };
+
+module.exports = {initiatePayment,verifyPayment};
