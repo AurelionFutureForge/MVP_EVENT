@@ -4,9 +4,10 @@ const crypto = require('crypto');
 
  const initiatePayment = async (req, res) => {
   try {
-    const { amount, email, eventId } = req.body;
+    const { amount, email, eventId, formData } = req.body;
 
     console.log('Initiate Payment Request Body:', req.body);
+    console.log("formData",formData);
 
     const merchantId = process.env.PHONEPE_MERCHANT_ID;
     const saltKey = process.env.PHONEPE_SALT_KEY;
