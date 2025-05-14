@@ -22,7 +22,7 @@ const initiatePayment = async (req, res) => {
       return res.status(500).json({ error: 'Missing necessary environment variables' });
     }
 
-    const apiPath = "/pg/v1/initiate";
+    const apiPath =  "/apis/pg-sandbox/pg/v1/initiate";
     const transactionId = `TXN_${Date.now()}`;
     const redirectUrl = `https://mvp-event.vercel.app/payment-success?transactionId=${transactionId}`;
     const callbackUrl = 'https://mvp-event.onrender.com/api/phonepe/verify-payment';
@@ -82,7 +82,7 @@ const initiatePayment = async (req, res) => {
     } else {
       console.error('Unknown error:', err);
     }
-    res.status(500).json({ error: 'Payment initiation failed' });
+    res.status(500).json({ error: 'Payment initiation failed',err });
   }
 };
 
@@ -99,7 +99,7 @@ const verifyPayment = async (req, res) => {
       return res.status(500).json({ error: 'Missing necessary environment variables' });
     }
 
-    const path = `/pg/v1/status/${merchantId}/${transactionId}`;
+    const path = `/apis/pg-sandbox/pg/v1/status/${merchantId}/${transactionId}`;
     const stringToHash = path + saltKey;
     const xVerify = crypto.createHash('sha256').update(stringToHash).digest('hex') + "###" + saltIndex;
 
