@@ -36,10 +36,16 @@ const initiatePayment = async (req, res) => {
         type: "PAY_PAGE"
       }
     };
+    console.log("payload",payload);
 
     const base64Payload = Buffer.from(JSON.stringify(payload)).toString("base64");
     const stringToHash = base64Payload + "/pg/v1/initiate" + saltKey;
     const xVerify = crypto.createHash('sha256').update(stringToHash).digest("hex") + "###" + saltIndex;
+
+    console.log("base64Payload",base64Payload)
+    console.log("stringToHash",stringToHash )
+    console.log("xVerify",xVerify);
+
 
     const response = await axios.post(
       baseUrl,  
