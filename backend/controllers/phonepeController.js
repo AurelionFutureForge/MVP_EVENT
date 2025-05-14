@@ -2,16 +2,22 @@ const User = require('../models/User')
 const axios = require('axios');
 const crypto = require('crypto');
 
- const initiatePayment = async (req, res) => {
+
+const initiatePayment = async (req, res) => {
   try {
-    const { amount, email, eventId} = req.body;
+    const { amount, email, eventId } = req.body;
 
     console.log('Initiate Payment Request Body:', req.body);
 
-    const merchantId = process.env.PHONEPE_MERCHANT_ID;
-    const saltKey = process.env.PHONEPE_SALT_KEY;
-    const saltIndex = process.env.PHONEPE_SALT_INDEX;
-    const baseUrl = process.env.PHONEPE_BASE_URL;
+    const merchantId = process.env.PHONEPE_MERCHANT_ID.trim();
+    const saltKey = process.env.PHONEPE_SALT_KEY.trim();
+    const saltIndex = process.env.PHONEPE_SALT_INDEX.trim();
+    const baseUrl = process.env.PHONEPE_BASE_URL.trim();
+
+    console.log("Merchant ID:", `"${merchantId}"`);
+    console.log("Salt Key:", `"${saltKey}"`);
+    console.log("Salt Index:", `"${saltIndex}"`);
+    console.log("Base URL:", `"${baseUrl}"`);
 
     const transactionId = `TXN_${Date.now()}`;
     const redirectUrl = `https://mvp-event.vercel.app/payment-success?transactionId=${transactionId}`;
@@ -36,11 +42,9 @@ const crypto = require('crypto');
     const xVerify = crypto.createHash('sha256').update(stringToHash).digest("hex") + "###" + saltIndex;
 
     console.log('Base64 Encoded Payload:', base64Payload);
-    console.log("stringToHash:", stringToHash); 
+    console.log("stringToHash:", stringToHash);
     console.log("X-VERIFY:", xVerify);
-
     console.log("Full Endpoint:", `${baseUrl}/pg/v1/pay`);
-
 
     const response = await axios.post(
       `${baseUrl}/pg/v1/pay`,
@@ -49,25 +53,29 @@ const crypto = require('crypto');
         headers: {
           'Content-Type': 'application/json',
           'X-VERIFY': xVerify,
-          'X-MERCHANT-ID': merchantId
+          'X-MERCHANT-ID': merchantId,
+          'Content-Length': Buffer.byteLength(JSON.stringify({ request: base64Payload }))
         }
       }
     );
 
-     console.log('Generated xVerify Hash:', xVerify);
+    console.log('Generated xVerify Hash:', xVerify);
 
     const redirectLink = response.data.data.instrumentResponse.redirectInfo.url;
 
-     console.log('Redirect URL:', redirectLink);
-     
+    console.log('Redirect URL:', redirectLink);
+
     res.json({ redirectUrl: redirectLink });
 
   } catch (err) {
-    console.error(err.message);
+    if (err.response) {
+      console.error("PhonePe Error Response:", err.response.data);
+      return res.status(400).json({ error: err.response.data });
+    }
+    console.error("Unexpected Error:", err.message);
     res.status(500).json({ error: "Payment initiation failed" });
   }
 };
-
  const verifyPayment = async (req, res) => {
   const { transactionId, email, eventId } = req.body;
 
