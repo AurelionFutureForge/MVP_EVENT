@@ -86,7 +86,7 @@ function RegistrationForm() {
   };
 
   if (loading) return (
-    <div className="min-h-screen flex items-center justify-center bg-black text-white">
+    <div className="min-h-screen flex items-center justify-center bg-gray-800 text-white">
       <div className="flex flex-col items-center">
         <svg
           className="animate-spin h-10 w-10 text-white mb-3"
@@ -114,7 +114,7 @@ function RegistrationForm() {
   );
 
   if (!event) return (
-  <div className="min-h-screen flex flex-col items-center justify-center bg-black text-white">
+  <div className="min-h-screen flex flex-col items-center justify-center bg-gray-800 text-white">
     <svg
       xmlns="http://www.w3.org/2000/svg"
       className="h-16 w-16 text-gray-400 mb-4"
