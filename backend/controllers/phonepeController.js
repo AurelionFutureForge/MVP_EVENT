@@ -5,31 +5,24 @@ const crypto = require('crypto');
 const initiatePayment = async (req, res) => {
   try {
     const { amount, email, eventId } = req.body;
+
     console.log('Initiate Payment Request Body:', req.body);
 
-    // Load credentials from environment variables
-    const merchantId = process.env.PHONEPE_MERCHANT_ID?.trim();
-    const saltKey = process.env.PHONEPE_SALT_KEY?.trim();
-    const saltIndex = process.env.PHONEPE_SALT_INDEX?.trim();
-    const baseUrl = process.env.PHONEPE_BASE_URL?.trim(); // e.g., https://api.phonepe.com/apis/hermes
+    // Use test credentials for testing
+    const merchantId = process.env.PHONEPE_TEST_MERCHANT_ID.trim();  // Your test Merchant ID
+    const saltKey = process.env.PHONEPE_TEST_SALT_KEY.trim();  // Your test Salt Key
+    const saltIndex = process.env.PHONEPE_SALT_INDEX.trim();  // Your Salt Index (if required)
+    const baseUrl = 'https://api.sandbox.phonepe.com/apis/hermes'; // Test URL
 
-    if (!merchantId || !saltKey || !saltIndex || !baseUrl) {
-      return res.status(500).json({ error: 'Missing PhonePe configuration in environment variables' });
-    }
-
-    // Create unique transaction ID
     const transactionId = `TXN_${Date.now()}`;
-
-    // Redirect and callback URLs
     const redirectUrl = `https://mvp-event.vercel.app/payment-success?transactionId=${transactionId}`;
     const callbackUrl = 'https://mvp-event.onrender.com/api/phonepe/verify-payment';
 
-    // Prepare payload
     const payload = {
       merchantId,
       transactionId,
       merchantUserId: email,
-      amount: amount * 100, // Amount in paise
+      amount: amount * 100, // Convert to paise
       redirectUrl,
       callbackUrl,
       paymentInstrument: {
@@ -37,15 +30,11 @@ const initiatePayment = async (req, res) => {
       }
     };
 
-    // Convert payload to Base64
     const base64Payload = Buffer.from(JSON.stringify(payload)).toString("base64");
-
-    // Create the SHA256 hash for X-VERIFY
     const stringToHash = base64Payload + "/pg/v1/initiate" + saltKey;
-    const xVerify = crypto.createHash("sha256").update(stringToHash).digest("hex") + "###" + saltIndex;
+    const xVerify = crypto.createHash('sha256').update(stringToHash).digest("hex") + "###" + saltIndex;
 
-    // Send request to PhonePe
-    const phonePeResponse = await axios.post(
+    const response = await axios.post(
       `${baseUrl}/pg/v1/initiate`,
       { request: base64Payload },
       {
@@ -57,29 +46,22 @@ const initiatePayment = async (req, res) => {
       }
     );
 
-    const redirectLink = phonePeResponse.data?.data?.instrumentResponse?.redirectInfo?.url;
-
-    if (!redirectLink) {
-      throw new Error('Redirect URL not found in PhonePe response');
-    }
+    const redirectLink = response.data.data.instrumentResponse.redirectInfo.url;
 
     res.json({ redirectUrl: redirectLink });
 
   } catch (err) {
     console.error('Error during payment initiation:', err.message);
-
     if (err.response) {
       console.error('Error Response:', err.response.data);
       console.error('Status Code:', err.response.status);
       console.error('Headers:', err.response.headers);
-      return res.status(err.response.status).json({ error: err.response.data?.message || 'PhonePe error' });
     } else if (err.request) {
       console.error('Request made but no response received:', err.request);
-      return res.status(500).json({ error: 'No response received from PhonePe' });
     } else {
       console.error('Unknown error:', err);
-      return res.status(500).json({ error: 'Payment initiation failed' });
     }
+    res.status(500).json({ error: 'Payment initiation failed' });
   }
 };
 const verifyPayment = async (req, res) => {
