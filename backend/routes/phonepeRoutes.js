@@ -7,4 +7,4 @@ const router = express.Router();
 router.post('/initiate-payment', initiatePayment);
 router.post('/verify-payment',verifyPayment);
 
-module.export = router;
+module.exports = router;
