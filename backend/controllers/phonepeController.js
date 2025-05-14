@@ -12,16 +12,14 @@ const initiatePayment = async (req, res) => {
 
     console.log('Initiate Payment Request Body:', req.body);
 
-    // Validate environment variables
     const merchantId = process.env.PHONEPE_MERCHANT_ID?.trim();
     const saltKey = process.env.PHONEPE_SALT_KEY?.trim();
     const saltIndex = process.env.PHONEPE_SALT_INDEX?.trim();
-    
-    if (!merchantId || !saltKey || !saltIndex) {
+    const baseUrl = process.env.PHONEPE_BASE_URL?.trim();  // <-- Use env variable
+
+    if (!merchantId || !saltKey || !saltIndex || !baseUrl) {
       return res.status(500).json({ error: 'Missing necessary environment variables' });
     }
-
-    const baseUrl = 'https://api.sandbox.phonepe.com/apis/hermes'; // Test URL
 
     const transactionId = `TXN_${Date.now()}`;
     const redirectUrl = `https://mvp-event.vercel.app/payment-success?transactionId=${transactionId}`;
@@ -44,7 +42,7 @@ const initiatePayment = async (req, res) => {
     const xVerify = crypto.createHash('sha256').update(stringToHash).digest("hex") + "###" + saltIndex;
 
     const response = await axios.post(
-      `${baseUrl}/pg/v1/initiate`,
+      `${baseUrl}pg/v1/initiate`,  // <-- Correct path append
       { request: base64Payload },
       {
         headers: {
@@ -67,8 +65,6 @@ const initiatePayment = async (req, res) => {
     console.error('Error during payment initiation:', err.message);
     if (err.response) {
       console.error('Error Response:', err.response.data);
-      console.error('Status Code:', err.response.status);
-      console.error('Headers:', err.response.headers);
     } else if (err.request) {
       console.error('Request made but no response received:', err.request);
     } else {
@@ -82,10 +78,14 @@ const verifyPayment = async (req, res) => {
   const { transactionId, email, eventId } = req.body;
 
   try {
-    const merchantId = process.env.PHONEPE_MERCHANT_ID.trim();
-    const saltKey = process.env.PHONEPE_SALT_KEY.trim();
-    const saltIndex = process.env.PHONEPE_SALT_INDEX.trim();
-    const baseUrl = process.env.PHONEPE_BASE_URL.trim();
+    const merchantId = process.env.PHONEPE_MERCHANT_ID?.trim();
+    const saltKey = process.env.PHONEPE_SALT_KEY?.trim();
+    const saltIndex = process.env.PHONEPE_SALT_INDEX?.trim();
+    const baseUrl = process.env.PHONEPE_BASE_URL?.trim();
+
+    if (!merchantId || !saltKey || !saltIndex || !baseUrl) {
+      return res.status(500).json({ error: 'Missing necessary environment variables' });
+    }
 
     const path = `/pg/v1/status/${merchantId}/${transactionId}`;
     const stringToHash = path + saltKey;
