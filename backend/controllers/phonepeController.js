@@ -2,6 +2,10 @@ const User = require('../models/User');
 const axios = require('axios');
 const crypto = require('crypto');
 
+const User = require('../models/User');
+const axios = require('axios');
+const crypto = require('crypto');
+
 const initiatePayment = async (req, res) => { 
   try {
     const { amount, email, eventId } = req.body;
@@ -12,15 +16,17 @@ const initiatePayment = async (req, res) => {
 
     console.log('Initiate Payment Request Body:', req.body);
 
+    // Load environment variables
     const merchantId = process.env.PHONEPE_MERCHANT_ID?.trim();
     const saltKey = process.env.PHONEPE_SALT_KEY?.trim();
     const saltIndex = process.env.PHONEPE_SALT_INDEX?.trim();
-    const baseUrl = process.env.PHONEPE_BASE_URL?.trim();  // <-- Use env variable
+    const baseUrl = process.env.PHONEPE_BASE_URL?.trim();
 
     if (!merchantId || !saltKey || !saltIndex || !baseUrl) {
       return res.status(500).json({ error: 'Missing necessary environment variables' });
     }
 
+    const apiPath = "/apis/pg-sandbox/pg/v1/initiate";
     const transactionId = `TXN_${Date.now()}`;
     const redirectUrl = `https://mvp-event.vercel.app/payment-success?transactionId=${transactionId}`;
     const callbackUrl = 'https://mvp-event.onrender.com/api/phonepe/verify-payment';
@@ -36,19 +42,17 @@ const initiatePayment = async (req, res) => {
         type: "PAY_PAGE"
       }
     };
-    console.log("payload",payload);
 
     const base64Payload = Buffer.from(JSON.stringify(payload)).toString("base64");
-    const stringToHash = base64Payload + "/pg/v1/initiate" + saltKey;
+    const stringToHash = base64Payload + apiPath + saltKey;
     const xVerify = crypto.createHash('sha256').update(stringToHash).digest("hex") + "###" + saltIndex;
 
-    console.log("base64Payload",base64Payload)
-    console.log("stringToHash",stringToHash )
-    console.log("xVerify",xVerify);
-
+    console.log("base64Payload :",base64Payload)
+    console.log("stringToHash :",stringToHash )
+    console.log("xVerify :",xVerify);
 
     const response = await axios.post(
-      baseUrl,  
+      `${baseUrl}${apiPath}`,
       { request: base64Payload },
       {
         headers: {
@@ -71,6 +75,8 @@ const initiatePayment = async (req, res) => {
     console.error('Error during payment initiation:', err.message);
     if (err.response) {
       console.error('Error Response:', err.response.data);
+      console.error('Status Code:', err.response.status);
+      console.error('Headers:', err.response.headers);
     } else if (err.request) {
       console.error('Request made but no response received:', err.request);
     } else {
