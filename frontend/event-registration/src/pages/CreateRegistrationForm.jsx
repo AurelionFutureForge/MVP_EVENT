@@ -166,6 +166,37 @@ function CreateRegistrationForm() {
     }
   };
 
+  const handleDeleteFields = async () => {
+    const confirmDelete = window.confirm("Are you sure you want to delete all registration fields for this event?");
+    if (!confirmDelete) return;
+
+    const token = localStorage.getItem("adminToken");
+
+    try {
+      await axios.delete(`${BASE_URL}/admin/registration-fields/${EventId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      toast.success("Registration fields deleted successfully!");
+
+      setFields([
+        {
+          fieldName: "EMAIL",
+          fieldType: "email",
+          options: [],
+          required: true,
+          locked: true,
+        },
+      ]);
+      setFormLink("");
+    } catch (error) {
+      toast.error("Failed to delete registration fields.");
+      console.error(error);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center p-6">
       <div className="bg-white p-8 rounded-xl shadow-lg w-full max-w-3xl">
@@ -301,6 +332,14 @@ function CreateRegistrationForm() {
         >
           Save Registration Form
         </button>
+
+        <button
+          onClick={handleDeleteFields}
+          className="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition w-full mt-4"
+        >
+          Delete Registration Fields
+        </button>
+
 
         {formLink && (
           <div className="mt-6">

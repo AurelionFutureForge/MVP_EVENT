@@ -271,4 +271,22 @@ const getAvailableRoles = async (req, res) => {
   }
 };
 
-module.exports = { adminLogin, getAllUsers, registerAdmin, getEventPrivileges, assignPrivileges , getAllEvents, getRegField, getAvailableRoles};
+const deleteForm = async (req, res) => {
+  const { eventId } = req.params;
+
+  try {
+    const event = await Event.findById(eventId);
+    if (!event) {
+      return res.status(404).json({ message: "Event not found" });
+    }
+
+    event.registrationFields = [];
+    await event.save();
+
+    res.json({ message: "Registration fields deleted successfully" });
+  } catch (err) {
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+module.exports = { adminLogin, getAllUsers, registerAdmin, getEventPrivileges, assignPrivileges , getAllEvents, getRegField, getAvailableRoles, deleteForm};
