@@ -22,7 +22,7 @@ const initiatePayment = async (req, res) => {
       return res.status(500).json({ error: 'Missing necessary environment variables' });
     }
 
-    const apiPath = "/apis/pg-sandbox/pg/v1/initiate";
+    const apiPath = "/pg/v1/initiate";
     const transactionId = `TXN_${Date.now()}`;
     const redirectUrl = `https://mvp-event.vercel.app/payment-success?transactionId=${transactionId}`;
     const callbackUrl = 'https://mvp-event.onrender.com/api/phonepe/verify-payment';
@@ -39,6 +39,8 @@ const initiatePayment = async (req, res) => {
       }
     };
 
+    console.log("payload:",payload);
+
     const base64Payload = Buffer.from(JSON.stringify(payload)).toString("base64");
     const stringToHash = base64Payload + apiPath + saltKey;
     const xVerify = crypto.createHash('sha256').update(stringToHash).digest("hex") + "###" + saltIndex;
@@ -46,6 +48,8 @@ const initiatePayment = async (req, res) => {
     console.log("base64Payload :",base64Payload)
     console.log("stringToHash :",stringToHash )
     console.log("xVerify :",xVerify);
+
+    console.log("path:",`${baseUrl}${apiPath}`);
 
     const response = await axios.post(
       `${baseUrl}${apiPath}`,
