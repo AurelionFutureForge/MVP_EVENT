@@ -27,9 +27,9 @@ function PaymentSuccess() {
         if (verifyRes.data.success) {
           // Proceed with registration using saved data
           await axios.post(`${BASE_URL}/users/register`, {
-            formData,
+            ...formData,         // spread here ✅
             eventID,
-            transactionId: txnId, // Save txn ID to DB
+            transactionId: txnId 
           });
 
           toast.success("Registration successful!");

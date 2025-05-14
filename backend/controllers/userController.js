@@ -181,7 +181,7 @@ const sendSuccessEmail = async (name, email, eventName, companyName, place, time
 };
 
 exports.registerUser = async (req, res) => {
-  const { formData, eventID } = req.body;
+  const { formData, eventID, transactionId  } = req.body;
   console.log("eventID:", eventID);
   try {
     const event = await Event.findById(eventID);
@@ -236,7 +236,9 @@ exports.registerUser = async (req, res) => {
       role: selectedRole.roleName,
       email,
       privileges,
-      registrationData: formData
+      registrationData: formData,
+      transactionId,
+      paymentStatus:'COMPLETED',
     });
 
     await newUser.save();
