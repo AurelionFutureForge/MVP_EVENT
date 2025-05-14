@@ -235,7 +235,7 @@ export default function EditEvent() {
                   <small className="text-sm text-gray-600">Price: ${role.rolePrice}</small><br />
                   <small className="text-sm text-gray-600">Max Registrations: {role.maxRegistrations}</small>
                 </div>
-                <div className="flex flex-col items-end space-y-1 ml-2">
+                <div className="flex flex-col items-end space-y-16 ml-2">
                   <button
                     onClick={() => handleEditRole(index)}
                     className="text-blue-600 hover:text-blue-800 text-sm"

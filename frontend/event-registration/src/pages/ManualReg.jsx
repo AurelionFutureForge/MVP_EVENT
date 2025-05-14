@@ -252,7 +252,11 @@ function ManualReg() {
                     </div>
 
                     {role.roleDescription && (
-                      <p className="text-gray-600 text-sm mt-1 ml-6">{role.roleDescription}</p>
+                      <ul className="text-gray-600 text-sm mt-1 ml-6 list-disc pl-5">
+                        {role.roleDescription.split(",").map((desc, index) => (
+                          <li key={index}>{desc.trim()}</li>
+                        ))}
+                      </ul>
                     )}
 
                     <div className="flex flex-wrap gap-4 text-sm mt-2 ml-6 text-gray-700">

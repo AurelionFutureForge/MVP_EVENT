@@ -54,7 +54,7 @@ function RegistrationForm() {
       }));
     }
   };
-  const eventName = event.eventName;
+  const eventname = event.eventName;
   const place = event.place;
   const time = event.time;
   const startDate = event.startDate;
@@ -71,7 +71,7 @@ function RegistrationForm() {
       setFormData({});
       setPaymentSuccess(false);
       navigate('/success',{
-        state: eventName, place, time, startDate, endDate, eventID
+        state: eventname, place, time, startDate, endDate, eventID
       });
     } catch (error) {
       toast.error("Registration failed. Please try again.");
@@ -249,9 +249,11 @@ function RegistrationForm() {
                         </span>
                       </div>
                       {matchingRole?.roleDescription && (
-                        <p className="text-gray-600 text-sm mt-1 ml-6">
-                          {matchingRole.roleDescription}
-                        </p>
+                        <ul className="text-gray-600 text-sm mt-1 ml-6 list-disc pl-5">
+                          {matchingRole.roleDescription.split(",").map((desc, index) => (
+                          <li key={index}>{desc.trim()}</li>
+                        ))}
+                      </ul>
                       )}
 
                       {remaining <= 0 && <span className="text-red-600 text-xs ml-2">(Sold Out)</span>}
