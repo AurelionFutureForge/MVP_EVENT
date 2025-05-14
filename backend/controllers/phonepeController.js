@@ -2,10 +2,6 @@ const User = require('../models/User');
 const axios = require('axios');
 const crypto = require('crypto');
 
-const User = require('../models/User');
-const axios = require('axios');
-const crypto = require('crypto');
-
 const initiatePayment = async (req, res) => { 
   try {
     const { amount, email, eventId } = req.body;
