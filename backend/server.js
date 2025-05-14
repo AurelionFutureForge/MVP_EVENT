@@ -3,6 +3,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const path = require("path"); // ✅ Required to resolve paths
+import phonepeRoutes from './routes/phonepeRoutes.js';
 
 // Import routes
 const authRoutes = require("./routes/authRoutes");
@@ -33,6 +34,7 @@ app.use("/users", userRoutes);
 app.use("/scan", scanRoutes);
 app.use("/events", eventRoutes);
 app.use("/privilege", privilegeRoutes);
+app.use('/api/phonepe', phonepeRoutes);
 
 // Connect DB + start server
 mongoose.connect(process.env.MONGO_URI)

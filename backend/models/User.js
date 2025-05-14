@@ -8,15 +8,19 @@ const privilegeSchema = new mongoose.Schema({
 const userSchema = new mongoose.Schema({
   eventId: { type: mongoose.Schema.Types.ObjectId, ref: 'Event', required: true },
   companyName: { type: String, required: true },
-  eventName : { type: String, required: true},
+  eventName: { type: String, required: true },
   role: { type: String, required: true },
-  email: { type: String, required: true }, 
-  privileges: [privilegeSchema],   
+  email: { type: String, required: true },
+  privileges: [privilegeSchema],
   registrationData: { type: Object, required: true },
-  qrCode: { type: String }
+  qrCode: { type: String },
+
+  // ✅ Add these fields for payment tracking
+  transactionId: { type: String }, // PhonePe transaction reference
+  paymentStatus: { type: String, enum: ['PENDING', 'COMPLETED', 'FAILED'], default: 'PENDING' }
 });
 
-userSchema.index({ email: 1, eventId: 1 }, { unique: true }); 
+userSchema.index({ email: 1, eventId: 1 }, { unique: true });
 
 const User = mongoose.model('User', userSchema);
 module.exports = User;

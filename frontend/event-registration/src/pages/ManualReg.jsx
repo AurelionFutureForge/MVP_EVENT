@@ -54,11 +54,33 @@ function ManualReg() {
   };
 
   const handlePayment = async () => {
-    setPaymentSuccess(true);
-    toast.success("Payment successful! Now registering.");
+    if (!formData.role) {
+      toast.error("Please select a role before proceeding.");
+      return;
+    }
 
-    // After payment success, automatically submit the form
-    handleSubmit();
+    try {
+      const selectedRoleData = event.eventRoles.find(role => role.roleName === formData.role);
+      const amount = selectedRoleData.rolePrice;
+
+      // Save formData temporarily in localStorage (so you can use it after redirect)
+      localStorage.setItem("formData", JSON.stringify(formData));
+      localStorage.setItem("eventID", eventID);
+
+      const res = await axios.post(`${BASE_URL}/api/phonepe/initiate-payment`, {
+        amount,
+      });
+
+      const { redirectUrl } = res.data;
+      if (redirectUrl) {
+        window.location.href = redirectUrl;
+      } else {
+        toast.error("Failed to get PhonePe payment URL.");
+      }
+    } catch (err) {
+      toast.error("Payment initiation failed.");
+      console.error(err);
+    }
   };
 
   const handleSubmit = async () => {
@@ -70,6 +92,8 @@ function ManualReg() {
       toast.success("Registration successful!");
       setFormData({});
       setPaymentSuccess(false);
+      localStorage.removeItem("formData");
+      localStorage.removeItem("eventID");
     } catch (error) {
       toast.error("Registration failed. Please try again.");
     }

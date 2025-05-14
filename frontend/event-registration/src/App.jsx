@@ -20,6 +20,7 @@ import CreateRegistrationForm from './pages/CreateRegistrationForm';
 import EventList from './pages/EventList';
 import ManualReg from './pages/ManualReg';
 import Login from './pages/Login';
+import PaymentSuccess from './pages/PaymentSuccess';
 
 
 const App = () => {
@@ -43,6 +44,7 @@ const App = () => {
         <Route path='event-list' element={<ProtectedRoute> <EventList/> </ ProtectedRoute>} />
         <Route path='/manual-registration' element={<ProtectedRoute> <ManualReg /> </ ProtectedRoute>} />
         <Route path='/login' element={<Login/>} />
+        <Route path='/payment-success' element={<PaymentSuccess/>} />
         
       </Routes>
     </div>
