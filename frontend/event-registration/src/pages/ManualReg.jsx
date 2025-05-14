@@ -126,6 +126,33 @@ if (loading) return (
       </div>
     </div>
   );
+if (loading) return (
+    <div className="min-h-screen flex items-center justify-center bg-gray-800 text-white">
+      <div className="flex flex-col items-center">
+        <svg
+          className="animate-spin h-10 w-10 text-white mb-3"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+        >
+          <circle
+            className="opacity-25"
+            cx="12"
+            cy="12"
+            r="10"
+            stroke="currentColor"
+            strokeWidth="4"
+          />
+          <path
+            className="opacity-75"
+            fill="currentColor"
+            d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+          />
+        </svg>
+        <p className="text-lg">REG FROM...</p>
+      </div>
+    </div>
+  );
 
   if (!event) return (
   <div className="min-h-screen flex flex-col items-center justify-center bg-gray-800 text-white">
@@ -144,12 +171,13 @@ if (loading) return (
 );
 
 
+
   const selectedRole = event?.eventRoles?.find(
     (role) => role.roleName === formData.role
   );
 
   return (
-    <div className="min-h-screen bg-black p-6">
+    <div className="min-h-screen bg-gray-800 p-6">
       <div className="bg-white p-6 shadow-xl rounded-2xl max-w-lg mx-auto">
         {event.companyPoster && (
           <div className="flex justify-center mb-4">
