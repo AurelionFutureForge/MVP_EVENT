@@ -6,6 +6,8 @@ const crypto = require('crypto');
   try {
     const { amount, email, eventId } = req.body;
 
+    console.log('Initiate Payment Request Body:', req.body);
+
     const merchantId = process.env.PHONEPE_MERCHANT_ID;
     const saltKey = process.env.PHONEPE_SALT_KEY;
     const saltIndex = process.env.PHONEPE_SALT_INDEX;
@@ -13,7 +15,7 @@ const crypto = require('crypto');
 
     const transactionId = `TXN_${Date.now()}`;
     const redirectUrl = `https://mvp-event.vercel.app/payment-success?transactionId=${transactionId}`;
-    const callbackUrl = `'https://mvp-event.onrender.com/api/phonepe/verify-payment'`;
+    const callbackUrl = 'https://mvp-event.onrender.com/api/phonepe/verify-payment';
 
     const payload = {
       merchantId,
@@ -27,9 +29,13 @@ const crypto = require('crypto');
       }
     };
 
+    console.log('Payload being sent to PhonePe:', payload);
+
     const base64Payload = Buffer.from(JSON.stringify(payload)).toString("base64");
     const stringToHash = base64Payload + "/pg/v1/pay" + saltKey;
     const xVerify = crypto.createHash('sha256').update(stringToHash).digest("hex") + "###" + saltIndex;
+
+     console.log('Base64 Encoded Payload:', base64Payload);
 
     const response = await axios.post(
       `${baseUrl}/pg/v1/pay`,
@@ -43,7 +49,12 @@ const crypto = require('crypto');
       }
     );
 
+     console.log('Generated xVerify Hash:', xVerify);
+
     const redirectLink = response.data.data.instrumentResponse.redirectInfo.url;
+
+     console.log('Redirect URL:', redirectLink);
+     
     res.json({ redirectUrl: redirectLink });
 
   } catch (err) {
