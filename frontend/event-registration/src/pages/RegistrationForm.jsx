@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { toast } from "react-hot-toast";
-import { useParams } from "react-router-dom";
-import { useNavigate } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 
 function RegistrationForm() {
   const [event, setEvent] = useState(null);
@@ -54,11 +53,6 @@ function RegistrationForm() {
       }));
     }
   };
-  const eventname = event.eventName;
-  const place = event.place;
-  const time = event.time;
-  const startDate = event.startDate;
-  const endDate = event?.endDate || "";
 
   const handleSubmit = async (e = null) => {
     if (e) e.preventDefault();
@@ -70,8 +64,15 @@ function RegistrationForm() {
       toast.success("Registration successful!");
       setFormData({});
       setPaymentSuccess(false);
-      navigate('/success',{
-        state: eventname, place, time, startDate, endDate, eventID
+      navigate("/success", {
+        state: {
+          eventName: event?.eventName,
+          place: event?.place,
+          time: event?.time,
+          startDate: event?.startDate,
+          endDate: event?.endDate,
+          eventID,
+        },
       });
     } catch (error) {
       toast.error("Registration failed. Please try again.");
@@ -93,7 +94,6 @@ function RegistrationForm() {
   const roleField = event.registrationFields.find(
     (field) => field.fieldName === "ROLE"
   );
-
   const selectedRole = event.eventRoles?.find(
     (role) => role.roleName === formData[roleField?.fieldName]
   );
@@ -102,7 +102,6 @@ function RegistrationForm() {
   return (
     <div className="min-h-screen bg-black p-6">
       <div className="bg-white p-6 shadow-xl rounded-2xl max-w-lg mx-auto">
-        {/* Company Poster Display */}
         {event.companyPoster && (
           <div className="flex justify-center mb-4">
             <img
@@ -121,7 +120,8 @@ function RegistrationForm() {
           {event.startDate && (
             <p>
               <span className="font-semibold">Date:</span>{" "}
-              {new Date(event.startDate).toLocaleDateString()} - {new Date(event.endDate).toLocaleDateString()}
+              {new Date(event.startDate).toLocaleDateString()} -{" "}
+              {new Date(event.endDate).toLocaleDateString()}
             </p>
           )}
           {event.place && (
@@ -226,7 +226,10 @@ function RegistrationForm() {
                     (role) => role.roleName === option
                   );
                   const price = matchingRole?.rolePrice || 0;
-                  const remaining = Math.max(matchingRole.maxRegistrations - (roleRegistrations[matchingRole.roleName] || 0), 0);
+                  const remaining = Math.max(
+                    matchingRole?.maxRegistrations - (roleRegistrations[matchingRole?.roleName] || 0),
+                    0
+                  );
 
                   return (
                     <label
@@ -251,12 +254,13 @@ function RegistrationForm() {
                       {matchingRole?.roleDescription && (
                         <ul className="text-gray-600 text-sm mt-1 ml-6 list-disc pl-5">
                           {matchingRole.roleDescription.split(",").map((desc, index) => (
-                          <li key={index}>{desc.trim()}</li>
-                        ))}
-                      </ul>
+                            <li key={index}>{desc.trim()}</li>
+                          ))}
+                        </ul>
                       )}
-
-                      {remaining <= 0 && <span className="text-red-600 text-xs ml-2">(Sold Out)</span>}
+                      {remaining <= 0 && (
+                        <span className="text-red-600 text-xs ml-2">(Sold Out)</span>
+                      )}
                     </label>
                   );
                 })}
@@ -264,7 +268,7 @@ function RegistrationForm() {
             </div>
           )}
 
-          {/* Payment Button (Only show before payment) */}
+          {/* Payment Button */}
           {!paymentSuccess && formData[roleField?.fieldName] && (
             <button
               type="button"
