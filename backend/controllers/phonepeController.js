@@ -44,7 +44,7 @@ const initiatePayment = async (req, res) => {
     console.log('Base64 Encoded Payload:', base64Payload);
     console.log("stringToHash:", stringToHash);
     console.log("X-VERIFY:", xVerify);
-    console.log("Full Endpoint:", `${baseUrl}/pg/v1/pay`);
+    console.log("Full Endpoint:", `${baseUrl}/v1/pay`);
 
     const response = await axios.post(
       `${baseUrl}/v1/pay`,
