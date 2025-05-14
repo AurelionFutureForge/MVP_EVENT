@@ -272,10 +272,10 @@ const getAvailableRoles = async (req, res) => {
 };
 
 const deleteForm = async (req, res) => {
-  const { eventId } = req.params;
+  const { EventId } = req.params;
 
   try {
-    const event = await Event.findById(eventId);
+    const event = await Event.findById(EventId);
     if (!event) {
       return res.status(404).json({ message: "Event not found" });
     }

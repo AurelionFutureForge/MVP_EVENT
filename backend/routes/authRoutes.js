@@ -23,7 +23,7 @@ router.get("/event-reg",getRegField);
 
 router.get("/event-roles/:EventId",getAvailableRoles);
 
-router.delete("/events/registration-fields/:eventId",deleteForm);
+router.delete("/registration-fields/:EventId",deleteForm);
 
 
 
