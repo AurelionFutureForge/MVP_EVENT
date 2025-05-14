@@ -42,7 +42,7 @@ const initiatePayment = async (req, res) => {
     const xVerify = crypto.createHash('sha256').update(stringToHash).digest("hex") + "###" + saltIndex;
 
     const response = await axios.post(
-      `${baseUrl}pg/v1/initiate`,  // <-- Correct path append
+      baseUrl,  
       { request: base64Payload },
       {
         headers: {
