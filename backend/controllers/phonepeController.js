@@ -11,12 +11,7 @@ const initiatePayment = async (req, res) => {
     const merchantId = process.env.PHONEPE_MERCHANT_ID.trim();
     const saltKey = process.env.PHONEPE_SALT_KEY.trim();
     const saltIndex = process.env.PHONEPE_SALT_INDEX.trim();
-    const baseUrl = process.env.PHONEPE_BASE_URL.trim();
-
-    console.log("Merchant ID:", `"${merchantId}"`);
-    console.log("Salt Key:", `"${saltKey}"`);
-    console.log("Salt Index:", `"${saltIndex}"`);
-    console.log("Base URL:", `"${baseUrl}"`);
+    const baseUrl = process.env.PHONEPE_BASE_URL.trim(); // Should be: https://api.phonepe.com/apis/hermes
 
     const transactionId = `TXN_${Date.now()}`;
     const redirectUrl = `https://mvp-event.vercel.app/payment-success?transactionId=${transactionId}`;
@@ -26,7 +21,7 @@ const initiatePayment = async (req, res) => {
       merchantId,
       transactionId,
       merchantUserId: email,
-      amount: amount * 100, // Convert rupees to paise
+      amount: amount * 100, // Convert to paise
       redirectUrl,
       callbackUrl,
       paymentInstrument: {
@@ -34,35 +29,23 @@ const initiatePayment = async (req, res) => {
       }
     };
 
-    console.log('Payload being sent to PhonePe:', payload);
-
     const base64Payload = Buffer.from(JSON.stringify(payload)).toString("base64");
-    const stringToHash = base64Payload + "/pg/v1/pay" + saltKey;
+    const stringToHash = base64Payload + "/pg/v1/initiate" + saltKey;
     const xVerify = crypto.createHash('sha256').update(stringToHash).digest("hex") + "###" + saltIndex;
 
-    console.log('Base64 Encoded Payload:', base64Payload);
-    console.log("stringToHash:", stringToHash);
-    console.log("X-VERIFY:", xVerify);
-    console.log("Full Endpoint:", `${baseUrl}/pg/v1/pay`);
-
     const response = await axios.post(
-      `${baseUrl}/pg/v1/pay`,
+      `${baseUrl}/pg/v1/initiate`,
       { request: base64Payload },
       {
         headers: {
           'Content-Type': 'application/json',
           'X-VERIFY': xVerify,
-          'X-MERCHANT-ID': merchantId,
-          'Content-Length': Buffer.byteLength(JSON.stringify({ request: base64Payload }))
+          'X-MERCHANT-ID': merchantId
         }
       }
     );
 
-    console.log('PhonePe Response:', response.data);
-
     const redirectLink = response.data.data.instrumentResponse.redirectInfo.url;
-
-    console.log('Redirect URL:', redirectLink);
 
     res.json({ redirectUrl: redirectLink });
 
@@ -85,12 +68,11 @@ const verifyPayment = async (req, res) => {
   const { transactionId, email, eventId } = req.body;
 
   try {
-    const merchantId = process.env.PHONEPE_MERCHANT_ID;
-    const saltKey = process.env.PHONEPE_SALT_KEY;
-    const saltIndex = process.env.PHONEPE_SALT_INDEX;
-    const baseUrl = process.env.PHONEPE_BASE_URL;
+    const merchantId = process.env.PHONEPE_MERCHANT_ID.trim();
+    const saltKey = process.env.PHONEPE_SALT_KEY.trim();
+    const saltIndex = process.env.PHONEPE_SALT_INDEX.trim();
+    const baseUrl = process.env.PHONEPE_BASE_URL.trim();
 
-    // Construct the string to hash
     const path = `/pg/v1/status/${merchantId}/${transactionId}`;
     const stringToHash = path + saltKey;
     const xVerify = crypto.createHash('sha256').update(stringToHash).digest('hex') + "###" + saltIndex;
