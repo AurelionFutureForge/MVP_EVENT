@@ -2,16 +2,25 @@ const User = require('../models/User');
 const axios = require('axios');
 const crypto = require('crypto');
 
-const initiatePayment = async (req, res) => {
+const initiatePayment = async (req, res) => { 
   try {
     const { amount, email, eventId } = req.body;
 
+    if (!amount || !email || !eventId) {
+      return res.status(400).json({ error: 'Missing required fields' });
+    }
+
     console.log('Initiate Payment Request Body:', req.body);
 
-    // Use test credentials for testing
-    const merchantId = process.env.PHONEPE_MERCHANT_ID.trim();  // Your test Merchant ID
-    const saltKey = process.env.PHONEPE_SALT_KEY.trim();  // Your test Salt Key
-    const saltIndex = process.env.PHONEPE_SALT_INDEX.trim();  // Your Salt Index (if required)
+    // Validate environment variables
+    const merchantId = process.env.PHONEPE_MERCHANT_ID?.trim();
+    const saltKey = process.env.PHONEPE_SALT_KEY?.trim();
+    const saltIndex = process.env.PHONEPE_SALT_INDEX?.trim();
+    
+    if (!merchantId || !saltKey || !saltIndex) {
+      return res.status(500).json({ error: 'Missing necessary environment variables' });
+    }
+
     const baseUrl = 'https://api.sandbox.phonepe.com/apis/hermes'; // Test URL
 
     const transactionId = `TXN_${Date.now()}`;
@@ -46,7 +55,11 @@ const initiatePayment = async (req, res) => {
       }
     );
 
-    const redirectLink = response.data.data.instrumentResponse.redirectInfo.url;
+    const redirectLink = response?.data?.data?.instrumentResponse?.redirectInfo?.url;
+
+    if (!redirectLink) {
+      throw new Error('Redirect URL not found in the response');
+    }
 
     res.json({ redirectUrl: redirectLink });
 
@@ -64,6 +77,7 @@ const initiatePayment = async (req, res) => {
     res.status(500).json({ error: 'Payment initiation failed' });
   }
 };
+
 const verifyPayment = async (req, res) => {
   const { transactionId, email, eventId } = req.body;
 
