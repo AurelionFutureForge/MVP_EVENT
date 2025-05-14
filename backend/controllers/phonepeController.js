@@ -9,8 +9,8 @@ const initiatePayment = async (req, res) => {
     console.log('Initiate Payment Request Body:', req.body);
 
     // Use test credentials for testing
-    const merchantId = process.env.PHONEPE_TEST_MERCHANT_ID.trim();  // Your test Merchant ID
-    const saltKey = process.env.PHONEPE_TEST_SALT_KEY.trim();  // Your test Salt Key
+    const merchantId = process.env.PHONEPE_MERCHANT_ID.trim();  // Your test Merchant ID
+    const saltKey = process.env.PHONEPE_SALT_KEY.trim();  // Your test Salt Key
     const saltIndex = process.env.PHONEPE_SALT_INDEX.trim();  // Your Salt Index (if required)
     const baseUrl = 'https://api.sandbox.phonepe.com/apis/hermes'; // Test URL
 
