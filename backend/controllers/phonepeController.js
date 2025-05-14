@@ -59,6 +59,8 @@ const initiatePayment = async (req, res) => {
       }
     );
 
+    console.log('PhonePe Response:', response.data);
+
     console.log('Generated xVerify Hash:', xVerify);
 
     const redirectLink = response.data.data.instrumentResponse.redirectInfo.url;
@@ -68,13 +70,19 @@ const initiatePayment = async (req, res) => {
     res.json({ redirectUrl: redirectLink });
 
   } catch (err) {
-    if (err.response) {
-      console.error("PhonePe Error Response:", err.response.data);
-      return res.status(400).json({ error: err.response.data });
-    }
-    console.error("Unexpected Error:", err.message);
-    res.status(500).json({ error: "Payment initiation failed" });
+  console.error('Error during payment initiation:', err.message);
+  if (err.response) {
+    console.error('Error Response:', err.response.data);
+    console.error('Status Code:', err.response.status);
+    console.error('Headers:', err.response.headers);
+  } else if (err.request) {
+    console.error('Request made but no response received:', err.request);
+  } else {
+    console.error('Unknown error:', err);
   }
+  res.status(500).json({ error: 'Payment initiation failed' });
+}
+
 };
  const verifyPayment = async (req, res) => {
   const { transactionId, email, eventId } = req.body;
