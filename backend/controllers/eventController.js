@@ -263,6 +263,7 @@ const saveRegistrationFields = async (req, res) => {
 const getEventById = async (req, res) => {
   try {
     const event = await Event.findById(req.params.eventID);
+    console.log("ID", req.params.eventID);
     if (!event) {
       return res.status(404).json({ message: "Event not found" });
     }

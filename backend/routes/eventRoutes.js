@@ -10,7 +10,7 @@ router.get('/:companyName/:eventName', getEventByDetails);
 router.get('/edit/:eventId',EditEvents);
 router.put('/:eventId',UpdateEvents);
 router.post("/save-registration-fields", saveRegistrationFields);
-router.get('/:eventId', getEventById);
+router.get('/:eventID', getEventById);
 
 
 
