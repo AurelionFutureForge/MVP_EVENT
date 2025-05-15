@@ -78,7 +78,7 @@ function SuccessPage() {
           aria-label="Go to event registration page"
         >
           <FaHome className="mr-2" />
-          Register for Event
+          Register Again
         </button>
       </div>
     </div>
