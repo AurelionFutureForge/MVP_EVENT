@@ -161,8 +161,8 @@ const UpdateEvents = async (req, res) => {
 
     const companyPoster = req.file ? `/uploads/${req.file.filename}` : undefined; // only update if a file is uploaded
 
-    if (!startDate || !endDate) {
-      return res.status(400).json({ msg: 'Start date and End date are required' });
+    if (!startDate) {
+      return res.status(400).json({ msg: 'Start date is required' });
     }
 
     const formattedStartDate = new Date(startDate);
