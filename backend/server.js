@@ -23,7 +23,7 @@ app.use('/uploads', (req, res, next) => {
 
 
 const corsOptions = {
-  origin: ["https://mvp-event.vercel.app", "http://localhost:5173"],  
+  origin: ["https://mvp-event.vercel.app", "http://localhost:5173","https://events.aurelionfutureforge.com"],  
   methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
   allowedHeaders: ["Content-Type", "Authorization"]
 };
