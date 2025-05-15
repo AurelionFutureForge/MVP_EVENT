@@ -4,7 +4,6 @@ import axios from "axios";
 import { FaCheckCircle, FaClock, FaMapMarkerAlt, FaHome } from "react-icons/fa";
 
 function SuccessPage() {
-  const location = useLocation();
   const navigate = useNavigate();
   const { eventID } = useParams();
   const BASE_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";

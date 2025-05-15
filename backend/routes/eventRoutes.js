@@ -7,7 +7,7 @@ const router = express.Router();
 router.post('/create-event',upload.single('companyPoster'), createEvent);
 router.get('/get-events', getEvents); 
 router.get('/:companyName/:eventName', getEventByDetails);
-router.get('/:eventId',EditEvents);
+router.get('/edit/:eventId',EditEvents);
 router.put('/:eventId',UpdateEvents);
 router.post("/save-registration-fields", saveRegistrationFields);
 router.get('/:eventId', getEventById);

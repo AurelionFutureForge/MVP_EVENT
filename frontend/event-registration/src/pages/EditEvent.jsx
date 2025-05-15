@@ -31,7 +31,7 @@ export default function EditEvent() {
   useEffect(() => {
     const fetchEvent = async () => {
       try {
-        const res = await axios.get(`${BASE_URL}/events/${eventId}`);
+        const res = await axios.get(`${BASE_URL}/events/edit/${eventId}`);
         const event = res.data;
 
         const rolesWithPrivilegesString = event.eventRoles.map(role => ({
