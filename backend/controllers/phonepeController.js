@@ -87,7 +87,7 @@ const initiatePayment = async (req, res) => {
 };
 
 const verifyPayment = async (req, res) => {
-  const { transactionId, email, eventId } = req.body;
+  const { transactionId } = req.body;
 
   try {
     const merchantId = process.env.PHONEPE_MERCHANT_ID?.trim();
@@ -114,12 +114,7 @@ const verifyPayment = async (req, res) => {
     const paymentStatus = response.data.data?.state;
 
     if (paymentStatus === 'COMPLETED') {
-      await User.findOneAndUpdate(
-        { email, eventID: eventId },
-        { $set: { transactionId, paymentStatus: 'COMPLETED' } }
-      );
-
-      return res.status(200).json({ success: true, message: "Payment verified and saved." });
+      return res.status(200).json({ success: true, message: "Payment verified." });
     } else {
       return res.status(200).json({ success: false, message: "Payment not completed." });
     }

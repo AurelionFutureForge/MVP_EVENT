@@ -21,7 +21,7 @@ function PaymentSuccess() {
 
       try {
         const verifyRes = await axios.post(`${BASE_URL}/api/phonepe/verify-payment`, {
-          transactionId: txnId,
+          transactionId: txnId
         });
 
         if (verifyRes.data.success) {
@@ -35,7 +35,7 @@ function PaymentSuccess() {
           toast.success("Registration successful!");
           localStorage.removeItem("formData");
           localStorage.removeItem("eventID");
-          navigate("/success");
+          navigate("/success/:eventID");
         } else {
           toast.error("Payment verification failed.");
           navigate("/");
