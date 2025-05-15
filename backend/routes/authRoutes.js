@@ -25,7 +25,7 @@ router.get("/event-roles/:EventId",getAvailableRoles);
 
 router.delete("/registration-fields/:EventId",deleteForm);
 
-router.delete("delete-privileges/:eventId",deletePrivileges);
+router.delete("/delete-privileges/:eventId",deletePrivileges);
 
 
 
