@@ -24,7 +24,7 @@ const initiatePayment = async (req, res) => {
 
     const apiPath =  "/apis/pg-sandbox/pg/v1/pay";
     const transactionId = `TXN_${Date.now()}`;
-    const redirectUrl = `https://mvp-event.vercel.app/payment-success?transactionId=${transactionId}`;
+    const redirectUrl = `https://events.aurelionfutureforge.com/payment-success?transactionId=${transactionId}`;
     const callbackUrl = 'https://mvp-event.onrender.com/api/phonepe/verify-payment';
 
     const payload = {
