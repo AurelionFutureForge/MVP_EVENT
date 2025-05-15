@@ -5,6 +5,7 @@ const User = require("../models/User");
 const Privilege = require('../models/privilegeModel');
 const Event = require("../models/Event");
 const nodemailer = require('nodemailer');
+const mongoose = require('mongoose');
 
 const transporter = nodemailer.createTransport({
   service: 'gmail',
@@ -290,7 +291,15 @@ const deleteForm = async (req, res) => {
 };
 
 const deletePrivileges = async (req, res) => {
-  const { eventId } = req.params;
+  let { eventId } = req.params;
+
+  // Remove colon if accidentally included
+  eventId = eventId.startsWith(':') ? eventId.slice(1) : eventId;
+
+  // Validate eventId is a valid ObjectId string
+  if (!mongoose.Types.ObjectId.isValid(eventId)) {
+    return res.status(400).json({ message: "Invalid eventId" });
+  }
 
   try {
     const result = await Privilege.deleteMany({ eventId });
@@ -305,6 +314,7 @@ const deletePrivileges = async (req, res) => {
     return res.status(500).json({ message: "Server error while deleting privileges." });
   }
 };
+
 
 
 module.exports = { adminLogin, getAllUsers, registerAdmin, getEventPrivileges, assignPrivileges, getAllEvents, getRegField, getAvailableRoles, deleteForm, deletePrivileges};
