@@ -99,7 +99,7 @@ function ManualReg() {
     }
   };
 
-if (loading) return (
+  if (loading) return (
     <div className="min-h-screen flex items-center justify-center bg-gray-800 text-white">
       <div className="flex flex-col items-center">
         <svg
@@ -126,7 +126,7 @@ if (loading) return (
       </div>
     </div>
   );
-if (loading) return (
+  if (loading) return (
     <div className="min-h-screen flex items-center justify-center bg-gray-800 text-white">
       <div className="flex flex-col items-center">
         <svg
@@ -155,20 +155,20 @@ if (loading) return (
   );
 
   if (!event) return (
-  <div className="min-h-screen flex flex-col items-center justify-center bg-gray-800 text-white">
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      className="h-16 w-16 text-gray-400 mb-4"
-      fill="none"
-      viewBox="0 0 24 24"
-      stroke="currentColor"
-      strokeWidth={2}
-    >
-      <path strokeLinecap="round" strokeLinejoin="round" d="M9.75 9.75L14.25 14.25M9.75 14.25L14.25 9.75M12 21.75C6.615 21.75 2.25 17.385 2.25 12S6.615 2.25 12 2.25 21.75 6.615 21.75 12 17.385 21.75 12 21.75z" />
-    </svg>
-    <p className="text-xl text-gray-300">No event found.</p>
-  </div>
-);
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-800 text-white">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        className="h-16 w-16 text-gray-400 mb-4"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+        strokeWidth={2}
+      >
+        <path strokeLinecap="round" strokeLinejoin="round" d="M9.75 9.75L14.25 14.25M9.75 14.25L14.25 9.75M12 21.75C6.615 21.75 2.25 17.385 2.25 12S6.615 2.25 12 2.25 21.75 6.615 21.75 12 17.385 21.75 12 21.75z" />
+      </svg>
+      <p className="text-xl text-gray-300">No event found.</p>
+    </div>
+  );
 
 
 
@@ -194,13 +194,15 @@ if (loading) return (
 
         <div className="text-center text-gray-600 mb-6">
           {event.startDate && (
-          <p>
-            <span className="font-semibold">Date:</span>{" "}
-            {new Date(event.startDate).toLocaleDateString() === new Date(event.endDate).toLocaleDateString()
-              ? new Date(event.startDate).toLocaleDateString()
-              : `${new Date(event.startDate).toLocaleDateString()} - ${new Date(event.endDate).toLocaleDateString()}`}
-          </p>
-        )}
+            <p>
+              <span className="font-semibold">Date:</span>{" "}
+              {event.endDate &&
+                !isNaN(new Date(event.endDate)) &&
+                new Date(event.startDate).toLocaleDateString() !== new Date(event.endDate).toLocaleDateString()
+                ? `${new Date(event.startDate).toLocaleDateString()} - ${new Date(event.endDate).toLocaleDateString()}`
+                : new Date(event.startDate).toLocaleDateString()}
+            </p>
+          )}
           {event.place && (
             <p>
               <span className="font-semibold">Location:</span> {event.place}

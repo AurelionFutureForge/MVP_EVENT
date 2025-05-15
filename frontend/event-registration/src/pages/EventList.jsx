@@ -72,9 +72,11 @@ function EventList() {
                     </p>
                     <p className="text-gray-700">
                       📅 <span className="font-medium">
-                        {new Date(event.startDate).toLocaleDateString() === new Date(event.endDate).toLocaleDateString()
-                          ? new Date(event.startDate).toLocaleDateString()
-                          : `${new Date(event.startDate).toLocaleDateString()} - ${new Date(event.endDate).toLocaleDateString()}`}
+                        {event.endDate &&
+                          !isNaN(new Date(event.endDate)) &&
+                          new Date(event.startDate).toLocaleDateString() !== new Date(event.endDate).toLocaleDateString()
+                          ? `${new Date(event.startDate).toLocaleDateString()} - ${new Date(event.endDate).toLocaleDateString()}`
+                          : new Date(event.startDate).toLocaleDateString()}
                       </span>
                     </p>
                     <p className="text-gray-700">
