@@ -128,8 +128,8 @@ export default function EventCreation() {
       formData.append("place", eventDetails.place);
       formData.append("time", eventDetails.time);
       formData.append("startDate", new Date(eventDetails.startDate).toISOString().split('T')[0]);
-      if(eventDetails.endDate){
-      formData.append("endDate", new Date(eventDetails.endDate).toISOString().split('T')[0]);
+      if (eventDetails.endDate) {
+        formData.append("endDate", new Date(eventDetails.endDate).toISOString().split('T')[0]);
       }
       formData.append("companyEmail", loggedInEmail);
       formData.append("eventRoles", JSON.stringify(sanitizedRoles));
@@ -194,7 +194,11 @@ export default function EventCreation() {
                 <h4 className="font-semibold text-xl">{event.eventName}</h4>
                 <p>{event.companyName}</p>
                 <p>{event.place} - {event.time}</p>
-                <p>{new Date(event.startDate).toLocaleDateString()} - {new Date(event.endDate).toLocaleDateString()}</p>
+                <p>
+                  {new Date(event.startDate).toLocaleDateString() === new Date(event.endDate).toLocaleDateString()
+                    ? new Date(event.startDate).toLocaleDateString()
+                    : `${new Date(event.startDate).toLocaleDateString()} - ${new Date(event.endDate).toLocaleDateString()}`}
+                </p>
                 <div className="mt-4 space-x-4 flex justify-center">
                   <button
                     onClick={() => handleEditEvent(event._id)}
