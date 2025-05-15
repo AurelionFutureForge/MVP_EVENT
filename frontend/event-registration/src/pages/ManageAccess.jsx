@@ -84,7 +84,7 @@ function ManageAccess() {
   const handleDelete = async () => {
     try {
       setPrivLoading(true);
-      await axios.delete(`${BASE_URL}/admin/delete-privileges/:${eventId}`);
+      await axios.delete(`${BASE_URL}/admin/delete-privileges/${eventId}`);
       toast.success("Privileges Deleted Successfully");
     } catch (error) {
       toast.error("Failed to delete the Privileges");
