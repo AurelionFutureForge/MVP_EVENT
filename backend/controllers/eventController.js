@@ -159,39 +159,52 @@ const UpdateEvents = async (req, res) => {
   try {
     const { companyName, eventName, eventRoles, place, time, startDate, endDate } = req.body;
 
+    const companyPoster = req.file ? `/uploads/${req.file.filename}` : undefined; // only update if a file is uploaded
+
     if (!startDate || !endDate) {
       return res.status(400).json({ msg: 'Start date and End date are required' });
     }
 
     const formattedStartDate = new Date(startDate);
     const formattedEndDate = new Date(endDate);
-    if (isNaN(formattedStartDate.getTime()) || isNaN(formattedEndDate.getTime())) { 
+    if (isNaN(formattedStartDate.getTime()) || isNaN(formattedEndDate.getTime())) {
       return res.status(400).json({ msg: 'Invalid date format' });
     }
 
-    if (!Array.isArray(eventRoles) || eventRoles.length === 0) {
+    let parsedEventRoles = eventRoles;
+    if (typeof eventRoles === 'string') {
+      try {
+        parsedEventRoles = JSON.parse(eventRoles);
+      } catch {
+        return res.status(400).json({ msg: 'Invalid eventRoles format. Must be JSON.' });
+      }
+    }
+
+    if (!Array.isArray(parsedEventRoles) || parsedEventRoles.length === 0) {
       return res.status(400).json({ msg: 'At least one role is required' });
     }
 
-    const processedRoles = eventRoles.map(role => {
+    const processedRoles = parsedEventRoles.map(role => {
       if (!role.roleName || typeof role.roleName !== 'string') {
         throw new Error('Each role must have a valid roleName');
       }
+
       if (!role.roleDescription || typeof role.roleDescription !== 'string') {
         throw new Error(`Role '${role.roleName}' must have a valid roleDescription`);
       }
 
-      if (!Array.isArray(role.privileges) || role.privileges.length === 0) {
-        throw new Error(`Role '${role.roleName}' must have at least one privilege`);
+      const privilegesArray = Array.isArray(role.privileges)
+        ? role.privileges.flatMap(p =>
+            p.split(',').map(item => item.trim()).filter(Boolean)
+          )
+        : [];
+
+      if (privilegesArray.length === 0) {
+        throw new Error(`Role '${role.roleName}' must have at least one valid privilege`);
       }
 
-      for (const privilege of role.privileges) {
-        if (typeof privilege !== 'string' || !privilege.trim()) {
-          throw new Error(`Role '${role.roleName}' has invalid privilege values`);
-        }
-      }
-
-      if (role.rolePrice === undefined || isNaN(Number(role.rolePrice)) || Number(role.rolePrice) < 0) {
+      const rolePrice = role.rolePrice ?? role.price;
+      if (rolePrice === undefined || isNaN(Number(rolePrice)) || Number(rolePrice) < 0) {
         throw new Error(`Role '${role.roleName}' must have a valid non-negative price`);
       }
 
@@ -202,33 +215,44 @@ const UpdateEvents = async (req, res) => {
       return {
         roleName: role.roleName.trim(),
         roleDescription: role.roleDescription.trim(),
-        privileges: role.privileges.map(p => p.trim()),
-        rolePrice: Number(role.rolePrice),
+        privileges: privilegesArray,
+        rolePrice: Number(rolePrice),
         maxRegistrations: Number(role.maxRegistrations)
       };
     });
 
+    const updateFields = {
+      companyName: companyName.trim(),
+      eventName: eventName.trim(),
+      eventRoles: processedRoles,
+      place,
+      time,
+      startDate: formattedStartDate.toISOString(),
+      endDate: formattedEndDate.toISOString(),
+    };
+
+    if (companyPoster) {
+      updateFields.companyPoster = companyPoster; // add poster only if uploaded
+    }
+
     const updatedEvent = await Event.findByIdAndUpdate(
       req.params.eventId,
-      {
-        companyName: companyName.trim(),
-        eventName: eventName.trim(),
-        eventRoles: processedRoles,
-        place,
-        time,
-        startDate: formattedStartDate.toISOString(),
-        endDate: formattedEndDate.toISOString()
-      },
+      updateFields,
       { new: true, runValidators: true }
     );
 
-    if (!updatedEvent) return res.status(404).json({ msg: "Event not found" });
+    if (!updatedEvent) {
+      return res.status(404).json({ msg: "Event not found" });
+    }
+
     res.json(updatedEvent);
+
   } catch (err) {
     console.error("Update error:", err);
     res.status(500).json({ msg: "Failed to update event", error: err.message });
   }
 };
+
 
 // Save registration fields for event
 const saveRegistrationFields = async (req, res) => {

@@ -17,11 +17,12 @@ export default function EditEvent() {
     eventRoles: [],
   });
 
+  const [posterFile, setPosterFile] = useState(null);
   const [newRole, setNewRole] = useState('');
   const [roleDescription, setRoleDescription] = useState('');
   const [privileges, setPrivileges] = useState('');
   const [rolePrice, setRolePrice] = useState('');
-  const [maxRegistrations, setMaxRegistrations] = useState(''); // ✅ renamed correctly
+  const [maxRegistrations, setMaxRegistrations] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [editIndex, setEditIndex] = useState(null);
@@ -143,15 +144,19 @@ export default function EditEvent() {
         maxRegistrations: role.maxRegistrations,
       }));
 
-      const updatedEvent = {
-        ...eventDetails,
-        eventRoles: sanitizedRoles,
-        startDate: new Date(eventDetails.startDate).toISOString().split('T')[0],
-        endDate: new Date(eventDetails.endDate).toISOString().split('T')[0],
-        time: eventDetails.time,
-      };
+      const formData = new FormData();
+      formData.append("companyName", eventDetails.companyName);
+      formData.append("eventName", eventDetails.eventName);
+      formData.append("place", eventDetails.place);
+      formData.append("startDate", new Date(eventDetails.startDate).toISOString().split('T')[0]);
+      formData.append("endDate", new Date(eventDetails.endDate).toISOString().split('T')[0]);
+      formData.append("time", eventDetails.time);
+      formData.append("eventRoles", JSON.stringify(sanitizedRoles));
+      if (posterFile) {
+        formData.append("poster", posterFile);
+      }
 
-      const res = await axios.put(`${BASE_URL}/events/${eventId}`, updatedEvent);
+      const res = await axios.put(`${BASE_URL}/events/${eventId}`, formData);
 
       if (res.status === 200) {
         toast.success("Event updated successfully!");
@@ -197,6 +202,14 @@ export default function EditEvent() {
           className="w-full p-3 mb-4 border rounded-lg shadow-sm"
           onChange={handleChange}
           value={eventDetails.time}
+        />
+
+        {/* Poster Upload */}
+        <input
+          type="file"
+          accept="image/*"
+          className="w-full mb-4 p-2 border rounded"
+          onChange={(e) => setPosterFile(e.target.files[0])}
         />
 
         <div className="mb-6">
