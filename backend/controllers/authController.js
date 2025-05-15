@@ -290,7 +290,7 @@ const deleteForm = async (req, res) => {
 };
 
 const deletePrivileges = async (req, res) => {
-  const { eventId } = req.body;
+  const { eventId } = req.params;
 
   try {
     const result = await Privilege.deleteMany({ eventId });

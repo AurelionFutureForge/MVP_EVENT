@@ -7,6 +7,7 @@ function ManageAccess() {
   const [privilegesList, setPrivilegesList] = useState([]);
   const [assignedPrivileges, setAssignedPrivileges] = useState([]);
   const [loading, setLoading] = useState(false); // To handle loading state
+  const [prevLoading, setPrivLoading] = useState(false);
   const navigate = useNavigate();
 
   const BASE_URL = import.meta.env.VITE_BACKEND_URL;
@@ -82,15 +83,13 @@ function ManageAccess() {
 
   const handleDelete = async () => {
     try {
-      setLoading(true);
-      await axios.delete(`${BASE_URL}/admin/delete-privileges`, {
-        eventId
-      });
+      setPrivLoading(true);
+      await axios.delete(`${BASE_URL}/admin/delete-privileges/:${eventId}`);
       toast.success("Privileges Deleted Successfully");
     } catch (error) {
       toast.error("Failed to delete the Privileges");
     } finally {
-      setLoading(false);
+      setPrivLoading(false);
     }
   }
 
@@ -121,9 +120,10 @@ function ManageAccess() {
           </div>
         ))}
 
+      <div className="flex flex-col md:flex-row gap-4">
         <button
           onClick={handleSubmit}
-          className={`bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition w-full ${loading ? "opacity-50 cursor-not-allowed" : ""}`}
+          className={`bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition w-full md:w-auto ${loading ? "opacity-50 cursor-not-allowed" : ""}`}
           disabled={loading}
         >
           {loading ? "Assigning..." : "Assign Privileges"}
@@ -131,11 +131,13 @@ function ManageAccess() {
 
         <button
           onClick={handleDelete}
-          className={`bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition w-full ${loading ? "opacity-50 cursor-not-allowed" : ""}`}
-          disabled={loading}
+          className={`bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition w-full md:w-auto ${prevLoading ? "opacity-50 cursor-not-allowed" : ""}`}
+          disabled={prevLoading}
         >
-          {loading ? "Deleting" : " Delete Assigned Privileges"}
+          {prevLoading ? "Deleting" : "Delete Assigned Privileges"}
         </button>
+      </div>
+
 
       </div>
     </div>
