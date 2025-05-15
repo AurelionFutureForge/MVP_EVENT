@@ -134,36 +134,33 @@ function RegistrationForm() {
   );
   const rolePrice = selectedRole?.rolePrice || 0;
 
-  const handlePayment = async () => {
-    if (!formData.role) {
+ const handlePayment = async () => {
+    if (!formData[roleField?.fieldName]) {
       toast.error("Please select a role before proceeding.");
       return;
     }
 
-    try{
-        localStorage.setItem("formData", JSON.stringify(formData));
-        localStorage.setItem("eventID", eventID);
+    try {
+      localStorage.setItem("formData", JSON.stringify(formData));
+      localStorage.setItem("eventID", eventID);
 
-        const res = await axios.post(`${BASE_URL}/api/phonepe/initiate-payment`, {
-        amount : rolePrice, email: formData.EMAIL, eventId: eventID
+      const res = await axios.post(`${BASE_URL}/api/phonepe/initiate-payment`, {
+        amount: rolePrice,
+        email: formData.EMAIL,
+        eventId: eventID,
       });
 
-           const { redirectUrl } = res.data;
+      const { redirectUrl } = res.data;
       if (redirectUrl) {
         window.location.href = redirectUrl;
       } else {
-          toast.error("Failed to get PhonePe payment URL.");
+        toast.error("Failed to get PhonePe payment URL.");
       }
     } catch (err) {
-      toast.error("Payment initiation failed. ");
+      toast.error("Payment initiation failed.");
       console.error(err);
     }
   };
-
-  
-
-
-
 
   return (
     <div className="min-h-screen bg-gray-800 p-6">
