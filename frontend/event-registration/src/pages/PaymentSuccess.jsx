@@ -35,7 +35,7 @@ function PaymentSuccess() {
           toast.success("Registration successful!");
           localStorage.removeItem("formData");
           localStorage.removeItem("eventID");
-          navigate("/thank-you");
+          navigate("/success");
         } else {
           toast.error("Payment verification failed.");
           navigate("/");

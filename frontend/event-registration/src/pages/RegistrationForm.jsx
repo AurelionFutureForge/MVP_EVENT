@@ -79,12 +79,6 @@ function RegistrationForm() {
     }
   };
 
-  const handlePayment = async () => {
-    setPaymentSuccess(true);
-    toast.success("Payment successful! Registering now...");
-    await handleSubmit(); // Automatically submit the form after payment
-  };
-
   if (loading) return (
     <div className="min-h-screen flex items-center justify-center bg-gray-800 text-white">
       <div className="flex flex-col items-center">
@@ -129,7 +123,6 @@ function RegistrationForm() {
   </div>
 );
 
-
   const otherFields = event.registrationFields.filter(
     (field) => field.fieldName !== "ROLE"
   );
@@ -140,6 +133,37 @@ function RegistrationForm() {
     (role) => role.roleName === formData[roleField?.fieldName]
   );
   const rolePrice = selectedRole?.rolePrice || 0;
+
+  const handlePayment = async () => {
+    if (!formData.role) {
+      toast.error("Please select a role before proceeding.");
+      return;
+    }
+
+    try{
+        localStorage.setItem("formData", JSON.stringify(formData));
+        localStorage.setItem("eventID", eventID);
+
+        const res = await axios.post(`${BASE_URL}/api/phonepe/initiate-payment`, {
+        amount : rolePrice, email: formData.EMAIL, eventId: eventID
+      });
+
+           const { redirectUrl } = res.data;
+      if (redirectUrl) {
+        window.location.href = redirectUrl;
+      } else {
+          toast.error("Failed to get PhonePe payment URL.");
+      }
+    } catch (err) {
+      toast.error("Payment initiation failed. ");
+      console.error(err);
+    }
+  };
+
+  
+
+
+
 
   return (
     <div className="min-h-screen bg-gray-800 p-6">
@@ -160,12 +184,13 @@ function RegistrationForm() {
 
         <div className="text-center text-gray-600 mb-6">
           {event.startDate && (
-            <p>
-              <span className="font-semibold">Date:</span>{" "}
-              {new Date(event.startDate).toLocaleDateString()} -{" "}
-              {new Date(event.endDate).toLocaleDateString()}
-            </p>
-          )}
+          <p>
+            <span className="font-semibold">Date:</span>{" "}
+            {new Date(event.startDate).toLocaleDateString() === new Date(event.endDate).toLocaleDateString()
+              ? new Date(event.startDate).toLocaleDateString()
+              : `${new Date(event.startDate).toLocaleDateString()} - ${new Date(event.endDate).toLocaleDateString()}`}
+          </p>
+        )}
           {event.place && (
             <p>
               <span className="font-semibold">Location:</span> {event.place}
@@ -178,7 +203,7 @@ function RegistrationForm() {
           )}
         </div>
 
-        <form onSubmit={handleSubmit}>
+        <form>
           {otherFields.map((field, idx) => (
             <div key={idx} className="mb-4">
               <label className="block text-gray-700 font-semibold mb-2">

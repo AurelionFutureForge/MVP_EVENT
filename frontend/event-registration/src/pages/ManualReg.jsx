@@ -194,11 +194,13 @@ if (loading) return (
 
         <div className="text-center text-gray-600 mb-6">
           {event.startDate && (
-            <p>
-              <span className="font-semibold">Date:</span>{" "}
-              {new Date(event.startDate).toLocaleDateString()} - {new Date(event.endDate).toLocaleDateString()}
-            </p>
-          )}
+          <p>
+            <span className="font-semibold">Date:</span>{" "}
+            {new Date(event.startDate).toLocaleDateString() === new Date(event.endDate).toLocaleDateString()
+              ? new Date(event.startDate).toLocaleDateString()
+              : `${new Date(event.startDate).toLocaleDateString()} - ${new Date(event.endDate).toLocaleDateString()}`}
+          </p>
+        )}
           {event.place && (
             <p>
               <span className="font-semibold">Location:</span> {event.place}

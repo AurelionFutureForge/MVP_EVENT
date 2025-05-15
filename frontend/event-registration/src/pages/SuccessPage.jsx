@@ -40,7 +40,13 @@ function SuccessPage() {
             <FaCalendarAlt className="mr-2 text-purple-500" /> {eventName}
           </p>
           <p className="flex items-center justify-center mt-2">
-            <FaClock className="mr-2 text-yellow-500" />  {new Date(startDate).toLocaleDateString()} - {new Date(endDate).toLocaleDateString()} | {time} (IST)
+            <FaClock className="mr-2 text-yellow-500" />      
+          <p>
+            <span className="font-semibold">Date:</span>{" "}
+            {new Date(startDate).toLocaleDateString() === new Date(endDate).toLocaleDateString()
+              ? new Date(startDate).toLocaleDateString()
+              : `${new Date(startDate).toLocaleDateString()} - ${new Date(endDate).toLocaleDateString()}`} | {time} (IST)
+          </p>
           </p>
           <p className="flex items-center justify-center mt-2">
             <FaMapMarkerAlt className="mr-2 text-pink-500" /> {place}

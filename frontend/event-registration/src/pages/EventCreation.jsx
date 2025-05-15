@@ -100,8 +100,8 @@ export default function EventCreation() {
   };
 
   const validateForm = () => {
-    const { companyName, eventName, place, time, startDate, endDate, eventRoles } = eventDetails;
-    if (!companyName || !eventName || !place || !time || !startDate || !endDate || eventRoles.length === 0) {
+    const { companyName, eventName, place, time, startDate, eventRoles } = eventDetails;
+    if (!companyName || !eventName || !place || !time || !startDate || eventRoles.length === 0) {
       setError("All fields are required, including at least one role.");
       return false;
     }
@@ -128,7 +128,9 @@ export default function EventCreation() {
       formData.append("place", eventDetails.place);
       formData.append("time", eventDetails.time);
       formData.append("startDate", new Date(eventDetails.startDate).toISOString().split('T')[0]);
+      if(eventDetails.endDate){
       formData.append("endDate", new Date(eventDetails.endDate).toISOString().split('T')[0]);
+      }
       formData.append("companyEmail", loggedInEmail);
       formData.append("eventRoles", JSON.stringify(sanitizedRoles));
       if (eventDetails.poster) {
