@@ -195,9 +195,11 @@ export default function EventCreation() {
                 <p>{event.companyName}</p>
                 <p>{event.place} - {event.time}</p>
                 <p>
-                  {new Date(event.startDate).toLocaleDateString() === new Date(event.endDate).toLocaleDateString()
-                    ? new Date(event.startDate).toLocaleDateString()
-                    : `${new Date(event.startDate).toLocaleDateString()} - ${new Date(event.endDate).toLocaleDateString()}`}
+                  {event.endDate &&
+                    !isNaN(new Date(event.endDate)) &&
+                    new Date(event.startDate).toLocaleDateString() !== new Date(event.endDate).toLocaleDateString()
+                    ? `${new Date(event.startDate).toLocaleDateString()} - ${new Date(event.endDate).toLocaleDateString()}`
+                    : new Date(event.startDate).toLocaleDateString()}
                 </p>
                 <div className="mt-4 space-x-4 flex justify-center">
                   <button
