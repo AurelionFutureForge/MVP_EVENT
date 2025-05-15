@@ -84,6 +84,8 @@ function ManageAccess() {
   const handleDelete = async () => {
     try {
       setPrivLoading(true);
+      const rawEventId = localStorage.getItem("selectedEvent");
+      const eventId = rawEventId?.startsWith(":") ? rawEventId.slice(1) : rawEventId;
       await axios.delete(`${BASE_URL}/admin/delete-privileges/${eventId}`);
       toast.success("Privileges Deleted Successfully");
     } catch (error) {
