@@ -149,7 +149,9 @@ export default function EditEvent() {
       formData.append("eventName", eventDetails.eventName);
       formData.append("place", eventDetails.place);
       formData.append("startDate", new Date(eventDetails.startDate).toISOString().split('T')[0]);
+      if(eventDetails.endDate){
       formData.append("endDate", new Date(eventDetails.endDate).toISOString().split('T')[0]);
+      }
       formData.append("time", eventDetails.time);
       formData.append("eventRoles", JSON.stringify(sanitizedRoles));
       if (posterFile) {
