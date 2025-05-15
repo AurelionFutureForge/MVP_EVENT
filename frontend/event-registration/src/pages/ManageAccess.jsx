@@ -80,6 +80,20 @@ function ManageAccess() {
     }
   };
 
+  const handleDelete = async () => {
+    try {
+      setLoading(true);
+      await axios.delete(`${BASE_URL}/admin/delete-privileges`, {
+        eventId
+      });
+      toast.success("Privileges Deleted Successfully");
+    } catch (error) {
+      toast.error("Failed to delete the Privileges");
+    } finally {
+      setLoading(false);
+    }
+  }
+
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center p-6">
       <div className="bg-white p-8 rounded-xl shadow-lg w-full max-w-3xl">
@@ -114,6 +128,15 @@ function ManageAccess() {
         >
           {loading ? "Assigning..." : "Assign Privileges"}
         </button>
+
+        <button
+          onClick={handleDelete}
+          className={`bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition w-full ${loading ? "opacity-50 cursor-not-allowed" : ""}`}
+          disabled={loading}
+        >
+          {loading ? "Deleting" : " Delete Assigned Privileges"}
+        </button>
+
       </div>
     </div>
   );

@@ -9,8 +9,8 @@ const nodemailer = require('nodemailer');
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
-        user: "amthemithun@gmail.com",
-        pass: "ptfk ykpn uygd yodb",
+    user: "amthemithun@gmail.com",
+    pass: "ptfk ykpn uygd yodb",
   }
 });
 
@@ -35,9 +35,9 @@ const adminLogin = async (req, res) => {
     res.status(200).json({
       message: "Login successful",
       token,
-      admin: { 
-        id: admin._id, 
-        email: admin.email, 
+      admin: {
+        id: admin._id,
+        email: admin.email,
         companyName: admin.companyName   // Directly send company name
       },
     });
@@ -125,7 +125,7 @@ const registerAdmin = async (req, res) => {
     );
 
     // Send back the token and success message
-    res.status(201).json({ message: "Admin registered successfully", token, companyName :newAdmin.companyName, adminEmail:newAdmin.email });
+    res.status(201).json({ message: "Admin registered successfully", token, companyName: newAdmin.companyName, adminEmail: newAdmin.email });
 
   } catch (error) {
     res.status(500).json({ message: "Error registering admin", error });
@@ -135,7 +135,7 @@ const registerAdmin = async (req, res) => {
 //  GET privileges (updated to take eventId)
 const getEventPrivileges = async (req, res) => {
   const { eventId } = req.query;
-  console.log("eventID:",eventId);
+  console.log("eventID:", eventId);
 
   if (!eventId) {
     return res.status(400).json({ message: "Event ID is required" });
@@ -289,4 +289,22 @@ const deleteForm = async (req, res) => {
   }
 };
 
-module.exports = { adminLogin, getAllUsers, registerAdmin, getEventPrivileges, assignPrivileges , getAllEvents, getRegField, getAvailableRoles, deleteForm};
+const deletePrivileges = async (req, res) => {
+  const { eventId } = req.body;
+
+  try {
+    const result = await Privilege.deleteMany({ eventId });
+
+    if (result.deletedCount === 0) {
+      return res.status(404).json({ message: "No privileges found for the given eventId." });
+    }
+
+    return res.status(200).json({ message: `Deleted ${result.deletedCount} privilege(s).` });
+  } catch (error) {
+    console.error("Error deleting privileges:", error);
+    return res.status(500).json({ message: "Server error while deleting privileges." });
+  }
+};
+
+
+module.exports = { adminLogin, getAllUsers, registerAdmin, getEventPrivileges, assignPrivileges, getAllEvents, getRegField, getAvailableRoles, deleteForm, deletePrivileges};
