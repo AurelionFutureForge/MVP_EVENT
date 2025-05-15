@@ -8,8 +8,7 @@ const createEvent = async (req, res) => {
 
     console.log('Incoming Request:', req.body);
     console.log('File Upload:', req.file);
-    console.log("Company poster URL:", `/uploads/${req.file.filename}`);
-
+    console.log("Company poster URL:", req.file ? `/uploads/${req.file.filename}` : null);
 
     // Handle the uploaded file
     const companyPoster = req.file ? `/uploads/${req.file.filename}` : null;
@@ -36,15 +35,22 @@ const createEvent = async (req, res) => {
       return res.status(400).json({ msg: 'An event with this company and event name already exists' });
     }
 
-    // Validate dates
-    if (!startDate || !endDate) {
-      return res.status(400).json({ msg: 'Start date and End date are required' });
+    // Validate startDate (required)
+    if (!startDate) {
+      return res.status(400).json({ msg: 'Start date is required' });
+    }
+    const formattedStartDate = new Date(startDate);
+    if (isNaN(formattedStartDate.getTime())) {
+      return res.status(400).json({ msg: 'Invalid start date format' });
     }
 
-    const formattedStartDate = new Date(startDate);
-    const formattedEndDate = new Date(endDate);
-    if (isNaN(formattedStartDate.getTime()) || isNaN(formattedEndDate.getTime())) {
-      return res.status(400).json({ msg: 'Invalid date format' });
+    // Validate endDate only if provided (optional)
+    let formattedEndDate = null;
+    if (endDate) {
+      formattedEndDate = new Date(endDate);
+      if (isNaN(formattedEndDate.getTime())) {
+        return res.status(400).json({ msg: 'Invalid end date format' });
+      }
     }
 
     // Validate eventRoles
@@ -90,7 +96,7 @@ const createEvent = async (req, res) => {
       place,
       time,
       startDate: formattedStartDate.toISOString(),
-      endDate: formattedEndDate.toISOString(),
+      ...(formattedEndDate && { endDate: formattedEndDate.toISOString() }), // optional endDate
       companyPoster, // Save poster path
     });
 
@@ -166,9 +172,16 @@ const UpdateEvents = async (req, res) => {
     }
 
     const formattedStartDate = new Date(startDate);
-    const formattedEndDate = new Date(endDate);
-    if (isNaN(formattedStartDate.getTime()) || isNaN(formattedEndDate.getTime())) {
-      return res.status(400).json({ msg: 'Invalid date format' });
+    if (isNaN(formattedStartDate.getTime())) {
+      return res.status(400).json({ msg: 'Invalid start date format' });
+    }
+
+    let formattedEndDate = null;
+    if (endDate) {
+      formattedEndDate = new Date(endDate);
+      if (isNaN(formattedEndDate.getTime())) {
+        return res.status(400).json({ msg: 'Invalid end date format' });
+      }
     }
 
     let parsedEventRoles = eventRoles;
@@ -228,8 +241,11 @@ const UpdateEvents = async (req, res) => {
       place,
       time,
       startDate: formattedStartDate.toISOString(),
-      endDate: formattedEndDate.toISOString(),
     };
+
+    if (formattedEndDate) {
+      updateFields.endDate = formattedEndDate.toISOString();
+    }
 
     if (companyPoster) {
       updateFields.companyPoster = companyPoster; // add poster only if uploaded
@@ -252,6 +268,7 @@ const UpdateEvents = async (req, res) => {
     res.status(500).json({ msg: "Failed to update event", error: err.message });
   }
 };
+
 
 
 // Save registration fields for event
