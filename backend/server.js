@@ -16,8 +16,23 @@ const phonepeRoutes = require('./routes/phonepeRoutes')
 const app = express();
 app.use(express.json());
 
-// ✅ Serve static files from the 'uploads' folder
-app.use('/uploads', express.static(path.resolve('/opt/render/project/src/uploads')));
+app.use('/uploads', express.static(path.resolve('/opt/render/project/src/uploads'), {
+  setHeaders: (res, filePath) => {
+    // Set proper CORS headers
+    res.setHeader('Access-Control-Allow-Origin', '*');
+
+    // Optional but useful: Ensure correct MIME type (especially helpful with older or misconfigured setups)
+    if (filePath.endsWith('.jpg')) {
+      res.setHeader('Content-Type', 'image/jpeg');
+    } else if (filePath.endsWith('.png')) {
+      res.setHeader('Content-Type', 'image/png');
+    } else if (filePath.endsWith('.jpeg')) {
+      res.setHeader('Content-Type', 'image/jpeg');
+    } else if (filePath.endsWith('.webp')) {
+      res.setHeader('Content-Type', 'image/webp');
+    }
+  }
+}));
 
 // CORS config
 const corsOptions = {
