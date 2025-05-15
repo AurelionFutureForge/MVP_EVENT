@@ -16,7 +16,7 @@ const phonepeRoutes = require('./routes/phonepeRoutes')
 const app = express();
 app.use(express.json());
 
-aapp.use('/uploads', (req, res, next) => {
+app.use('/uploads', (req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', '*'); 
   next();
 }, express.static(path.resolve('/opt/render/project/src/uploads')));
