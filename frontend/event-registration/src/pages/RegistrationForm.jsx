@@ -206,7 +206,7 @@ function RegistrationForm() {
     }
   };
 
-return (
+  return (
     <div className="min-h-screen bg-gray-800 p-6">
       <div className="bg-white p-6 shadow-xl rounded-2xl max-w-lg mx-auto">
         {event.companyPoster && (
@@ -358,7 +358,7 @@ return (
                         />
                         <span className="font-medium">{option}</span>
                         <span className="text-sm text-blue-600 font-semibold ml-auto">
-                          Pay ₹{price}
+                          ₹{price}<span className="text-red-800">*</span>
                         </span>
                       </div>
                       {matchingRole?.roleDescription && (
@@ -385,7 +385,7 @@ return (
               className="mt-4 px-4 py-2 rounded-lg w-full bg-green-600 text-white hover:bg-green-700"
               onClick={handlePayment}
             >
-              Pay ₹{rolePrice}
+              Pay ₹{(rolePrice * 1.025).toFixed(2)} {/* 2.5% platform fee included */}
             </button>
           )}
         </form>

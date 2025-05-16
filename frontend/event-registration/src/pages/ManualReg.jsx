@@ -354,7 +354,7 @@ function ManualReg() {
               className="mt-4 px-4 py-2 rounded-xl w-full bg-green-600 text-white hover:bg-green-700"
               onClick={handlePayment}
             >
-              Pay ₹{selectedRole?.rolePrice}
+              Pay ₹{(selectedRole?.rolePrice * 1.025).toFixed(2)}
             </button>
           )}
         </form>
