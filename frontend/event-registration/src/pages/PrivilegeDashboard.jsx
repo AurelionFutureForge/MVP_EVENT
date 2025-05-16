@@ -82,7 +82,7 @@ function PrivilegeDashboard() {
     localStorage.removeItem("eventName");
     localStorage.removeItem("eventId");
     toast.success("Logged out successfully");
-    navigate("/privilege-login");
+    navigate("/login");
   };
 
   return (

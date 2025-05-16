@@ -7,7 +7,7 @@ function AdminLogin() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [role, setRole] = useState("admin");
+  const [role, setRole] = useState("");
   const navigate = useNavigate();
 
   const BASE_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
@@ -29,7 +29,7 @@ function AdminLogin() {
 
         // Redirect to the dashboard after login
         navigate("/event-list");
-      } else {
+      } else if(role == "privilege") {
         const res = await axios.post(`${BASE_URL}/privilege/login`, {
           email,
           password,
@@ -44,6 +44,8 @@ function AdminLogin() {
 
         toast.success("Login successful!");
         navigate("/privilege/dashboard");
+      } else {
+        toast.error("please select a role");
       }
 
     } catch (error) {
@@ -68,7 +70,8 @@ function AdminLogin() {
               onChange={(e) => setRole(e.target.value)}
               className="w-full p-3 border border-gray-300 rounded-lg mt-1 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
               disabled={loading}
-            >
+            > 
+              <option value="please select">Please Select</option>
               <option value="admin">Admin</option>
               <option value="privilege">Privilege</option>
             </select>
