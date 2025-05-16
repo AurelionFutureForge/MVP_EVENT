@@ -190,11 +190,14 @@ const assignPrivileges = async (req, res) => {
       });
     }
 
+    const invalidPrivileges = [];
+
     for (const priv of privileges) {
       const { privilegeName, email, password, endDate } = priv;
 
       if (!email || !password || !endDate) {
-        return res.status(400).json({ message: "Email, password and endDate are required for each privilege" });
+        invalidPrivileges.push(priv);
+        continue;
       }
 
       const existingPrivilege = existingPrivileges.privileges.find(
@@ -221,12 +224,21 @@ const assignPrivileges = async (req, res) => {
 
     await existingPrivileges.save();
 
+    if (invalidPrivileges.length > 0) {
+      return res.status(207).json({
+        message: "Some privileges were assigned successfully, but some were skipped due to missing data.",
+        skipped: invalidPrivileges
+      });
+    }
+
     res.status(200).json({ message: "Privileges assigned and emails sent successfully!" });
+
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Error assigning privileges" });
   }
 };
+
 
 const getRegField = async (req, res) => {
   try {
