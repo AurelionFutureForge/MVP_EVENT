@@ -272,23 +272,6 @@ const getAvailableRoles = async (req, res) => {
   }
 };
 
-const deleteForm = async (req, res) => {
-  const { EventId } = req.params;
-
-  try {
-    const event = await Event.findById(EventId);
-    if (!event) {
-      return res.status(404).json({ message: "Event not found" });
-    }
-
-    event.registrationFields = [];
-    await event.save();
-
-    res.json({ message: "Registration fields deleted successfully" });
-  } catch (err) {
-    res.status(500).json({ message: "Server error" });
-  }
-};
 
 const deletePrivileges = async (req, res) => {
   let { eventId } = req.params;
@@ -317,4 +300,4 @@ const deletePrivileges = async (req, res) => {
 
 
 
-module.exports = { adminLogin, getAllUsers, registerAdmin, getEventPrivileges, assignPrivileges, getAllEvents, getRegField, getAvailableRoles, deleteForm, deletePrivileges};
+module.exports = { adminLogin, getAllUsers, registerAdmin, getEventPrivileges, assignPrivileges, getAllEvents, getRegField, getAvailableRoles, deletePrivileges};

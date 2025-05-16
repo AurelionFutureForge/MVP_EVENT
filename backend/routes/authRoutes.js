@@ -1,5 +1,5 @@
 const express = require("express");
-const { adminLogin, getAllUsers, registerAdmin, getEventPrivileges, assignPrivileges, getAllEvents, getRegField, getAvailableRoles, deleteForm, deletePrivileges} = require("../controllers/authController"); // Ensure functions are correctly imported
+const { adminLogin, getAllUsers, registerAdmin, getEventPrivileges, assignPrivileges, getAllEvents, getRegField, getAvailableRoles,  deletePrivileges} = require("../controllers/authController"); // Ensure functions are correctly imported
 const { authenticateAdmin } = require("../middleware/authMiddleware");
 const {authenticatePrivilege} = require("../middleware/privilegeAuthMiddleware")
 
@@ -22,8 +22,6 @@ router.get("/events", getAllEvents);
 router.get("/event-reg",getRegField);
 
 router.get("/event-roles/:EventId",getAvailableRoles);
-
-router.delete("/registration-fields/:EventId",deleteForm);
 
 router.delete("/delete-privileges/:eventId",deletePrivileges);
 
