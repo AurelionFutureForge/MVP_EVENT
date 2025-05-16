@@ -34,7 +34,7 @@ function ManageAccess() {
           privilegeName: p,
           email: "",
           password: "",
-          endDate
+          endDate:""
         }));
 
         setPrivilegesList(uniquePrivileges); // Set unique privileges to state
