@@ -16,6 +16,7 @@ function CreateRegistrationForm() {
   const [eventName, setEventName] = useState("");
   const [formLink, setFormLink] = useState("");
   const [loadingRoles, setLoadingRoles] = useState(false);  // Loading state for roles
+  const [formVisible, setFormVisible] = useState(true);
 
   const BASE_URL = import.meta.env.VITE_BACKEND_URL;
   const companyName = localStorage.getItem("adminCompany");
@@ -166,15 +167,20 @@ function CreateRegistrationForm() {
     }
   };
 
-const handleCloseForm = async () => {
-  try {
-    await axios.put(`${BASE_URL}/events/toggle-form/${EventId}`);
-    toast.success("Form status toggled successfully!");
-  } catch (error) {
-    toast.error("Failed to toggle the form.");
-    console.error(error);
+  const handleCloseForm = async () => {
+    try {
+      const response = await axios.put(`${BASE_URL}/events/toggle-form/${EventId}`);
+      const { toggleForm } = response.data;  // Extract updated value
+
+      toast.success(`Form is now ${toggleForm ? "Closed" : "Opened"}`);
+
+      // Optionally update local state or UI
+      setFormVisible(toggleForm); // if you have local state to show/hide form
+    } catch (error) {
+      toast.error("Failed to toggle the form.");
+      console.error("Toggle form error:", error);
+    }
   }
-};
 
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center p-6">
@@ -319,12 +325,14 @@ const handleCloseForm = async () => {
             >
               Copy Registration Form Link
             </button>
+
             <button
               onClick={handleCloseForm}
               className="bg-yellow-600 text-white px-6 py-2 mt-5 rounded-lg hover:bg-yellow-700 w-full"
             >
-              Close Registration Form
+              {formVisible ? "Open Registration Form" : "Close Registration Form"}
             </button>
+
           </div>
         )}
       </div>
