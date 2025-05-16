@@ -12,7 +12,6 @@ import ProtectedRoute from './pages/ProtectedRoute';
 import ProtectedEventRoute from './pages/ProtectedEventRoute';
 import ProtectedPrivilege from './pages/ProtectedPrivilege';
 import ManageAccess from './pages/ManageAccess';
-import PrivilegeLogin from './pages/PrivilegeLogin';
 import PrivilegeDashboard from './pages/PrivilegeDashboard';
 import EditEvent from './pages/EditEvent';
 import EventLogin from './pages/EventLogin';
@@ -36,7 +35,6 @@ const App = () => {
         <Route path='/admin/dashboard/:eventId' element={<ProtectedRoute> <AdminDashboard /> </ ProtectedRoute>} />
         <Route path='/create-event' element={<ProtectedEventRoute> <EventCreation />  </ProtectedEventRoute>} />
         <Route path='/admin/manage-access' element={<ManageAccess />} />
-        <Route path='/privilege-login' element={<PrivilegeLogin />} />
         <Route path="/privilege/dashboard" element={<PrivilegeDashboard />} />
         <Route path='/edit-event/:eventId' element={<EditEvent />} />
         <Route path='/event-login' element={<EventLogin />} />
