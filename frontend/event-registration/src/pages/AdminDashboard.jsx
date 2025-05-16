@@ -64,7 +64,7 @@ function AdminDashboard() {
   const [totalPages, setTotalPages] = useState(1);
   const navigate = useNavigate();
   const BASE_URL = import.meta.env.VITE_BACKEND_URL;
-  const companyName = localStorage.getItem("adminCompany");
+  const companyName = localStorage.getItem("adminCompanyName");
   const selectedEvent = localStorage.getItem("selectedEvent");
   const [registrationFields, setRegistrationFields] = useState([]);
 
@@ -73,7 +73,7 @@ function AdminDashboard() {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const token = localStorage.getItem("adminToken");
+        const token = localStorage.getItem("admin_token");
         if (!token) {
           toast.error("Unauthorized! Please log in.");
           navigate("/admin/login");
