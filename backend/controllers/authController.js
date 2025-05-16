@@ -191,10 +191,10 @@ const assignPrivileges = async (req, res) => {
     }
 
     for (const priv of privileges) {
-      const { privilegeName, email, password } = priv;
+      const { privilegeName, email, password, endDate } = priv;
 
-      if (!email || !password) {
-        return res.status(400).json({ message: "Email and password are required for each privilege" });
+      if (!email || !password || !endDate) {
+        return res.status(400).json({ message: "Email, password and endDate are required for each privilege" });
       }
 
       const existingPrivilege = existingPrivileges.privileges.find(
@@ -203,8 +203,9 @@ const assignPrivileges = async (req, res) => {
 
       if (existingPrivilege) {
         existingPrivilege.password = password;
+        existingPrivilege.endDate = endDate;
       } else {
-        existingPrivileges.privileges.push({ privilegeName, email, password });
+        existingPrivileges.privileges.push({ privilegeName, email, password, endDate });
       }
 
       // Send confirmation email
@@ -300,4 +301,4 @@ const deletePrivileges = async (req, res) => {
 
 
 
-module.exports = { adminLogin, getAllUsers, registerAdmin, getEventPrivileges, assignPrivileges, getAllEvents, getRegField, getAvailableRoles, deletePrivileges};
+module.exports = { adminLogin, getAllUsers, registerAdmin, getEventPrivileges, assignPrivileges, getAllEvents, getRegField, getAvailableRoles, deletePrivileges };

@@ -33,7 +33,8 @@ function ManageAccess() {
         const initialAssigned = uniquePrivileges.map(p => ({
           privilegeName: p,
           email: "",
-          password: ""
+          password: "",
+          endDate
         }));
 
         setPrivilegesList(uniquePrivileges); // Set unique privileges to state
@@ -118,27 +119,34 @@ function ManageAccess() {
                 onChange={(e) => handleInputChange(index, "password", e.target.value)}
                 className="border rounded px-3 py-2 w-full focus:ring-2 focus:ring-blue-400"
               />
+              <input
+                type="date"
+                value={priv.endDate}
+                onChange={(e) => handleInputChange(index, "endDate", e.target.value)}
+                className="border rounded px-3 py-2 w-full focus:ring-2 focus:ring-blue-400"
+              />
+
             </div>
           </div>
         ))}
 
-      <div className="flex flex-col md:flex-row gap-4">
-        <button
-          onClick={handleSubmit}
-          className={`bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition w-full md:w-auto ${loading ? "opacity-50 cursor-not-allowed" : ""}`}
-          disabled={loading}
-        >
-          {loading ? "Assigning..." : "Assign Privileges"}
-        </button>
+        <div className="flex flex-col md:flex-row gap-4">
+          <button
+            onClick={handleSubmit}
+            className={`bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition w-full md:w-auto ${loading ? "opacity-50 cursor-not-allowed" : ""}`}
+            disabled={loading}
+          >
+            {loading ? "Assigning..." : "Assign Privileges"}
+          </button>
 
-        <button
-          onClick={handleDelete}
-          className={`bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition w-full md:w-auto ${prevLoading ? "opacity-50 cursor-not-allowed" : ""}`}
-          disabled={prevLoading}
-        >
-          {prevLoading ? "Deleting" : "Delete Assigned Privileges"}
-        </button>
-      </div>
+          <button
+            onClick={handleDelete}
+            className={`bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition w-full md:w-auto ${prevLoading ? "opacity-50 cursor-not-allowed" : ""}`}
+            disabled={prevLoading}
+          >
+            {prevLoading ? "Deleting" : "Delete Assigned Privileges"}
+          </button>
+        </div>
 
 
       </div>

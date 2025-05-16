@@ -349,13 +349,18 @@ function ManualReg() {
 
           {/* Payment Button */}
           {formData.role && !paymentSuccess && (
-            <button
-              type="button"
-              className="mt-4 px-4 py-2 rounded-xl w-full bg-green-600 text-white hover:bg-green-700"
-              onClick={handlePayment}
-            >
-              Pay ₹{(selectedRole?.rolePrice * 1.025).toFixed(2)}
-            </button>
+            <>
+              <p className="text-lg text-blue-700 font-semibold mb-2 flex items-center gap-2">
+                {selectedRole?.rolePrice} + platform fee (2.5%)
+              </p>
+              <button
+                type="button"
+                className="mt-4 px-4 py-2 rounded-xl w-full bg-green-600 text-white hover:bg-green-700"
+                onClick={handlePayment}
+              >
+                Pay ₹{(selectedRole?.rolePrice * 1.025).toFixed(2)}
+              </button>
+            </>
           )}
         </form>
       </div>

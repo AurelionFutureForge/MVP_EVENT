@@ -189,7 +189,7 @@ function RegistrationForm() {
       localStorage.setItem("eventID", eventID);
 
       const res = await axios.post(`${BASE_URL}/api/phonepe/initiate-payment`, {
-        amount: rolePrice,
+        amount: (rolePrice * 1.025).toFixed(2),
         email: formData.EMAIL,
         eventId: eventID,
       });
@@ -380,13 +380,18 @@ function RegistrationForm() {
 
           {/* Payment Button */}
           {!paymentSuccess && formData[roleField?.fieldName] && (
-            <button
-              type="button"
-              className="mt-4 px-4 py-2 rounded-lg w-full bg-green-600 text-white hover:bg-green-700"
-              onClick={handlePayment}
-            >
-              Pay ₹{(rolePrice * 1.025).toFixed(2)} {/* 2.5% platform fee included */}
-            </button>
+            <>
+              <p className="text-lg text-blue-700 font-semibold mb-2 flex items-center gap-2">
+                {selectedRole?.rolePrice} + platform fee (2.5%)
+              </p>
+              <button
+                type="button"
+                className="mt-4 px-4 py-2 rounded-lg w-full bg-green-600 text-white hover:bg-green-700"
+                onClick={handlePayment}
+              >
+                Pay ₹{(rolePrice * 1.025).toFixed(2)} {/* 2.5% platform fee included */}
+              </button>
+            </>
           )}
         </form>
       </div>
