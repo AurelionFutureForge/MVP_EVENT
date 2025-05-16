@@ -11,14 +11,14 @@ function ManageAccess() {
   const navigate = useNavigate();
 
   const BASE_URL = import.meta.env.VITE_BACKEND_URL;
-  const companyName = localStorage.getItem("adminCompany");
+  const companyName = localStorage.getItem("adminCompanyName");
   const eventId = localStorage.getItem("selectedEvent");
 
   // Fetch available privileges from EventDB on load
   useEffect(() => {
     const fetchPrivileges = async () => {
       try {
-        const token = localStorage.getItem("adminToken");
+        const token = localStorage.getItem("admin_token");
         const response = await axios.get(`${BASE_URL}/admin/event-privileges`, {
           headers: { Authorization: `Bearer ${token}` },
           params: { eventId } // We only need eventId in query params
