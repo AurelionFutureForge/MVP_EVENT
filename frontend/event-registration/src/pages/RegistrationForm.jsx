@@ -206,8 +206,8 @@ function RegistrationForm() {
     }
   };
 
-  return (
-    <div className="min-h-screen bg-gray-800 p-6">
+return (
+    <div className="min-h-screen bg-red-500 p-6">
       <div className="bg-white p-6 shadow-xl rounded-2xl max-w-lg mx-auto">
         {event.companyPoster && (
           <div className="flex justify-center mb-4">
@@ -229,11 +229,8 @@ function RegistrationForm() {
               <span className="font-semibold">Date:</span>{" "}
               {event.endDate &&
                 !isNaN(new Date(event.endDate)) &&
-                new Date(event.startDate).toLocaleDateString() !==
-                new Date(event.endDate).toLocaleDateString()
-                ? `${new Date(event.startDate).toLocaleDateString()} - ${new Date(
-                  event.endDate
-                ).toLocaleDateString()}`
+                new Date(event.startDate).toLocaleDateString() !== new Date(event.endDate).toLocaleDateString()
+                ? `${new Date(event.startDate).toLocaleDateString()}` - `${new Date(event.endDate).toLocaleDateString()}`
                 : new Date(event.startDate).toLocaleDateString()}
             </p>
           )}
@@ -253,8 +250,7 @@ function RegistrationForm() {
           {otherFields.map((field, idx) => (
             <div key={idx} className="mb-4">
               <label className="block text-gray-700 font-semibold mb-2">
-                {field.fieldName.charAt(0).toUpperCase() +
-                  field.fieldName.slice(1)}{" "}
+                {field.fieldName.charAt(0).toUpperCase() + field.fieldName.slice(1)}{" "}
                 {field.required && <span className="text-red-600">*</span>}
               </label>
 
@@ -299,9 +295,9 @@ function RegistrationForm() {
                   required={field.required}
                   className="border rounded px-4 py-2 w-full"
                 >
-                  <option value="">Select {field.fieldName}</option>
-                  {field.options.map((option, idx) => (
-                    <option key={idx} value={option}>
+                  <option value="">Select an option</option>
+                  {field.options.map((option, optionIdx) => (
+                    <option key={optionIdx} value={option}>
                       {option}
                     </option>
                   ))}
@@ -309,23 +305,15 @@ function RegistrationForm() {
               )}
 
               {field.fieldType === "checkbox" && (
-                <div className="flex flex-wrap gap-2">
-                  {field.options.map((option, optionIdx) => (
-                    <label
-                      key={optionIdx}
-                      className="inline-flex items-center space-x-2"
-                    >
+                <div className="flex flex-col gap-2">
+                  {field.options.map((option, idx) => (
+                    <label key={idx} className="inline-flex items-center gap-2">
                       <input
                         type="checkbox"
                         name={field.fieldName}
                         value={option}
-                        checked={
-                          formData[field.fieldName]
-                            ? formData[field.fieldName].includes(option)
-                            : false
-                        }
+                        checked={formData[field.fieldName]?.includes(option) || false}
                         onChange={handleChange}
-                        className="form-checkbox"
                       />
                       <span>{option}</span>
                     </label>
@@ -335,44 +323,72 @@ function RegistrationForm() {
             </div>
           ))}
 
+          {/* Role selection */}
           {roleField && (
             <div className="mb-4">
               <label className="block text-gray-700 font-semibold mb-2">
-                Select Role <span className="text-red-600">*</span>
+                {roleField.fieldName.charAt(0).toUpperCase() + roleField.fieldName.slice(1)}{" "}
+                {roleField.required && <span className="text-red-600">*</span>}
               </label>
-              <select
-                name={roleField.fieldName}
-                value={formData[roleField.fieldName] || ""}
-                onChange={handleChange}
-                required
-                className="border rounded px-4 py-2 w-full"
-              >
-                <option value="">Select Role</option>
-                {event.eventRoles.map((role, idx) => (
-                  <option key={idx} value={role.roleName}>
-                    {role.roleName} ({role.rolePrice} INR)
-                  </option>
-                ))}
-              </select>
+              <div className="flex flex-col gap-3">
+                {roleField.options.map((option, idx) => {
+                  const matchingRole = event.eventRoles?.find(
+                    (role) => role.roleName === option
+                  );
+                  const price = matchingRole?.rolePrice || 0;
+                  const remaining = Math.max(
+                    matchingRole?.maxRegistrations - (roleRegistrations[matchingRole?.roleName] || 0),
+                    0
+                  );
+
+                  return (
+                    <label
+                      key={idx}
+                      className="flex flex-col border rounded p-3 hover:shadow transition cursor-pointer"
+                    >
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="radio"
+                          name={roleField.fieldName}
+                          value={option}
+                          checked={formData[roleField.fieldName] === option}
+                          onChange={handleChange}
+                          required={roleField.required}
+                          disabled={remaining <= 0}
+                        />
+                        <span className="font-medium">{option}</span>
+                        <span className="text-sm text-blue-600 font-semibold ml-auto">
+                          Pay ₹{price}
+                        </span>
+                      </div>
+                      {matchingRole?.roleDescription && (
+                        <ul className="text-gray-600 text-sm mt-1 ml-6 list-disc pl-5">
+                          {matchingRole.roleDescription.split(",").map((desc, index) => (
+                            <li key={index}>{desc.trim()}</li>
+                          ))}
+                        </ul>
+                      )}
+                      {remaining <= 0 && (
+                        <span className="text-red-600 text-xs ml-2">(Sold Out)</span>
+                      )}
+                    </label>
+                  );
+                })}
+              </div>
             </div>
           )}
-        </form>
 
-        {!paymentSuccess ? (
-          <button
-            onClick={handlePayment}
-            className="mt-4 bg-red-500 text-white font-bold py-2 px-4 rounded hover:bg-red-600 w-full"
-          >
-            Pay {rolePrice} INR & Register
-          </button>
-        ) : (
-          <button
-            onClick={handleSubmit}
-            className="mt-4 bg-green-600 text-white font-bold py-2 px-4 rounded w-full"
-          >
-            Confirm Registration
-          </button>
-        )}
+          {/* Payment Button */}
+          {!paymentSuccess && formData[roleField?.fieldName] && (
+            <button
+              type="button"
+              className="mt-4 px-4 py-2 rounded-lg w-full bg-green-600 text-white hover:bg-green-700"
+              onClick={handlePayment}
+            >
+              Pay ₹{rolePrice}
+            </button>
+          )}
+        </form>
       </div>
     </div>
   );
