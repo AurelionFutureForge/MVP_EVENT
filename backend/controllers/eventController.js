@@ -317,7 +317,7 @@ const toggleForm = async (req, res) => {
   const { toggleForm } = req.body;
 
   try {
-    await EventModel.findByIdAndUpdate(eventId, { toggleForm });
+    await Event.findByIdAndUpdate(eventId, { toggleForm });
     res.status(200).json({ message: "Form status updated successfully" });
   } catch (error) {
     res.status(500).json({ error: "Failed to update form status" });
