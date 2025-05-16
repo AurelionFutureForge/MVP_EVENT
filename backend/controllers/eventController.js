@@ -324,7 +324,7 @@ const toggleForm = async (req, res) => {
     }
 
     // Ensure the field exists and toggle its value
-    const updatedToggleForm = event.toggleForm !== undefined ? !event.toggleForm : true;
+    const updatedToggleForm = event.toggleForm !== undefined ? !event.toggleForm : false;
 
     // Update and save the document
     event.toggleForm = updatedToggleForm;
