@@ -7,14 +7,14 @@ function EventList() {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  const companyName = localStorage.getItem("adminCompany");
+  const companyName = localStorage.getItem("adminCompany") || localStorage.getItem("adminCompanyName");
   const BASE_URL = import.meta.env.VITE_BACKEND_URL;
 
   useEffect(() => {
     const fetchEvents = async () => {
       try {
         setLoading(true);
-        const token = localStorage.getItem("adminToken");
+        const token = localStorage.getItem("adminToken") || localStorage.getItem("admin_token")
         if (!token) {
           toast.error("Unauthorized! Please log in.");
           navigate("/admin/login");
