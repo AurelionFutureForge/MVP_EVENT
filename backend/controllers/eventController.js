@@ -313,11 +313,12 @@ const getEventById = async (req, res) => {
 };
 
 const toggleForm = async (req, res) => {
-  const { eventId } = req.params;
+  const { EventId } = req.params;
+  console.log("eventId",EventId);
 
   try {
     // Get current event
-    const event = await Event.findById(eventId);
+    const event = await Event.findById(EventId);
     if (!event) {
       return res.status(404).json({ error: "Event not found" });
     }
