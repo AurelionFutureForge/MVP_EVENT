@@ -171,17 +171,34 @@ export default function EventCreation() {
     navigate(`/edit-event/${eventID}`);
   };
 
+  const handleLogout = () => {
+    // Example: Clear token or session
+    localStorage.removeItem("admin_token");
+    localStorage.removeItem("adminCompanyName"); // or any auth info
+    window.location.href = "/"; // Redirect to home or login page
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-r from-blue-500 to-purple-600">
       <nav className="bg-blue-600 p-4 shadow-md">
         <div className="container mx-auto flex justify-between items-center text-white">
+          {/* Left: Logo */}
           <h1 className="text-2xl font-bold">EventMVP</h1>
-          <div className="hidden md:flex space-x-6">
+
+          {/* Right: Links + Logout */}
+          <div className="flex items-center space-x-8">
             <a href="/" className="hover:text-gray-200">Home</a>
             <a href="/event-list" className="hover:text-gray-200">Admin</a>
+            <button
+              onClick={handleLogout}
+              className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md"
+            >
+              Logout
+            </button>
           </div>
         </div>
       </nav>
+
 
       <section className="container mx-auto text-center p-6 md:p-12">
         <h3 className="text-3xl font-semibold text-white mb-4">Your Events</h3>
