@@ -207,7 +207,7 @@ function RegistrationForm() {
   };
 
   return (
-    <div className="min-h-screen bg-red-500 p-6">
+    <div className="min-h-screen bg-gray-800 p-6">
       <div className="bg-white p-6 shadow-xl rounded-2xl max-w-lg mx-auto">
         {event.companyPoster && (
           <div className="flex justify-center mb-4">

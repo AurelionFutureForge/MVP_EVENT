@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { toast } from "react-hot-toast";
+import { CalendarDays, MapPin, Clock3, Building2, PencilLine } from 'lucide-react'
 
 export default function EventCreation() {
   const [events, setEvents] = useState([]);
@@ -187,25 +188,51 @@ export default function EventCreation() {
 
         <div className="space-y-6">
           {events.length === 0 ? (
-            <p className="text-white">No events created yet. Add a new event!</p>
+            <p className="text-white text-center text-lg">🎉 No events created yet. Add a new event!</p>
           ) : (
             events.map((event) => (
-              <div key={event._id} className="bg-white p-6 rounded-lg shadow-lg">
-                <h4 className="font-semibold text-xl">{event.eventName}</h4>
-                <p>{event.companyName}</p>
-                <p>{event.place} - {event.time}</p>
-                <p>
+              <div
+                key={event._id}
+                className="bg-gradient-to-br from-white to-gray-100 p-6 rounded-2xl shadow-xl hover:shadow-2xl transition duration-300 border border-gray-200"
+              >
+                <h4 className="text-2xl font-bold text-gray-800 mb-2 flex items-center gap-2">
+                  <CalendarDays className="w-5 h-5 text-blue-600" />
+                  {event.eventName}
+                </h4>
+
+                <p className="text-gray-600 flex items-center gap-2">
+                  <Building2 className="w-4 h-4 text-purple-600" />
+                  {event.companyName}
+                </p>
+
+                <p className="text-gray-600 flex items-center gap-2">
+                  <MapPin className="w-4 h-4 text-green-600" />
+                  {event.place}
+                </p>
+
+                <p className="text-gray-600 flex items-center gap-2">
+                  <Clock3 className="w-4 h-4 text-yellow-600" />
+                  {event.time}
+                </p>
+
+                <p className="text-gray-600 flex items-center gap-2">
+                  <CalendarDays className="w-4 h-4 text-red-500" />
                   {event.endDate &&
                     !isNaN(new Date(event.endDate)) &&
-                    new Date(event.startDate).toLocaleDateString() !== new Date(event.endDate).toLocaleDateString()
-                    ? `${new Date(event.startDate).toLocaleDateString()} - ${new Date(event.endDate).toLocaleDateString()}`
+                    new Date(event.startDate).toLocaleDateString() !==
+                    new Date(event.endDate).toLocaleDateString()
+                    ? `${new Date(event.startDate).toLocaleDateString()} → ${new Date(
+                      event.endDate
+                    ).toLocaleDateString()}`
                     : new Date(event.startDate).toLocaleDateString()}
                 </p>
-                <div className="mt-4 space-x-4 flex justify-center">
+
+                <div className="mt-6 flex justify-end">
                   <button
                     onClick={() => handleEditEvent(event._id)}
-                    className="px-4 py-2 bg-yellow-600 text-white rounded hover:bg-yellow-700"
+                    className="flex items-center gap-2 bg-yellow-500 text-white px-4 py-2 rounded-full hover:bg-yellow-600 transition"
                   >
+                    <PencilLine className="w-4 h-4" />
                     Edit Event
                   </button>
                 </div>
