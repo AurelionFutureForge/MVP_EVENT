@@ -4,65 +4,59 @@ const User = require("../models/User");
 const Event = require("../models/Event"); 
 
 exports.privilegeLogin = async (req, res) => {
-  const { email, password, companyName, eventName } = req.body;
+  const { email, password } = req.body;
+
+  if (!email || !password) {
+    return res.status(400).json({ message: "Email and password are required" });
+  }
 
   try {
-    // Find the eventId from Event DB using companyName and eventName
-    const eventDoc = await Event.findOne({ companyName, eventName });
+    // Find the Privilege document that contains this email & password in privileges array
+    // Using MongoDB query to find embedded document with matching email and password
+    const privDoc = await Privilege.findOne({
+      "privileges.email": email,
+      "privileges.password": password
+    });
 
-    if (!eventDoc) {
-      return res.status(404).json({ message: "Event not found for this company" });
+    if (!privDoc) {
+      return res.status(400).json({ message: "Invalid email or password" });
     }
 
-    const eventId = eventDoc._id.toString(); // Convert ObjectId to string (optional but clean)
-
-    // Find the privilege document using companyName and eventName
-    const privUserData = await Privilege.findOne({ companyName, eventName });
-
-    if (!privUserData) {
-      return res.status(404).json({ message: "Privileges not set for this event" });
-    }
-
-    // Find the user in the privileges array
-    const privUser = privUserData.privileges.find(
-      (priv) => priv.email === email
+    // Find the specific privilege object inside privileges array
+    const privUser = privDoc.privileges.find(
+      (priv) => priv.email === email && priv.password === password
     );
 
     if (!privUser) {
-      return res.status(400).json({ message: "Email not found" });
+      // Should not happen if above findOne succeeded, but just in case
+      return res.status(400).json({ message: "Invalid email or password" });
     }
 
-    //  Check password
-    if (privUser.password !== password) {
-      return res.status(400).json({ message: "Incorrect password" });
-    }
-
-    //  Prepare token payload (now with eventId fetched from Event DB)
+    // Prepare token payload
     const tokenPayload = {
       email: privUser.email,
       privilegeName: privUser.privilegeName,
-      roleName: privUser.roleName,
-      companyName,
-      eventName,
-      eventId,
+      companyName: privDoc.companyName,
+      eventName: privDoc.eventName,
+      eventId: privDoc.eventId.toString(),
     };
 
     const token = jwt.sign(tokenPayload, process.env.JWT_SECRET, { expiresIn: "2h" });
 
-    //  Return token + privilege info + eventId
+    // Return token + privilege info + event info
     res.json({
       token,
       privilegeName: privUser.privilegeName,
-      roleName: privUser.roleName,
-      eventName,
-      eventId,
-      companyName,
+      companyName: privDoc.companyName,
+      eventName: privDoc.eventName,
+      eventId: privDoc.eventId,
     });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Server error" });
   }
 };
+
 
 
 
