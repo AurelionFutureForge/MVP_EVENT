@@ -115,11 +115,15 @@ export default function EditEvent() {
   };
 
   const handleDeleteRole = (index) => {
-    setEventDetails(prev => ({
-      ...prev,
-      eventRoles: prev.eventRoles.filter((_, i) => i !== index),
-    }));
+    const confirmDelete = window.confirm("Are you sure you want to delete ?");
+    if (confirmDelete) {
+      setEventDetails(prev => ({
+        ...prev,
+        eventRoles: prev.eventRoles.filter((_, i) => i !== index),
+      }));
+    }
   };
+
 
   const validateForm = () => {
     const { companyName, eventName, place, startDate, eventRoles, time } = eventDetails;
