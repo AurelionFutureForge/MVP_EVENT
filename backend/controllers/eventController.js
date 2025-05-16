@@ -314,15 +314,30 @@ const getEventById = async (req, res) => {
 
 const toggleForm = async (req, res) => {
   const { eventId } = req.params;
-  const { toggleForm } = req.body;
 
   try {
-    await Event.findByIdAndUpdate(eventId, { toggleForm });
-    res.status(200).json({ message: "Form status updated successfully" });
+    // Get current event
+    const event = await Event.findById(eventId);
+    if (!event) {
+      return res.status(404).json({ error: "Event not found" });
+    }
+
+    // Toggle the value
+    const updatedToggleForm = !event.toggleForm;
+
+    // Update the event
+    await Event.findByIdAndUpdate(eventId, { toggleForm: updatedToggleForm });
+
+    res.status(200).json({
+      message: "Form status updated successfully",
+      toggleForm: updatedToggleForm,
+    });
   } catch (error) {
+    console.error("Toggle form error:", error);
     res.status(500).json({ error: "Failed to update form status" });
   }
 };
+
 
 
 
