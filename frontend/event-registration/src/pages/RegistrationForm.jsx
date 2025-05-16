@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { toast } from "react-hot-toast";
+import { AlertTriangle } from 'lucide-react'
 import { useParams, useNavigate } from "react-router-dom";
 
 function RegistrationForm() {
@@ -145,12 +146,23 @@ function RegistrationForm() {
 
   if (!formVisible)
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-800 text-white px-4">
-        <div className="bg-white rounded-xl p-8 shadow-lg max-w-md text-center">
-          <h2 className="text-3xl font-semibold mb-4">Form is closed.</h2>
-          <p className="text-gray-600">
-            Registration for this event is currently closed.
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-gray-800 to-gray-700 px-4">
+        <div className="bg-white rounded-2xl p-10 shadow-2xl max-w-lg w-full text-center space-y-5">
+          <div className="flex justify-center">
+            <div className="bg-red-100 text-red-600 p-4 rounded-full shadow-md">
+              <AlertTriangle className="w-10 h-10" />
+            </div>
+          </div>
+          <h2 className="text-3xl font-bold text-gray-800">Oops! Form is Closed</h2>
+          <p className="text-gray-600 text-base">
+            We're sorry, but registration for this event is currently closed. Please check back later or contact the organizer for more info.
           </p>
+          <button
+            className="mt-4 bg-gray-800 hover:bg-gray-900 text-white px-6 py-2 rounded-full transition duration-200"
+            onClick={() => window.history.back()}
+          >
+            Go Back
+          </button>
         </div>
       </div>
     );
