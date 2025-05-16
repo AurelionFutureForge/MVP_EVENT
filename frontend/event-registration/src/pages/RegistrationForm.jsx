@@ -9,6 +9,8 @@ function RegistrationForm() {
   const [roleRegistrations, setRoleRegistrations] = useState({});
   const [loading, setLoading] = useState(true);
   const [paymentSuccess, setPaymentSuccess] = useState(false);
+  const [formVisible, setFormVisible] = useState(true);
+
   const BASE_URL = import.meta.env.VITE_BACKEND_URL;
   const { eventID } = useParams();
   const navigate = useNavigate();
@@ -19,7 +21,19 @@ function RegistrationForm() {
         const response = await axios.get(`${BASE_URL}/events/${eventID}`);
         setEvent(response.data);
 
-        const regRes = await axios.get(`${BASE_URL}/users/${eventID}/role-registrations`);
+        // Check if toggleField or togglefield exists in event data
+        if (
+          !response.data.hasOwnProperty("toggleForm") &&
+          !response.data.hasOwnProperty("toggleform")
+        ) {
+          setFormVisible(false);
+        } else {
+          setFormVisible(!response.data.toggleForm);
+        }
+
+        const regRes = await axios.get(
+          `${BASE_URL}/users/${eventID}/role-registrations`
+        );
         setRoleRegistrations(regRes.data);
 
         setLoading(false);
@@ -79,49 +93,67 @@ function RegistrationForm() {
     }
   };
 
-  if (loading) return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-800 text-white">
-      <div className="flex flex-col items-center">
+  if (loading)
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-800 text-white">
+        <div className="flex flex-col items-center">
+          <svg
+            className="animate-spin h-10 w-10 text-white mb-3"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+          >
+            <circle
+              className="opacity-25"
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
+              strokeWidth="4"
+            />
+            <path
+              className="opacity-75"
+              fill="currentColor"
+              d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+            />
+          </svg>
+          <p className="text-lg">REG FROM...</p>
+        </div>
+      </div>
+    );
+
+  if (!event)
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-gray-800 text-white">
         <svg
-          className="animate-spin h-10 w-10 text-white mb-3"
           xmlns="http://www.w3.org/2000/svg"
+          className="h-16 w-16 text-gray-400 mb-4"
           fill="none"
           viewBox="0 0 24 24"
+          stroke="currentColor"
+          strokeWidth={2}
         >
-          <circle
-            className="opacity-25"
-            cx="12"
-            cy="12"
-            r="10"
-            stroke="currentColor"
-            strokeWidth="4"
-          />
           <path
-            className="opacity-75"
-            fill="currentColor"
-            d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M9.75 9.75L14.25 14.25M9.75 14.25L14.25 9.75M12 21.75C6.615 21.75 2.25 17.385 2.25 12S6.615 2.25 12 2.25 21.75 6.615 21.75 12 17.385 21.75 12 21.75z"
           />
         </svg>
-        <p className="text-lg">REG FROM...</p>
+        <p className="text-xl text-gray-300">No event found.</p>
       </div>
-    </div>
-  );
+    );
 
-  if (!event) return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-800 text-white">
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        className="h-16 w-16 text-gray-400 mb-4"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke="currentColor"
-        strokeWidth={2}
-      >
-        <path strokeLinecap="round" strokeLinejoin="round" d="M9.75 9.75L14.25 14.25M9.75 14.25L14.25 9.75M12 21.75C6.615 21.75 2.25 17.385 2.25 12S6.615 2.25 12 2.25 21.75 6.615 21.75 12 17.385 21.75 12 21.75z" />
-      </svg>
-      <p className="text-xl text-gray-300">No event found.</p>
-    </div>
-  );
+  if (!formVisible)
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-800 text-white px-4">
+        <div className="bg-white rounded-xl p-8 shadow-lg max-w-md text-center">
+          <h2 className="text-3xl font-semibold mb-4">Form is closed.</h2>
+          <p className="text-gray-600">
+            Registration for this event is currently closed.
+          </p>
+        </div>
+      </div>
+    );
 
   const otherFields = event.registrationFields.filter(
     (field) => field.fieldName !== "ROLE"
@@ -185,8 +217,11 @@ function RegistrationForm() {
               <span className="font-semibold">Date:</span>{" "}
               {event.endDate &&
                 !isNaN(new Date(event.endDate)) &&
-                new Date(event.startDate).toLocaleDateString() !== new Date(event.endDate).toLocaleDateString()
-                ? `${new Date(event.startDate).toLocaleDateString()} - ${new Date(event.endDate).toLocaleDateString()}`
+                new Date(event.startDate).toLocaleDateString() !==
+                new Date(event.endDate).toLocaleDateString()
+                ? `${new Date(event.startDate).toLocaleDateString()} - ${new Date(
+                  event.endDate
+                ).toLocaleDateString()}`
                 : new Date(event.startDate).toLocaleDateString()}
             </p>
           )}
@@ -206,7 +241,8 @@ function RegistrationForm() {
           {otherFields.map((field, idx) => (
             <div key={idx} className="mb-4">
               <label className="block text-gray-700 font-semibold mb-2">
-                {field.fieldName.charAt(0).toUpperCase() + field.fieldName.slice(1)}{" "}
+                {field.fieldName.charAt(0).toUpperCase() +
+                  field.fieldName.slice(1)}{" "}
                 {field.required && <span className="text-red-600">*</span>}
               </label>
 
@@ -251,9 +287,9 @@ function RegistrationForm() {
                   required={field.required}
                   className="border rounded px-4 py-2 w-full"
                 >
-                  <option value="">Select an option</option>
-                  {field.options.map((option, optionIdx) => (
-                    <option key={optionIdx} value={option}>
+                  <option value="">Select {field.fieldName}</option>
+                  {field.options.map((option, idx) => (
+                    <option key={idx} value={option}>
                       {option}
                     </option>
                   ))}
@@ -261,15 +297,23 @@ function RegistrationForm() {
               )}
 
               {field.fieldType === "checkbox" && (
-                <div className="flex flex-col gap-2">
-                  {field.options.map((option, idx) => (
-                    <label key={idx} className="inline-flex items-center gap-2">
+                <div className="flex flex-wrap gap-2">
+                  {field.options.map((option, optionIdx) => (
+                    <label
+                      key={optionIdx}
+                      className="inline-flex items-center space-x-2"
+                    >
                       <input
                         type="checkbox"
                         name={field.fieldName}
                         value={option}
-                        checked={formData[field.fieldName]?.includes(option) || false}
+                        checked={
+                          formData[field.fieldName]
+                            ? formData[field.fieldName].includes(option)
+                            : false
+                        }
                         onChange={handleChange}
+                        className="form-checkbox"
                       />
                       <span>{option}</span>
                     </label>
@@ -279,72 +323,44 @@ function RegistrationForm() {
             </div>
           ))}
 
-          {/* Role selection */}
           {roleField && (
             <div className="mb-4">
               <label className="block text-gray-700 font-semibold mb-2">
-                {roleField.fieldName.charAt(0).toUpperCase() + roleField.fieldName.slice(1)}{" "}
-                {roleField.required && <span className="text-red-600">*</span>}
+                Select Role <span className="text-red-600">*</span>
               </label>
-              <div className="flex flex-col gap-3">
-                {roleField.options.map((option, idx) => {
-                  const matchingRole = event.eventRoles?.find(
-                    (role) => role.roleName === option
-                  );
-                  const price = matchingRole?.rolePrice || 0;
-                  const remaining = Math.max(
-                    matchingRole?.maxRegistrations - (roleRegistrations[matchingRole?.roleName] || 0),
-                    0
-                  );
-
-                  return (
-                    <label
-                      key={idx}
-                      className="flex flex-col border rounded p-3 hover:shadow transition cursor-pointer"
-                    >
-                      <div className="flex items-center gap-2">
-                        <input
-                          type="radio"
-                          name={roleField.fieldName}
-                          value={option}
-                          checked={formData[roleField.fieldName] === option}
-                          onChange={handleChange}
-                          required={roleField.required}
-                          disabled={remaining <= 0}
-                        />
-                        <span className="font-medium">{option}</span>
-                        <span className="text-sm text-blue-600 font-semibold ml-auto">
-                          Pay ₹{price}
-                        </span>
-                      </div>
-                      {matchingRole?.roleDescription && (
-                        <ul className="text-gray-600 text-sm mt-1 ml-6 list-disc pl-5">
-                          {matchingRole.roleDescription.split(",").map((desc, index) => (
-                            <li key={index}>{desc.trim()}</li>
-                          ))}
-                        </ul>
-                      )}
-                      {remaining <= 0 && (
-                        <span className="text-red-600 text-xs ml-2">(Sold Out)</span>
-                      )}
-                    </label>
-                  );
-                })}
-              </div>
+              <select
+                name={roleField.fieldName}
+                value={formData[roleField.fieldName] || ""}
+                onChange={handleChange}
+                required
+                className="border rounded px-4 py-2 w-full"
+              >
+                <option value="">Select Role</option>
+                {event.eventRoles.map((role, idx) => (
+                  <option key={idx} value={role.roleName}>
+                    {role.roleName} ({role.rolePrice} INR)
+                  </option>
+                ))}
+              </select>
             </div>
           )}
-
-          {/* Payment Button */}
-          {!paymentSuccess && formData[roleField?.fieldName] && (
-            <button
-              type="button"
-              className="mt-4 px-4 py-2 rounded-lg w-full bg-green-600 text-white hover:bg-green-700"
-              onClick={handlePayment}
-            >
-              Pay ₹{rolePrice}
-            </button>
-          )}
         </form>
+
+        {!paymentSuccess ? (
+          <button
+            onClick={handlePayment}
+            className="mt-4 bg-red-500 text-white font-bold py-2 px-4 rounded hover:bg-red-600 w-full"
+          >
+            Pay {rolePrice} INR & Register
+          </button>
+        ) : (
+          <button
+            onClick={handleSubmit}
+            className="mt-4 bg-green-600 text-white font-bold py-2 px-4 rounded w-full"
+          >
+            Confirm Registration
+          </button>
+        )}
       </div>
     </div>
   );
