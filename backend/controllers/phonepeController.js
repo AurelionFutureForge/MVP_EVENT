@@ -125,4 +125,6 @@ const verifyPayment = async (req, res) => {
   }
 };
 
-module.exports = { initiatePayment, verifyPayment };
+
+
+module.exports = { initiatePayment, verifyPayment};

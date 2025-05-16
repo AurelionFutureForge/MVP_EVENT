@@ -1,6 +1,6 @@
 // routes/phonepeRoutes.js
 const express = require('express');
-const { initiatePayment, verifyPayment } = require('../controllers/phonepeController');
+const { initiatePayment, verifyPayment} = require('../controllers/phonepeController');
 
 const router = express.Router();
 
