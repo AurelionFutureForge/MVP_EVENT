@@ -27,7 +27,8 @@ const eventSchema = new mongoose.Schema({
   startDate: { type: Date, required: true },  // Event start date
   endDate: { type: Date },  // Event end date
   registrationFields: [registrationFieldSchema],  // Array of dynamically added registration fields
-  companyPoster: { type: String }
+  companyPoster: { type: String },
+  toggleForm : { type: Boolean}
 });
 
 const Event = mongoose.model('Event', eventSchema);

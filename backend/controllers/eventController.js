@@ -269,8 +269,6 @@ const UpdateEvents = async (req, res) => {
   }
 };
 
-
-
 // Save registration fields for event
 const saveRegistrationFields = async (req, res) => {
   const { EventId, registrationFields } = req.body;
@@ -314,6 +312,18 @@ const getEventById = async (req, res) => {
   }
 };
 
+const toggleForm = async (req, res) => {
+  const { eventId } = req.params;
+  const { toggleForm } = req.body;
+
+  try {
+    await EventModel.findByIdAndUpdate(eventId, { toggleForm });
+    res.status(200).json({ message: "Form status updated successfully" });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to update form status" });
+  }
+};
+
 
 
 module.exports = { 
@@ -323,5 +333,6 @@ module.exports = {
   EditEvents, 
   UpdateEvents, 
   saveRegistrationFields, 
-  getEventById
+  getEventById,
+  toggleForm
 };

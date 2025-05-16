@@ -1,5 +1,5 @@
 const express = require('express');
-const { createEvent, getEvents, getEventByDetails, EditEvents, UpdateEvents, saveRegistrationFields,getEventById} = require("../controllers/eventController");
+const { createEvent, getEvents, getEventByDetails, EditEvents, UpdateEvents, saveRegistrationFields,getEventById, toggleForm} = require("../controllers/eventController");
 const upload = require('../uploadMiddleware')
 const router = express.Router();
 
@@ -11,8 +11,7 @@ router.put('/:eventId',upload.single('poster'),UpdateEvents);
 router.get('/:companyName/:eventName', getEventByDetails);
 router.post("/save-registration-fields", saveRegistrationFields);
 router.get('/:eventID', getEventById);
-
-
+router.put('/toggle-form/:EventId',toggleForm);
 
 
 module.exports = router;

@@ -166,6 +166,26 @@ function CreateRegistrationForm() {
     }
   };
 
+  const handleCloseForm = async () => {
+    const token = localStorage.getItem("adminToken");
+    try {
+      await axios.put(
+        `${BASE_URL}/events/toggle-form/${EventId}`,
+        { toggleForm: true },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      toast.success("Form closed successfully!");
+    } catch (error) {
+      toast.error("Failed to close the form.");
+      console.error(error);
+    }
+  };
+
+
 
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center p-6">
@@ -309,6 +329,12 @@ function CreateRegistrationForm() {
               className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 w-full"
             >
               Copy Registration Form Link
+            </button>
+            <button
+              onClick={handleCloseForm}
+              className="bg-yellow-600 text-white px-6 py-2 rounded-lg hover:bg-yellow-700 w-full"
+            >
+              Close Registration Form
             </button>
           </div>
         )}
