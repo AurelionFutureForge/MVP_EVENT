@@ -166,20 +166,15 @@ function CreateRegistrationForm() {
     }
   };
 
-  const handleCloseForm = async () => {
-    try {
-      await axios.put(
-        `${BASE_URL}/events/toggle-form/${EventId}`,
-        { toggleForm: true },
-      );
-      toast.success("Form closed successfully!");
-    } catch (error) {
-      toast.error("Failed to close the form.");
-      console.error(error);
-    }
-  };
-
-
+const handleCloseForm = async () => {
+  try {
+    await axios.put(`${BASE_URL}/events/toggle-form/${EventId}`);
+    toast.success("Form status toggled successfully!");
+  } catch (error) {
+    toast.error("Failed to toggle the form.");
+    console.error(error);
+  }
+};
 
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center p-6">

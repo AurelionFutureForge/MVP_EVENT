@@ -322,24 +322,22 @@ const toggleForm = async (req, res) => {
       return res.status(404).json({ error: "Event not found" });
     }
 
-    // Toggle the value
-    const updatedToggleForm = !event.toggleForm;
+    // Ensure the field exists and toggle its value
+    const updatedToggleForm = event.toggleForm !== undefined ? !event.toggleForm : true;
 
-    // Update the event
-    await Event.findByIdAndUpdate(eventId, { toggleForm: updatedToggleForm });
+    // Update and save the document
+    event.toggleForm = updatedToggleForm;
+    await event.save();
 
     res.status(200).json({
       message: "Form status updated successfully",
       toggleForm: updatedToggleForm,
     });
   } catch (error) {
-    console.error("Toggle form error:", error);
+    console.error("Toggle form error:", error.message);
     res.status(500).json({ error: "Failed to update form status" });
   }
 };
-
-
-
 
 module.exports = { 
   createEvent, 
