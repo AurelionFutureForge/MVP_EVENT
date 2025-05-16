@@ -55,7 +55,7 @@ function ManageAccess() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const token = localStorage.getItem("adminToken");
+    const token = localStorage.getItem("admin_token");
 
     // Validation: Check if all fields are filled
     const isValid = assignedPrivileges.every((priv) => priv.email && priv.password);
