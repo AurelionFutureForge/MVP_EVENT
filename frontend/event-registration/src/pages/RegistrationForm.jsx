@@ -230,7 +230,7 @@ function RegistrationForm() {
               {event.endDate &&
                 !isNaN(new Date(event.endDate)) &&
                 new Date(event.startDate).toLocaleDateString() !== new Date(event.endDate).toLocaleDateString()
-                ? `${new Date(event.startDate).toLocaleDateString()}` - `${new Date(event.endDate).toLocaleDateString()}`
+                ? `${new Date(event.startDate).toLocaleDateString()} - ${new Date(event.endDate).toLocaleDateString()}`
                 : new Date(event.startDate).toLocaleDateString()}
             </p>
           )}
