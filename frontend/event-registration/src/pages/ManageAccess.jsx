@@ -133,7 +133,7 @@ function ManageAccess() {
         <div className="flex flex-col md:flex-row gap-4">
           <button
             onClick={handleSubmit}
-            className={`bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition w-full md:w-auto ${loading ? "opacity-50 cursor-not-allowed" : ""}`}
+            className={`bg-gray-900 border border-gray-300 text-white px-6 py-2 rounded-lg hover:bg-gray-800 transition w-full md:w-auto ${loading ? "opacity-50 cursor-not-allowed" : ""}`}
             disabled={loading}
           >
             {loading ? "Assigning..." : "Assign Privileges"}

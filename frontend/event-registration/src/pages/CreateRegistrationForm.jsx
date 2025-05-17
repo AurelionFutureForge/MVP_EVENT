@@ -313,7 +313,7 @@ function CreateRegistrationForm() {
 
         <button
           onClick={handleSubmit}
-          className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition w-full mt-4"
+          className="bg-gray-900 border border-gray-300 text-white px-6 py-2 rounded-lg hover:bg-gray-800 transition w-full mt-4"
         >
           Save Registration Form
         </button>
@@ -321,14 +321,14 @@ function CreateRegistrationForm() {
           <div className="mt-5">
             <button
               onClick={handleCopyLink}
-              className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 w-full"
+              className="bg-gray-900 border border-gray-300 text-white px-6 py-2 rounded-lg hover:bg-gray-800 w-full"
             >
               Copy Registration Form Link
             </button>
 
             <button
               onClick={handleCloseForm}
-              className="bg-yellow-600 text-white px-6 py-2 mt-5 rounded-lg hover:bg-yellow-700 w-full"
+              className="bg-gray-900 border border-gray-300 text-white px-6 py-2 mt-5 rounded-lg hover:bg-gray-800 w-full"
             >
               {formVisible ? "Open Registration Form" : "Close Registration Form"}
             </button>
