@@ -18,7 +18,7 @@ const generateTicketPDF = async (name, email, eventName, companyName, place, tim
     doc.pipe(stream);
 
     //  Header Section (Event Branding)
-    doc.rect(0, 0, doc.page.width, 120).fill("#4CAF50");
+    doc.rect(0, 0, doc.page.width, 140).fill("#4CAF50");
     doc.fillColor("#fff")
       .font("Helvetica-Bold")
       .fontSize(28)
