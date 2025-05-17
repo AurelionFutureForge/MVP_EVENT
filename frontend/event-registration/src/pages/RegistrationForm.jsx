@@ -212,7 +212,7 @@ function RegistrationForm() {
         {event.companyPoster && (
           <div className="flex justify-center mb-4">
             <img
-              src={`${BASE_URL}${event.companyPoster}`}
+              src={event.companyPoster}
               alt="Company Poster"
               className="max-h-32 object-contain rounded-xl"
             />
