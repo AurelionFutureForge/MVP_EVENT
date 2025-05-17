@@ -7,20 +7,25 @@ function PaymentSuccess() {
   const BASE_URL = import.meta.env.VITE_BACKEND_URL;
   const navigate = useNavigate();
   const [breakdown, setBreakdown] = useState(null);
+  const [formData, setFormData] = useState(null);
+  const [transactionId, setTransactionId] = useState("");
 
   useEffect(() => {
     const verifyAndRegister = async () => {
       const txnId = new URLSearchParams(window.location.search).get("transactionId");
-      const formData = JSON.parse(localStorage.getItem("formData"));
+      const storedFormData = JSON.parse(localStorage.getItem("formData"));
       const eventID = localStorage.getItem("eventID");
 
-      if (!txnId || !formData || !eventID) {
+      if (!txnId || !storedFormData || !eventID) {
         toast.error("Missing payment or registration data.");
         navigate("/");
         return;
       }
 
-      const amount = formData.amount;
+      setTransactionId(txnId);
+      setFormData(storedFormData);
+
+      const amount = storedFormData.amount;
       const platformFee = amount * 0.025;
       const userAmount = amount - platformFee;
 
@@ -37,7 +42,7 @@ function PaymentSuccess() {
 
         if (verifyRes.data.success) {
           await axios.post(`${BASE_URL}/users/register`, {
-            ...formData,
+            ...storedFormData,
             eventID,
             transactionId: txnId
           });
@@ -45,7 +50,6 @@ function PaymentSuccess() {
           toast.success("Registration successful!");
           localStorage.removeItem("formData");
           localStorage.removeItem("eventID");
-          navigate(`/success/${eventID}`);
         } else {
           toast.error("Payment verification failed.");
           navigate("/");
@@ -59,12 +63,20 @@ function PaymentSuccess() {
     verifyAndRegister();
   }, []);
 
+  const generatePDF = () => {
+    const element = document.getElementById("invoice");
+    import("html2pdf.js").then(html2pdf => {
+      html2pdf.default().from(element).save("invoice.pdf");
+    });
+  };
+
   return (
-    <div className="p-6 max-w-md mx-auto text-center text-lg">
-      <h2 className="mb-4">Verifying Payment...</h2>
+    <div className="p-6 max-w-xl mx-auto text-center text-lg">
+      <h2 className="mb-4 text-2xl font-semibold">Verifying Payment...</h2>
 
       {breakdown && (
-        <div className="text-left border rounded-md p-4 shadow-sm">
+        <div className="text-left border rounded-md p-4 shadow-sm mb-6">
+          <h3 className="text-xl font-semibold mb-2">Payment Breakdown</h3>
           <div className="flex justify-between py-1">
             <span>Amount</span>
             <span>₹{breakdown.amount.toFixed(2)}</span>
@@ -78,6 +90,28 @@ function PaymentSuccess() {
             <span>₹{breakdown.total.toFixed(2)}</span>
           </div>
         </div>
+      )}
+
+      {formData && (
+        <div id="invoice" className="text-left border p-4 rounded shadow-md">
+          <h3 className="text-xl font-bold mb-3">Invoice</h3>
+          <p><strong>Name:</strong> {formData.name}</p>
+          <p><strong>Email:</strong> {formData.email}</p>
+          <p><strong>Contact:</strong> {formData.contact}</p>
+          <p><strong>Role:</strong> {formData.role}</p>
+          <p><strong>Transaction ID:</strong> {transactionId}</p>
+          <p><strong>Total Paid:</strong> ₹{formData.amount}</p>
+          <p><strong>Date:</strong> {new Date().toLocaleDateString()}</p>
+        </div>
+      )}
+
+      {formData && (
+        <button
+          className="mt-5 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+          onClick={generatePDF}
+        >
+          Download Invoice as PDF
+        </button>
       )}
     </div>
   );
