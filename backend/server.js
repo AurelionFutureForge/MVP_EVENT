@@ -4,6 +4,8 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const path = require("path"); 
+const mime = require("mime-types");
+const fs = require("fs");
 
 
 // Import routes
@@ -17,11 +19,19 @@ const phonepeRoutes = require('./routes/phonepeRoutes')
 const app = express();
 app.use(express.json());
 
-app.use('/uploads', (req, res, next) => {
-  res.setHeader('Access-Control-Allow-Origin', '*'); 
-  next();
-}, express.static(path.resolve('/opt/render/project/src/uploads')));
+app.get("/uploads/:filename", (req, res) => {
+  const filePath = path.resolve("/opt/render/project/src/uploads", req.params.filename);
 
+  if (!fs.existsSync(filePath)) {
+    return res.status(404).json({ error: "File not found" });
+  }
+
+  const mimeType = mime.lookup(filePath);
+  res.setHeader("Content-Type", mimeType || "application/octet-stream");
+  res.setHeader("Access-Control-Allow-Origin", "*");
+
+  fs.createReadStream(filePath).pipe(res);
+});
 
 const corsOptions = {
   origin: ["https://mvp-event.vercel.app", "http://localhost:5173","https://events.aurelionfutureforge.com"],  

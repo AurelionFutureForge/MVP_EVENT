@@ -65,6 +65,8 @@ const initiatePayment = async (req, res) => {
 
     const redirectLink = response?.data?.data?.instrumentResponse?.redirectInfo?.url;
 
+    console.log("redirectLink :",redirectLink);
+
     if (!redirectLink) {
       throw new Error('Redirect URL not found in the response');
     }
