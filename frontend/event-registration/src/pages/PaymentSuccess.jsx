@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { toast } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 function PaymentSuccess() {
   const BASE_URL = import.meta.env.VITE_BACKEND_URL;
   const navigate = useNavigate();
+  const [breakdown, setBreakdown] = useState(null);
 
   useEffect(() => {
     const verifyAndRegister = async () => {
@@ -19,17 +20,26 @@ function PaymentSuccess() {
         return;
       }
 
+      const amount = formData.amount;
+      const platformFee = amount * 0.025;
+      const userAmount = amount - platformFee;
+
+      setBreakdown({
+        amount: userAmount,
+        platformFee,
+        total: amount
+      });
+
       try {
         const verifyRes = await axios.post(`${BASE_URL}/api/phonepe/verify-payment`, {
           transactionId: txnId
         });
 
         if (verifyRes.data.success) {
-          // Proceed with registration using saved data
           await axios.post(`${BASE_URL}/users/register`, {
-            ...formData,         // spread here ✅
+            ...formData,
             eventID,
-            transactionId: txnId 
+            transactionId: txnId
           });
 
           toast.success("Registration successful!");
@@ -49,7 +59,28 @@ function PaymentSuccess() {
     verifyAndRegister();
   }, []);
 
-  return <div className="p-6 text-center text-lg">Verifying Payment...</div>;
+  return (
+    <div className="p-6 max-w-md mx-auto text-center text-lg">
+      <h2 className="mb-4">Verifying Payment...</h2>
+
+      {breakdown && (
+        <div className="text-left border rounded-md p-4 shadow-sm">
+          <div className="flex justify-between py-1">
+            <span>Amount</span>
+            <span>₹{breakdown.amount.toFixed(2)}</span>
+          </div>
+          <div className="flex justify-between py-1">
+            <span>Platform Fee (2.5%)</span>
+            <span>₹{breakdown.platformFee.toFixed(2)}</span>
+          </div>
+          <div className="flex justify-between font-semibold border-t mt-2 pt-2">
+            <span>Total Amount</span>
+            <span>₹{breakdown.total.toFixed(2)}</span>
+          </div>
+        </div>
+      )}
+    </div>
+  );
 }
 
 export default PaymentSuccess;
