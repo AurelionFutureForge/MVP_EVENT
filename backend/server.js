@@ -20,7 +20,7 @@ app.use(express.json());
 // CORS options
 const corsOptions = {
   origin: [
-    "https://mvp-event.vercel.app",
+    "https://aurelionfutureforge-events.vercel.app",
     "http://localhost:5173",
     "https://events.aurelionfutureforge.com",
   ],
