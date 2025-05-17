@@ -95,9 +95,10 @@ function ManageAccess() {
       setPrivLoading(false);
     }
   }
+  
 
   return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center p-6">
+    <div className="min-h-screen bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center p-6">
       <div className="bg-white p-8 rounded-xl shadow-lg w-full max-w-3xl">
         <h2 className="text-3xl font-bold text-center text-gray-800 mb-6">Manage Access</h2>
 

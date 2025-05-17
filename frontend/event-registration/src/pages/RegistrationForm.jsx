@@ -381,18 +381,40 @@ function RegistrationForm() {
           {/* Payment Button */}
           {!paymentSuccess && formData[roleField?.fieldName] && (
             <>
-              <p className="text-lg text-blue-700 font-semibold mb-2 flex items-center gap-2">
-                {selectedRole?.rolePrice} + platform fee (2.5%)
-              </p>
-              <button
-                type="button"
-                className="mt-4 px-4 py-2 rounded-lg w-full bg-green-600 text-white hover:bg-green-700"
-                onClick={handlePayment}
-              >
-                Pay ₹{(rolePrice * 1.025).toFixed(2)} {/* 2.5% platform fee included */}
-              </button>
+              {selectedRole && (() => {
+                const rolePrice = parseFloat(selectedRole.rolePrice);
+                const platformFee = (rolePrice * 2.5) / 100;
+                const totalAmount = rolePrice + platformFee;
+
+                return (
+                  <div className="mb-4 text-black font-medium space-y-1 text-sm">
+                    <p className="flex justify-between">
+                      <span>Amount:</span>
+                      <span>₹{rolePrice.toFixed(2)}</span>
+                    </p>
+                    <p className="flex justify-between">
+                      <span>Platform Fee (2.5%):</span>
+                      <span>₹{platformFee.toFixed(2)}</span>
+                    </p>
+                    <hr className="my-1 border-blue-300" />
+                    <p className="flex justify-between font-semibold text-base">
+                      <span>Total:</span>
+                      <span>₹{totalAmount.toFixed(2)}</span>
+                    </p>
+
+                    <button
+                      type="button"
+                      className="mt-4 px-4 py-2 rounded-lg w-full bg-green-600 text-white hover:bg-green-700"
+                      onClick={handlePayment}
+                    >
+                      Pay ₹{totalAmount.toFixed(2)}
+                    </button>
+                  </div>
+                );
+              })()}
             </>
           )}
+
         </form>
       </div>
     </div>

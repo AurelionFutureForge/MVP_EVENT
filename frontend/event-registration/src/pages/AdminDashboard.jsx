@@ -225,15 +225,17 @@ useEffect(() => {
   };
 }, []);
 
+    const comp = companyName.toUpperCase();
+
   return (
-    <div className="min-h-screen bg-gray-100 p-6 flex flex-col items-center">
+    <div className="min-h-screen bg-gradient-to-r from-blue-500 to-purple-600 p-6 flex flex-col items-center">
       <div className="bg-white p-6 shadow-xl rounded-2xl w-full max-w-7xl">
         <h2 className="text-4xl font-extrabold text-gray-800 mb-2 text-center">
           Admin Dashboard
         </h2>
-        <p className="text-center text-lg mb-6 text-gray-600">
+        <p className="text-center text-lg mb-6 text-black">
           Company:{" "}
-          <span className="font-semibold text-blue-600">{companyName}</span>
+          <span className="font-semibold text-black">{comp}</span>
         </p>
 
         {/* Event Summary */}

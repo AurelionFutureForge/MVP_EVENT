@@ -68,7 +68,7 @@ function ManualReg() {
       localStorage.setItem("eventID", eventID);
 
       const res = await axios.post(`${BASE_URL}/api/phonepe/initiate-payment`, {
-        amount, email: formData.EMAIL, eventId: eventID
+        amount : (amount* 1.025).toFixed(2), email: formData.EMAIL, eventId: eventID
       });
 
       const { redirectUrl } = res.data;
@@ -348,20 +348,40 @@ function ManualReg() {
           </div>
 
           {/* Payment Button */}
-          {formData.role && !paymentSuccess && (
-            <>
-              <p className="text-lg text-blue-700 font-semibold mb-2 flex items-center gap-2">
-                {selectedRole?.rolePrice} + platform fee (2.5%)
-              </p>
-              <button
-                type="button"
-                className="mt-4 px-4 py-2 rounded-xl w-full bg-green-600 text-white hover:bg-green-700"
-                onClick={handlePayment}
-              >
-                Pay ₹{(selectedRole?.rolePrice * 1.025).toFixed(2)}
-              </button>
-            </>
-          )}
+          {formData.role && !paymentSuccess && selectedRole && (() => {
+            const rolePrice = parseFloat(selectedRole.rolePrice) || 0;
+            const platformFee = (rolePrice * 2.5) / 100;
+            const totalAmount = rolePrice + platformFee;
+
+            return (
+              <>
+                <div className="mb-4 text-black font-medium space-y-1 text-sm">
+                  <p className="flex justify-between">
+                    <span>Amount:</span>
+                    <span>₹{rolePrice.toFixed(2)}</span>
+                  </p>
+                  <p className="flex justify-between">
+                    <span>Platform Fee (2.5%):</span>
+                    <span>₹{platformFee.toFixed(2)}</span>
+                  </p>
+                  <hr className="my-1 border-blue-300" />
+                  <p className="flex justify-between font-semibold text-base">
+                    <span>Total:</span>
+                    <span>₹{totalAmount.toFixed(2)}</span>
+                  </p>
+                </div>
+
+                <button
+                  type="button"
+                  className="mt-4 px-4 py-2 rounded-xl w-full bg-green-600 text-white hover:bg-green-700"
+                  onClick={handlePayment}
+                >
+                  Pay ₹{totalAmount.toFixed(2)}
+                </button>
+              </>
+            );
+          })()}
+
         </form>
       </div>
     </div>
