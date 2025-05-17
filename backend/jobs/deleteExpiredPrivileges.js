@@ -8,17 +8,23 @@ cron.schedule("0 0 * * *", async () => {  // Runs every day at midnight
     const allDocs = await Privilege.find();
 
     for (const doc of allDocs) {
-      const originalCount = doc.privileges.length;
+      // Filter to keep only unexpired privileges
+      const validPrivileges = doc.privileges.filter(
+        (priv) => !priv.endDate || new Date(priv.endDate) >= now
+      );
 
-      // Filter out expired privileges
-      doc.privileges = doc.privileges.filter(priv => !priv.endDate || new Date(priv.endDate) >= now);
-
-      if (doc.privileges.length !== originalCount) {
+      if (validPrivileges.length === 0) {
+        // If no valid privileges remain, delete the whole document
+        await Privilege.findByIdAndDelete(doc._id);
+        console.log(`Deleted entire privilege document for event: ${doc.eventName}`);
+      } else if (validPrivileges.length !== doc.privileges.length) {
+        // Else, update the doc with only valid privileges
+        doc.privileges = validPrivileges;
         await doc.save();
-        console.log(`Expired privileges removed from event ${doc.eventName}`);
+        console.log(`Expired privileges removed from event: ${doc.eventName}`);
       }
     }
   } catch (err) {
-    console.error("Error while deleting expired privileges:", err);
+    console.error("Error while cleaning up privileges:", err);
   }
 });
