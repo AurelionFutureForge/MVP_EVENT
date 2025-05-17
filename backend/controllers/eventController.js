@@ -1,17 +1,20 @@
 const Event = require('../models/Event');
+const cloudinary = require('cloudinary').v2;
+const streamifier = require('streamifier');
 
 // Create Event
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+
 const createEvent = async (req, res) => {
   try {
-    console.log("Incoming Request Body:", req.body);
     let { companyName, eventName, eventRoles, place, time, startDate, endDate } = req.body;
 
     console.log('Incoming Request:', req.body);
     console.log('File Upload:', req.file);
-    console.log("Company poster URL:", req.file ? `/uploads/${req.file.filename}` : null);
-
-    // Handle the uploaded file
-    const companyPoster = req.file ? `/uploads/${req.file.filename}` : null;
 
     const trimmedCompanyName = companyName.trim();
     const trimmedEventName = eventName.trim();
@@ -35,7 +38,7 @@ const createEvent = async (req, res) => {
       return res.status(400).json({ msg: 'An event with this company and event name already exists' });
     }
 
-    // Validate startDate (required)
+    // Validate startDate
     if (!startDate) {
       return res.status(400).json({ msg: 'Start date is required' });
     }
@@ -44,7 +47,6 @@ const createEvent = async (req, res) => {
       return res.status(400).json({ msg: 'Invalid start date format' });
     }
 
-    // Validate endDate only if provided (optional)
     let formattedEndDate = null;
     if (endDate) {
       formattedEndDate = new Date(endDate);
@@ -53,11 +55,7 @@ const createEvent = async (req, res) => {
       }
     }
 
-    // Validate eventRoles
-    if (!Array.isArray(eventRoles) || eventRoles.length === 0) {
-      return res.status(400).json({ msg: 'At least one role is required' });
-    }
-
+    // Validate and process roles
     const processedRoles = eventRoles.map(role => {
       let privilegesArray = [];
 
@@ -89,6 +87,26 @@ const createEvent = async (req, res) => {
       };
     });
 
+    // Upload image to Cloudinary
+    let companyPoster = null;
+    if (req.file) {
+      const streamUpload = () => {
+        return new Promise((resolve, reject) => {
+          const stream = cloudinary.uploader.upload_stream(
+            { folder: 'event_posters' },
+            (error, result) => {
+              if (result) resolve(result);
+              else reject(error);
+            }
+          );
+          streamifier.createReadStream(req.file.buffer).pipe(stream);
+        });
+      };
+
+      const uploadResult = await streamUpload();
+      companyPoster = uploadResult.secure_url; // Use this Cloudinary image URL
+    }
+
     const newEvent = new Event({
       companyName: trimmedCompanyName,
       eventName: trimmedEventName,
@@ -96,8 +114,8 @@ const createEvent = async (req, res) => {
       place,
       time,
       startDate: formattedStartDate.toISOString(),
-      ...(formattedEndDate && { endDate: formattedEndDate.toISOString() }), // optional endDate
-      companyPoster, // Save poster path
+      ...(formattedEndDate && { endDate: formattedEndDate.toISOString() }),
+      companyPoster, // Cloudinary URL
     });
 
     await newEvent.save();
