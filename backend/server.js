@@ -26,12 +26,13 @@ app.get("/uploads/:filename", (req, res) => {
     return res.status(404).json({ error: "File not found" });
   }
 
-  const mimeType = mime.lookup(filePath);
-  res.setHeader("Content-Type", mimeType || "application/octet-stream");
+  const mimeType = mime.lookup(filePath) || "application/octet-stream";
+  res.setHeader("Content-Type", mimeType);
   res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Cross-Origin-Resource-Policy", "cross-origin"); 
 
   fs.createReadStream(filePath).pipe(res);
-});
+})
 
 const corsOptions = {
   origin: ["https://mvp-event.vercel.app", "http://localhost:5173","https://events.aurelionfutureforge.com"],  
