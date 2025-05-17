@@ -27,8 +27,8 @@ const corsOptions = {
   methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
   allowedHeaders: ["Content-Type", "Authorization"],
 };
+
 app.use(cors(corsOptions));
-app.options("*", corsOptions);
 
 // Define uploads directory relative to project root
 const uploadDir = path.join(__dirname, "uploads");
