@@ -226,7 +226,6 @@ useEffect(() => {
 }, []);
 
     const comp = companyName.toUpperCase();
-
   return (
     <div className="min-h-screen bg-gradient-to-r from-blue-500 to-purple-600 p-6 flex flex-col items-center">
       <div className="bg-white p-6 shadow-xl rounded-2xl w-full max-w-7xl">
