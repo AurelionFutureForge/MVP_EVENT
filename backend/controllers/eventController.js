@@ -183,7 +183,24 @@ const UpdateEvents = async (req, res) => {
   try {
     const { companyName, eventName, eventRoles, place, time, startDate, endDate } = req.body;
 
-    const companyPoster = req.file ? `/uploads/${req.file.filename}` : undefined; // only update if a file is uploaded
+    // Upload to Cloudinary if a new file is present
+    let companyPoster = undefined;
+    if (req.file) {
+      const streamUpload = () => {
+        return new Promise((resolve, reject) => {
+          const stream = cloudinary.uploader.upload_stream(
+            { folder: 'event_posters' },
+            (error, result) => {
+              if (result) resolve(result);
+              else reject(error);
+            }
+          );
+          streamifier.createReadStream(req.file.buffer).pipe(stream);
+        });
+      };
+      const uploadResult = await streamUpload();
+      companyPoster = uploadResult.secure_url; // get Cloudinary URL
+    }
 
     if (!startDate) {
       return res.status(400).json({ msg: 'Start date is required' });
@@ -266,7 +283,7 @@ const UpdateEvents = async (req, res) => {
     }
 
     if (companyPoster) {
-      updateFields.companyPoster = companyPoster; // add poster only if uploaded
+      updateFields.companyPoster = companyPoster; // use Cloudinary URL if new image uploaded
     }
 
     const updatedEvent = await Event.findByIdAndUpdate(
