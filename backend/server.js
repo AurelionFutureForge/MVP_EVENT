@@ -1,58 +1,60 @@
 require("dotenv").config();
-require("./jobs/deleteExpiredPrivileges")
+require("./jobs/deleteExpiredPrivileges");
+
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
-const path = require("path"); 
-const mime = require("mime-types");
-const fs = require("fs");
-
+const path = require("path");
 
 // Import routes
 const authRoutes = require("./routes/authRoutes");
 const userRoutes = require("./routes/userRoutes");
 const scanRoutes = require("./routes/scanRoutes");
 const eventRoutes = require("./routes/eventRoutes");
-const privilegeRoutes = require('./routes/privilegeRoutes');
-const phonepeRoutes = require('./routes/phonepeRoutes')
+const privilegeRoutes = require("./routes/privilegeRoutes");
+const phonepeRoutes = require("./routes/phonepeRoutes");
 
 const app = express();
 app.use(express.json());
 
-app.get("/uploads/:filename", (req, res) => {
-  const filePath = path.resolve("/opt/render/project/src/uploads", req.params.filename);
-
-  if (!fs.existsSync(filePath)) {
-    return res.status(404).json({ error: "File not found" });
-  }
-
-  const mimeType = mime.lookup(filePath) || "application/octet-stream";
-  res.setHeader("Content-Type", mimeType);
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Cross-Origin-Resource-Policy", "cross-origin"); 
-
-  fs.createReadStream(filePath).pipe(res);
-})
-
+// CORS options
 const corsOptions = {
-  origin: ["https://mvp-event.vercel.app", "http://localhost:5173","https://events.aurelionfutureforge.com"],  
+  origin: [
+    "https://mvp-event.vercel.app",
+    "http://localhost:5173",
+    "https://events.aurelionfutureforge.com",
+  ],
   methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
-  allowedHeaders: ["Content-Type", "Authorization"]
+  allowedHeaders: ["Content-Type", "Authorization"],
 };
-
 app.use(cors(corsOptions));
-app.options("*", cors(corsOptions));
+app.options("*", corsOptions);
 
+// Define uploads directory relative to project root
+const uploadDir = path.join(__dirname, "uploads");
 
+// Serve uploaded files statically with CORS headers
+app.use(
+  "/uploads",
+  express.static(uploadDir, {
+    setHeaders: (res, filePath) => {
+      res.setHeader("Access-Control-Allow-Origin", "*");
+      res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
+    },
+  })
+);
+
+// Routes
 app.use("/admin", authRoutes);
 app.use("/users", userRoutes);
 app.use("/scan", scanRoutes);
 app.use("/events", eventRoutes);
 app.use("/privilege", privilegeRoutes);
-app.use('/api/phonepe', phonepeRoutes);
+app.use("/api/phonepe", phonepeRoutes);
 
-// Connect DB + start server
-mongoose.connect(process.env.MONGO_URI)
+// Connect to MongoDB and start server
+mongoose
+  .connect(process.env.MONGO_URI)
   .then(() => console.log("Connected to MongoDB"))
   .catch((err) => console.error("MongoDB connection error:", err));
 
