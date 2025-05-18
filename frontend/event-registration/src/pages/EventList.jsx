@@ -44,7 +44,7 @@ function EventList() {
   const handleEventClick = (eventId,eventName) => {
     localStorage.setItem("selectedEvent", eventId);
      localStorage.setItem("eventName",eventName);
-    navigate(`/admin/dashboard/${eventId}`);
+    navigate(`/admin/dashboard/${eventId}/${eventName}`);
   };
 
   const handleLogout = () => {

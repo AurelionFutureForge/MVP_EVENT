@@ -32,11 +32,11 @@ const App = () => {
         <Route path="/admin/scanner" element={<ProtectedPrivilege> <AdminScanner /> </ProtectedPrivilege>} />
         <Route path="/admin/register" element={<AdminRegister />} />
         <Route path='/admin/login' element={<AdminLogin />} />
-        <Route path='/admin/dashboard/:eventId' element={<ProtectedRoute> <AdminDashboard /> </ ProtectedRoute>} />
+        <Route path='/admin/dashboard/:eventId/:eventName' element={<ProtectedRoute> <AdminDashboard /> </ ProtectedRoute>} />
         <Route path='/create-event' element={<ProtectedEventRoute> <EventCreation />  </ProtectedEventRoute>} />
-        <Route path='/admin/manage-access' element={<ManageAccess />} />
-        <Route path="/privilege/dashboard" element={<PrivilegeDashboard />} />
-        <Route path='/edit-event/:eventId' element={<EditEvent />} />
+        <Route path='/admin/manage-access' element={<ProtectedRoute><ManageAccess /></ProtectedRoute>} />
+        <Route path="/privilege/dashboard" element={<ProtectedPrivilege><PrivilegeDashboard /></ProtectedPrivilege>} />
+        <Route path='/edit-event/:eventId' element={<ProtectedEventRoute><EditEvent /></ProtectedEventRoute>} />
         <Route path='/event-login' element={<EventLogin />} />
         <Route path='/create-regform' element={<ProtectedRoute> <CreateRegistrationForm /> </ ProtectedRoute>} />
         <Route path='event-list' element={<ProtectedRoute> <EventList/> </ ProtectedRoute>} />
