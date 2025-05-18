@@ -41,8 +41,9 @@ function EventList() {
     fetchEvents();
   }, [companyName, navigate, BASE_URL]);
 
-  const handleEventClick = (eventId) => {
+  const handleEventClick = (eventId,eventName) => {
     localStorage.setItem("selectedEvent", eventId);
+     localStorage.setItem("eventName",eventName);
     navigate(`/admin/dashboard/${eventId}`);
   };
 
@@ -88,7 +89,7 @@ function EventList() {
                 <div
                   key={event._id}
                   className="cursor-pointer border rounded-2xl overflow-hidden shadow-md bg-white hover:shadow-xl transition transform hover:-translate-y-1 hover:scale-105 duration-300"
-                  onClick={() => handleEventClick(event._id)}
+                  onClick={() => handleEventClick(event._id,event.eventName)}
                 >
                   <div className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white p-4">
                     <h3 className="text-xl font-semibold truncate">{event.eventName}</h3>

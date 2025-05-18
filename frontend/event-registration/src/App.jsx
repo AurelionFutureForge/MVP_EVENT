@@ -27,7 +27,7 @@ const App = () => {
     <div>
       <Routes>
         <Route path='/' element={<Home />} />
-        <Route path='/register/:eventID' element={<RegistrationForm />} />
+        <Route path='/register/:eventID/:eventName' element={<RegistrationForm />} />
         <Route path="/success/:eventID" element={<SuccessPage />} />
         <Route path="/admin/scanner" element={<ProtectedPrivilege> <AdminScanner /> </ProtectedPrivilege>} />
         <Route path="/admin/register" element={<AdminRegister />} />

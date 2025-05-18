@@ -24,8 +24,9 @@ function CreateRegistrationForm() {
 
   useEffect(() => {
     const savedEventId = localStorage.getItem("selectedEvent");
+    const savedEventName = localStorage.getItem("eventName");
     if (savedEventId) {
-      const link = `https://events.aurelionfutureforge.com/register/${savedEventId}`;
+      const link = `https://events.aurelionfutureforge.com/register/${savedEventId}/${savedEventName}`;
       setFormLink(link);
 
       // Fetch roles for the selected event
@@ -115,7 +116,9 @@ function CreateRegistrationForm() {
       );
 
       const eventId = response.data.eventId;
-      const link = `https://mvp-event.vercel.app/register/${eventId}`;
+      const eventName = response.data.eventName;
+      console.log(eventName);
+      const link = `https://events.aurelionfutureforge.com/register/${eventId}/${eventName}`;
       setFormLink(link);
       localStorage.setItem("eventId", eventId);
 
