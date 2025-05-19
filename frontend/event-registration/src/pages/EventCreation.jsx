@@ -183,8 +183,8 @@ export default function EventCreation() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-r from-blue-500 to-purple-600">
-      <nav className="bg-blue-600 p-4 shadow-md">
+    <div className="min-h-screen flex flex-col bg-gradient-to-r from-black to-gray-800">
+      <nav className="bg-black-600 p-4 shadow-md">
         <div className="container mx-auto flex justify-between items-center text-white">
           {/* Left: Logo */}
           <h1 className="text-2xl font-bold">EventMVP</h1>
@@ -265,7 +265,7 @@ export default function EventCreation() {
         <div className="mt-6">
           <button
             onClick={() => setShowForm(!showForm)}
-            className="px-6 py-3 bg-green-600 text-white font-semibold rounded-lg shadow hover:bg-green-700 transition"
+            className="px-6 py-3 bg-red-600 text-white font-semibold rounded-lg shadow hover:bg-red-700 transition"
           >
             {showForm ? 'Cancel' : 'Add New Event'}
           </button>
@@ -332,7 +332,7 @@ export default function EventCreation() {
 
               <button
                 onClick={handleAddRole}
-                className="w-full py-2 mt-2 bg-blue-600 text-white font-semibold rounded-lg shadow hover:bg-blue-700"
+                className="w-full py-2 mt-2 bg-red-600 text-white font-semibold rounded-4xl shadow hover:bg-red-700"
               >
                 Add Role
               </button>
@@ -404,12 +404,12 @@ export default function EventCreation() {
             </div>
 
             {error && <p className="text-red-600">{error}</p>}
-
+<br />
             <div className="flex justify-center space-x-4">
               <button
                 onClick={handleSubmit}
                 disabled={loading}
-                className="px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg shadow hover:bg-blue-700 disabled:bg-gray-400"
+                className="px-6 py-3 bg-red-600 text-white font-semibold rounded-4xl shadow hover:bg-red-700 disabled:bg-gray-400"
               >
                 {loading ? 'Creating Event...' : 'Create Event'}
               </button>

@@ -184,7 +184,7 @@ function ManualReg() {
             <img
               src={event.companyPoster}
               alt="Company Poster"
-              className="max-h-32 object-contain rounded-xl"
+              className="w-full h-auto rounded-lg"
             />
           </div>
         )}

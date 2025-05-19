@@ -39,16 +39,16 @@ function EventLogin() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gradient-to-r from-blue-500 to-indigo-600 p-6">
+    <div className="flex items-center justify-center min-h-screen bg-gradient-to-r from-black to-gray-800 p-6">
       <div className="bg-white p-8 shadow-xl rounded-lg w-full max-w-md transform transition-all duration-300 hover:shadow-2xl">
-        <h2 className="text-3xl font-bold text-gray-800 mb-6 text-center">Admin Login</h2>
+        <h2 className="text-3xl font-bold text-black mb-6 text-center">Admin Login</h2>
 
         <form onSubmit={handleLogin} className="space-y-5">
           <div>
             <label className="block text-gray-700 font-medium">Company Name</label>
             <input
               type="text"
-              className="w-full p-3 border border-gray-300 rounded-lg mt-1 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+              className="w-full p-3 border border-gray-300 rounded-lg mt-1 focus:outline-none focus:ring-2 focus:ring-gray-500 transition"
               value={companyName}
               onChange={(e) => setCompanyName(e.target.value)}
               required
@@ -61,7 +61,7 @@ function EventLogin() {
             <label className="block text-gray-700 font-medium">Email</label>
             <input
               type="email"
-              className="w-full p-3 border border-gray-300 rounded-lg mt-1 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+              className="w-full p-3 border border-gray-300 rounded-lg mt-1 focus:outline-none focus:ring-2 focus:ring-gray-500 transition"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
@@ -74,7 +74,7 @@ function EventLogin() {
             <label className="block text-gray-700 font-medium">Password</label>
             <input
               type="password"
-              className="w-full p-3 border border-gray-300 rounded-lg mt-1 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+              className="w-full p-3 border border-gray-300 rounded-lg mt-1 focus:outline-none focus:ring-2 focus:ring-gray-500 transition"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
@@ -86,7 +86,7 @@ function EventLogin() {
           <button
             type="submit"
             className={`w-full p-3 rounded-lg font-semibold transition transform hover:scale-105 
-            ${loading ? "bg-gray-500 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700 text-white"}`}
+            ${loading ? "bg-red-400 cursor-not-allowed" : "bg-red-600 hover:bg-red-700 text-white"}`}
             disabled={loading}
           >
             {loading ? "Logging in..." : "Login"}

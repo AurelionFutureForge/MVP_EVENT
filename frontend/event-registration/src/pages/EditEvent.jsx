@@ -177,7 +177,7 @@ export default function EditEvent() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-r from-blue-500 to-purple-600 p-6">
+    <div className="min-h-screen flex flex-col bg-gradient-to-r from-black to-gray-800 p-6">
       <h1 className="text-3xl text-white font-bold mb-6 text-center">Edit Event</h1>
 
       <div className="bg-white rounded-lg shadow p-6 max-w-2xl mx-auto">
@@ -248,7 +248,7 @@ export default function EditEvent() {
 
           <button
             onClick={handleAddRole}
-            className="w-full py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+            className="w-full py-2 bg-red-600 text-white rounded-4xl hover:bg-red-700"
           >{editIndex !== null ? 'Update Role' : 'Add Role'}</button>
 
           <div className="mt-4 space-y-2">
@@ -284,7 +284,7 @@ export default function EditEvent() {
         <button
           onClick={handleSubmit}
           disabled={loading}
-          className="w-full py-3 bg-green-600 text-white rounded hover:bg-green-700 disabled:opacity-50"
+          className="w-full py-3 bg-red-600 text-white rounded-4xl hover:bg-red-700 disabled:opacity-50"
         >
           {loading ? 'Updating...' : 'Update Event'}
         </button>

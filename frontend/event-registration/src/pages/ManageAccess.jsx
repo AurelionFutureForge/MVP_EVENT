@@ -98,7 +98,7 @@ function ManageAccess() {
   
 
   return (
-    <div className="min-h-screen bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center p-6">
+    <div className="min-h-screen bg-gradient-to-r from-black to-gray-800 flex items-center justify-center p-6">
       <div className="bg-white p-8 rounded-xl shadow-lg w-full max-w-3xl">
         <h2 className="text-3xl font-bold text-center text-gray-800 mb-6">Manage Access</h2>
 
@@ -111,20 +111,20 @@ function ManageAccess() {
                 placeholder="Enter Email"
                 value={priv.email}
                 onChange={(e) => handleInputChange(index, "email", e.target.value)}
-                className="border rounded px-3 py-2 w-full focus:ring-2 focus:ring-blue-400"
+                className="border rounded px-3 py-2 w-full focus:ring-2 focus:ring-gray-400"
               />
               <input
                 type="password"
                 placeholder="Enter Password"
                 value={priv.password}
                 onChange={(e) => handleInputChange(index, "password", e.target.value)}
-                className="border rounded px-3 py-2 w-full focus:ring-2 focus:ring-blue-400"
+                className="border rounded px-3 py-2 w-full focus:ring-2 focus:ring-gray-400"
               />
               <input
                 type="date"
                 value={priv.endDate}
                 onChange={(e) => handleInputChange(index, "endDate", e.target.value)}
-                className="border rounded px-3 py-2 w-full focus:ring-2 focus:ring-blue-400"
+                className="border rounded px-3 py-2 w-full focus:ring-2 focus:ring-gray-400"
               />
 
             </div>
@@ -134,7 +134,7 @@ function ManageAccess() {
         <div className="flex flex-col md:flex-row gap-4">
           <button
             onClick={handleSubmit}
-            className={`bg-gray-900 border border-gray-300 text-white px-6 py-2 rounded-lg hover:bg-gray-800 transition w-full md:w-auto ${loading ? "opacity-50 cursor-not-allowed" : ""}`}
+            className={`bg-gray-900 border border-gray-300 text-white px-6 py-2 rounded-4xl hover:bg-gray-800 transition w-full md:w-auto ${loading ? "opacity-50 cursor-not-allowed" : ""}`}
             disabled={loading}
           >
             {loading ? "Assigning..." : "Assign Privileges"}
@@ -142,7 +142,7 @@ function ManageAccess() {
 
           <button
             onClick={handleDelete}
-            className={`bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition w-full md:w-auto ${prevLoading ? "opacity-50 cursor-not-allowed" : ""}`}
+            className={`bg-red-600 text-white px-6 py-2 rounded-4xl hover:bg-red-700 transition w-full md:w-auto ${prevLoading ? "opacity-50 cursor-not-allowed" : ""}`}
             disabled={prevLoading}
           >
             {prevLoading ? "Deleting" : "Delete Assigned Privileges"}

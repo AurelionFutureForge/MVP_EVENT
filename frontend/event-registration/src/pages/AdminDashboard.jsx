@@ -226,7 +226,7 @@ useEffect(() => {
 }, []);
   const comp = companyName.toUpperCase();
   return (
-    <div className="min-h-screen bg-gradient-to-r from-blue-500 to-purple-600 p-6 flex flex-col items-center">
+    <div className="min-h-screen bg-gradient-to-r from-black to-gray-800 p-6 flex flex-col items-center">
       <div className="bg-white p-6 shadow-xl rounded-2xl w-full max-w-7xl">
         <h2 className="text-4xl font-extrabold text-gray-800 mb-2 text-center">
           Admin Dashboard
@@ -270,12 +270,12 @@ useEffect(() => {
               placeholder="Search name or email..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="border rounded px-3 py-2 w-full sm:w-64 focus:ring-2 focus:ring-blue-400"
+              className="border rounded px-3 py-2 w-full sm:w-64 focus:ring-2 focus:ring-gray-400"
             />
             <select
               value={roleFilter}
               onChange={(e) => setRoleFilter(e.target.value)}
-              className="border rounded px-3 py-2 w-full sm:w-48 focus:ring-2 focus:ring-blue-400"
+              className="border rounded px-3 py-2 w-full sm:w-48 focus:ring-2 focus:ring-gray-400"
             >
               <option value="All">All Roles</option>
               {uniqueRoles.map((role, idx) => (
@@ -299,35 +299,35 @@ useEffect(() => {
               <div className="absolute right-0 mt-12 bg-white rounded-lg shadow-lg w-56 z-50 flex flex-col border border-gray-200">
                 <button
                   onClick={downloadPDF}
-                  className="px-4 py-2 text-sm hover:bg-gray-100 text-left"
+                  className="px-4 py-2 text-sm hover:bg-gray-300 text-left"
                 >
                   📄 Download PDF
                 </button>
 
                 <button
                   onClick={() => navigate("/admin/manage-access")}
-                  className="px-4 py-2 text-sm hover:bg-gray-100 text-left"
+                  className="px-4 py-2 text-sm hover:bg-gray-300 text-left"
                 >
                   🛠️ Manage Access
                 </button>
 
                 <button
                   onClick={() => navigate("/create-regform")}
-                  className="px-4 py-2 text-sm hover:bg-gray-100 text-left"
+                  className="px-4 py-2 text-sm hover:bg-gray-300 text-left"
                 >
                   {registrationFields.length === 0 ? "📝 Create Registration Form" : "✏️ Edit Registration Form"}
                 </button>
 
                 <button
                   onClick={() => navigate("/manual-registration")}
-                  className="px-4 py-2 text-sm hover:bg-gray-100 text-left"
+                  className="px-4 py-2 text-sm hover:bg-gray-300 text-left"
                 >
                   ➕ Manual Registration
                 </button>
 
                 <button
                   onClick={handleLogout}
-                  className="px-4 py-2 text-sm hover:bg-gray-100 text-left text-red-600"
+                  className="px-4 py-2 text-sm hover:bg-gray-300 text-left text-red-600"
                 >
                   🚪 Logout
                 </button>
@@ -340,7 +340,7 @@ useEffect(() => {
           <div className="overflow-x-auto rounded-lg shadow">
             <table className="w-full border-collapse">
               <thead>
-                <tr className="bg-blue-500 text-white text-sm">
+                <tr className="bg-gray-900 text-white text-sm">
                   <th className="p-3">Name</th>
                   <th className="p-3">Email</th>
                   <th className="p-3">Role</th>

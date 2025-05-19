@@ -56,8 +56,8 @@ function EventList() {
 
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-r from-blue-500 to-purple-600">
-      <nav className="bg-blue-600 p-4 shadow-md">
+    <div className="min-h-screen flex flex-col bg-gradient-to-r from-black to-gray-800">
+      <nav className="bg-black p-4 shadow-md">
         <div className="container mx-auto flex justify-between items-center text-white">
           {/* Left: Logo */}
           <h1 className="text-2xl font-bold">EventMVP</h1>

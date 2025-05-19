@@ -3,6 +3,7 @@ import axios from "axios";
 import { toast } from "react-hot-toast";
 import { AlertTriangle } from 'lucide-react'
 import { useParams, useNavigate } from "react-router-dom";
+import logo from '../assets/aurelion.png'
 
 function RegistrationForm() {
   const [event, setEvent] = useState(null);
@@ -207,18 +208,18 @@ function RegistrationForm() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-800 p-6">
-      <div className="bg-white p-6 shadow-xl rounded-2xl max-w-lg mx-auto">
+    <div className="min-h-screen bg-gray-300 p-6 flex flex-col items-center justify-between">
+      <div className="bg-white p-6 shadow-xl rounded-2xl max-w-2xl mx-auto">
         {event.companyPoster && (
           <div className="flex justify-center mb-4">
             <img
               src={event.companyPoster}
               alt="Company Poster"
-              className="max-h-32 object-contain rounded-xl"
+              className="w-full h-auto rounded-lg"
             />
           </div>
         )}
-
+<br />
         <h2 className="text-4xl font-extrabold text-gray-800 mb-4 text-center">
           Register for {event.eventName}
         </h2>
@@ -417,6 +418,10 @@ function RegistrationForm() {
 
         </form>
       </div>
+  <div className="mt-8 text-center">
+    <p className="text-gray-800 text-sm mb-2">Powered by</p>
+    <img src={logo} alt="Powered by logo" className="h-20 mx-auto object-contain" />
+  </div>
     </div>
   );
 }

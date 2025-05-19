@@ -26,7 +26,7 @@ function CreateRegistrationForm() {
     const savedEventId = localStorage.getItem("selectedEvent");
     const savedEventName = localStorage.getItem("eventName");
     if (savedEventId) {
-      const link = `https://events.aurelionfutureforge.com/register/${savedEventId}/${savedEventName}`;
+      const link = `https://events.aurelionfutureforge.com/${savedEventName}/register/${savedEventId}`;
       setFormLink(link);
 
       // Fetch roles for the selected event
@@ -118,7 +118,7 @@ function CreateRegistrationForm() {
       const eventId = response.data.eventId;
       const eventName = response.data.eventName;
       console.log(eventName);
-      const link = `https://events.aurelionfutureforge.com/register/${eventId}/${eventName}`;
+      const link = `https://events.aurelionfutureforge.com/${eventName}/register/${eventId}`;
       setFormLink(link);
       localStorage.setItem("eventId", eventId);
 
@@ -186,7 +186,7 @@ function CreateRegistrationForm() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center p-6">
+    <div className="min-h-screen bg-gradient-to-r from-black to-gray-800 flex items-center justify-center p-6">
       <div className="bg-white p-8 rounded-xl shadow-lg w-full max-w-3xl">
         <h2 className="text-3xl font-bold text-center text-gray-800 mb-6">
           Create Registration Form
@@ -196,7 +196,7 @@ function CreateRegistrationForm() {
           <label className="block font-semibold">Event Name</label>
           <input
             type="text"
-            placeholder="Enter Event Name"
+            placeholder="Event name should be same as in the create-event form !"
             value={eventName}
             onChange={(e) => setEventName(e.target.value)}
             className="border rounded px-3 py-2 w-full mb-4"
@@ -298,7 +298,7 @@ function CreateRegistrationForm() {
               <button
                 type="button"
                 onClick={() => removeField(index)}
-                className="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition mt-4"
+                className="bg-orange-600 text-white px-6 py-2 rounded-4xl hover:bg-orange-700 transition mt-4"
               >
                 Remove Field
               </button>
@@ -306,38 +306,47 @@ function CreateRegistrationForm() {
           </div>
         ))}
 
-        <button
-          type="button"
-          onClick={addField}
-          className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition w-full mt-4"
-        >
-          Add Another Field
-        </button>
 
-        <button
-          onClick={handleSubmit}
-          className="bg-gray-900 border border-gray-300 text-white px-6 py-2 rounded-lg hover:bg-gray-800 transition w-full mt-4"
-        >
-          Save Registration Form
-        </button>
+        <div className="mt-4 flex flex-wrap gap-4">
+          <button
+            type="button"
+            onClick={addField}
+            className="bg-red-600 text-white px-6 py-2 rounded-4xl hover:bg-red-700 transition"
+          >
+            Add Another Field
+          </button>
+
+          <button
+            onClick={handleSubmit}
+            className="bg-red-600 border border-gray-300 text-white px-6 py-2 rounded-4xl hover:bg-red-700 transition"
+          >
+            Save Registration Form
+          </button>
+
+          {formLink && (
+            <>
+              <button
+                onClick={handleCloseForm}
+                className="bg-red-600 border border-gray-300 text-white px-6 py-2 rounded-4xl hover:bg-red-700 transition"
+              >
+                {formVisible ? "Open Registration Form" : "Close Registration Form"}
+              </button>
+            </>
+          )}
+        </div>
+
+
         {formLink && (
-          <div className="mt-5">
+          <div className="mt-4">
             <button
               onClick={handleCopyLink}
-              className="bg-gray-900 border border-gray-300 text-white px-6 py-2 rounded-lg hover:bg-gray-800 w-full"
+              className="bg-red-600 border border-gray-300 text-white px-6 py-2 rounded-4xl hover:bg-red-700 w-full"
             >
               Copy Registration Form Link
             </button>
-
-            <button
-              onClick={handleCloseForm}
-              className="bg-gray-900 border border-gray-300 text-white px-6 py-2 mt-5 rounded-lg hover:bg-gray-800 w-full"
-            >
-              {formVisible ? "Open Registration Form" : "Close Registration Form"}
-            </button>
-
           </div>
         )}
+
       </div>
     </div>
   );

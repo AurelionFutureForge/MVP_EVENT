@@ -23,6 +23,7 @@ function AdminLogin() {
         // Store the admin token and company name in localStorage
         localStorage.setItem("admin_token", response.data.token);
         localStorage.setItem("adminCompanyName", response.data.admin.companyName);
+        localStorage.setItem("adminEmail",response.data.admin.email);
 
         // Success message
         toast.success("Login Successful!");
@@ -57,9 +58,9 @@ function AdminLogin() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gradient-to-r from-blue-500 to-indigo-600 p-6">
+    <div className="flex items-center justify-center min-h-screen bg-gradient-to-r from-black to-gray-800 p-6">
       <div className="bg-white p-8 shadow-xl rounded-lg w-full max-w-md transform transition-all duration-300 hover:shadow-2xl">
-        <h2 className="text-3xl font-bold text-gray-800 mb-6 text-center">LOGIN</h2>
+        <h2 className="text-3xl font-bold text-black mb-6 text-center">LOGIN</h2>
 
         <form onSubmit={handleLogin} className="space-y-5">
           {/* Role Selection */}
@@ -68,7 +69,7 @@ function AdminLogin() {
             <select
               value={role}
               onChange={(e) => setRole(e.target.value)}
-              className="w-full p-3 border border-gray-300 rounded-lg mt-1 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+              className="w-full p-3 border border-gray-300 rounded-lg mt-1 focus:outline-none focus:ring-2 focus:ring-gray-500 transition"
               disabled={loading}
             > 
               <option value="please select">Please Select</option>
@@ -87,7 +88,7 @@ function AdminLogin() {
               required
               disabled={loading}
               placeholder="Enter your email"
-              className="w-full p-3 border border-gray-300 rounded-lg mt-1 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+              className="w-full p-3 border border-gray-300 rounded-lg mt-1 focus:outline-none focus:ring-2 focus:ring-gray-500 transition"
             />
           </div>
 
@@ -101,7 +102,7 @@ function AdminLogin() {
               required
               disabled={loading}
               placeholder="Enter your password"
-              className="w-full p-3 border border-gray-300 rounded-lg mt-1 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+              className="w-full p-3 border border-gray-300 rounded-lg mt-1 focus:outline-none focus:ring-2 focus:ring-gray-500 transition"
             />
           </div>
 
@@ -110,7 +111,7 @@ function AdminLogin() {
             type="submit"
             disabled={loading}
             className={`w-full p-3 rounded-lg font-semibold transition transform hover:scale-105 
-            ${loading ? "bg-gray-500 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700 text-white"}`}
+            ${loading ? "bg-red-400 cursor-not-allowed" : "bg-red-600 hover:bg-red-700 text-white"}`}
           >
             {loading ? "Logging in..." : "Login"}
           </button>
