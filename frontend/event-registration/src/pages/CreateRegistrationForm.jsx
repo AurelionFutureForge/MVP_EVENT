@@ -82,13 +82,16 @@ function CreateRegistrationForm() {
   };
 
   const removeField = (index) => {
-    if (fields[index].locked) {
-      toast.error("You cannot remove default locked fields.");
-      return;
+    const confirmDelete = window.confirm("Are you sure you want to delete ?");
+    if (confirmDelete) {
+      if (fields[index].locked) {
+        toast.error("You cannot remove default locked fields.");
+        return;
+      }
+      const updatedFields = [...fields];
+      updatedFields.splice(index, 1);
+      setFields(updatedFields);
     }
-    const updatedFields = [...fields];
-    updatedFields.splice(index, 1);
-    setFields(updatedFields);
   };
 
   const handleSubmit = async (e) => {
@@ -298,7 +301,7 @@ function CreateRegistrationForm() {
               <button
                 type="button"
                 onClick={() => removeField(index)}
-                className="bg-orange-600 text-white px-6 py-2 rounded-4xl hover:bg-orange-700 transition mt-4"
+                className="bg-blue-600 text-white px-6 py-2 rounded-4xl hover:bg-blue-700 transition mt-4"
               >
                 Remove Field
               </button>

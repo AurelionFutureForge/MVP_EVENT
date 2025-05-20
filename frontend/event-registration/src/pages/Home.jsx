@@ -4,12 +4,12 @@ function Home() {
   return (
     <div className="min-h-screen flex flex-col">
       {/* Navbar */}
-      <nav className="bg-black p-4 shadow-md">
-        <div className="container mx-auto flex justify-between items-center text-white">
+      <nav className="bg-transparent backdrop-blur-md p-4 shadow-md">
+        <div className="container mx-auto flex justify-between items-center text-black">
           <h1 className="text-2xl font-bold">EventMVP</h1>
           <div className="hidden md:flex space-x-6">
-            <Link to="/" className="hover:text-gray-200">Home</Link>
-            <Link to="/admin/login" className="hover:text-gray-200">Admin</Link>
+            <Link to="/" className="hover:text-gray-700">Home</Link>
+            <Link to="/admin/login" className="hover:text-gray-700">Admin</Link>
           </div>
           <div className="md:hidden">
             <button className="text-white text-2xl">&#9776;</button>
@@ -27,7 +27,7 @@ function Home() {
           <Link to="/login" className="px-12 py-3 bg-red-700 text-white font-semibold rounded-lg shadow hover:bg-red-800 transition">
            Login 
           </Link>
-          <Link to="/admin/register" className="px-6 py-3 bg-white text-blue-600 font-semibold rounded-lg shadow hover:bg-gray-100 transition">
+          <Link to="/admin/register" className="px-6 py-3 bg-white text-black font-semibold rounded-lg shadow hover:bg-gray-100 transition">
             Create Event
           </Link>
         </div>

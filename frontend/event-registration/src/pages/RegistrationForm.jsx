@@ -208,7 +208,7 @@ function RegistrationForm() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-300 p-6 flex flex-col items-center justify-between">
+    <div className="min-h-screen bg-gradient-to-r from-black to-gray-800 p-6 flex flex-col items-center justify-between">
       <div className="bg-white p-6 shadow-xl rounded-2xl max-w-2xl mx-auto">
         {event.companyPoster && (
           <div className="flex justify-center mb-4">
@@ -219,8 +219,8 @@ function RegistrationForm() {
             />
           </div>
         )}
-<br />
-        <h2 className="text-4xl font-extrabold text-gray-800 mb-4 text-center">
+        <br />
+        <h2 className="text-4xl font-extrabold text-black mb-4 text-center">
           Register for {event.eventName}
         </h2>
 
@@ -405,7 +405,7 @@ function RegistrationForm() {
 
                     <button
                       type="button"
-                      className="mt-4 px-4 py-2 rounded-lg w-full bg-green-600 text-white hover:bg-green-700"
+                      className="mt-4 px-4 py-2 rounded-lg w-full bg-red-600 text-white hover:bg-red-700"
                       onClick={handlePayment}
                     >
                       Pay ₹{totalAmount.toFixed(2)}
@@ -415,13 +415,13 @@ function RegistrationForm() {
               })()}
             </>
           )}
+          <div className="mt-8 flex items-center justify-center gap-2">
+            <span className="text-gray-600 text-sm mb-2">Powered by</span>
+            <img src={logo} alt="Powered by logo" className="h-20 object-contain" />
+          </div>
 
         </form>
       </div>
-  <div className="mt-8 text-center">
-    <p className="text-gray-800 text-sm mb-2">Powered by</p>
-    <img src={logo} alt="Powered by logo" className="h-20 mx-auto object-contain" />
-  </div>
     </div>
   );
 }

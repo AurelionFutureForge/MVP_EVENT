@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { toast } from "react-hot-toast";
+import logo from '../assets/aurelion.png'
 
 function ManualReg() {
   const [event, setEvent] = useState(null);
@@ -68,7 +69,7 @@ function ManualReg() {
       localStorage.setItem("eventID", eventID);
 
       const res = await axios.post(`${BASE_URL}/api/phonepe/initiate-payment`, {
-        amount : (amount* 1.025).toFixed(2), email: formData.EMAIL, eventId: eventID
+        amount: (amount * 1.025).toFixed(2), email: formData.EMAIL, eventId: eventID
       });
 
       const { redirectUrl } = res.data;
@@ -177,8 +178,8 @@ function ManualReg() {
   );
 
   return (
-    <div className="min-h-screen bg-gray-200 p-6">
-      <div className="bg-white p-6 shadow-xl rounded-2xl max-w-lg mx-auto">
+    <div className="min-h-screen bg-gradient-to-r from-black to-gray-800 p-6">
+      <div className="bg-white p-6 shadow-xl rounded-2xl max-w-2xl mx-auto">
         {event.companyPoster && (
           <div className="flex justify-center mb-4">
             <img
@@ -188,7 +189,7 @@ function ManualReg() {
             />
           </div>
         )}
-        <h2 className="text-4xl font-extrabold text-gray-800 mb-4 text-center">
+        <h2 className="text-4xl font-extrabold text-black mb-4 text-center">
           Register for {event.eventName}
         </h2>
 
@@ -373,7 +374,7 @@ function ManualReg() {
 
                 <button
                   type="button"
-                  className="mt-4 px-4 py-2 rounded-xl w-full bg-green-600 text-white hover:bg-green-700"
+                  className="mt-4 px-4 py-2 rounded-xl w-full bg-red-600 text-white hover:bg-red-700"
                   onClick={handlePayment}
                 >
                   Pay ₹{totalAmount.toFixed(2)}
@@ -381,6 +382,11 @@ function ManualReg() {
               </>
             );
           })()}
+
+          <div className="mt-8 flex items-center justify-center gap-2">
+            <span className="text-gray-600 text-sm mb-2">Powered by</span>
+            <img src={logo} alt="Powered by logo" className="h-20 object-contain" />
+          </div>
 
         </form>
       </div>

@@ -107,21 +107,34 @@ function AdminDashboard() {
     pdf.setFontSize(18);
     pdf.text("Registered Users", 14, 20);
 
-    const headers = [["Name", "Email", "Role", "Contact", "Privileges"]];
+    const headers = [["S.No", "Name", "Email", "Role", "Contact", "Payment Status", "Date", "Privileges"]];
 
-    const data = filteredUsers.map((user) => {
+    const data = filteredUsers.map((user, index) => {
       const { name, email } = extractNameAndEmail(user.registrationData);
       const contact = extractContact(user.registrationData);
+      const role = user.registrationData.role || user.registrationData.ROLE || "";
       const privileges = (user.privileges ?? []).length > 0
         ? user.privileges
-          .map(
-            (p) =>
-              `${p.name?.toUpperCase()} (${p.claim ? "Claimed" : "Not Claimed"})`
-          )
+          .map((p) => `${p.name?.toUpperCase()} (${p.claim ? "Claimed" : "Not Claimed"})`)
           .join(", ")
         : "No privileges assigned";
 
-      return [name, email, user.registrationData.role || user.registrationData.ROLE, contact, privileges];
+      // You can customize this based on actual field names
+      const paymentStatus = user.registrationData.paymentStatus || "Not Available";
+      const registeredDate = user.createdAt
+        ? new Date(user.createdAt).toLocaleDateString()
+        : "N/A";
+
+      return [
+        index + 1,
+        name,
+        email,
+        role,
+        contact,
+        paymentStatus,
+        registeredDate,
+        privileges,
+      ];
     });
 
     autoTable(pdf, {
@@ -130,7 +143,7 @@ function AdminDashboard() {
       body: data,
       theme: "grid",
       headStyles: { fillColor: [41, 128, 185] },
-      styles: { fontSize: 10, cellPadding: 5 },
+      styles: { fontSize: 8, cellPadding: 4 },
       alternateRowStyles: { fillColor: [240, 240, 240] },
     });
 
@@ -209,21 +222,21 @@ function AdminDashboard() {
   }, [companyName, selectedEvent]);
 
   const [showMenu, setShowMenu] = useState(false);
-const menuRef = useRef();
+  const menuRef = useRef();
 
-useEffect(() => {
-  const handleClickOutside = (event) => {
-    if (menuRef.current && !menuRef.current.contains(event.target)) {
-      setShowMenu(false);
-    }
-  };
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setShowMenu(false);
+      }
+    };
 
-  document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
 
-  return () => {
-    document.removeEventListener("mousedown", handleClickOutside);
-  };
-}, []);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
   const comp = companyName.toUpperCase();
   return (
     <div className="min-h-screen bg-gradient-to-r from-black to-gray-800 p-6 flex flex-col items-center">
@@ -336,86 +349,92 @@ useEffect(() => {
           </div>
         </div>
 
-          {/* Users Table */}
-          <div className="overflow-x-auto rounded-lg shadow">
-            <table className="w-full border-collapse">
-              <thead>
-                <tr className="bg-gray-900 text-white text-sm">
-                  <th className="p-3">Name</th>
-                  <th className="p-3">Email</th>
-                  <th className="p-3">Role</th>
-                  <th className="p-3">Contact</th>
-                  <th className="p-3">Privileges</th>
-                </tr>
-              </thead>
-              <tbody>
-                {getFilteredUsers().map((user, index) => {
-                  const { name, email } = extractNameAndEmail(user.registrationData);
-                  const contact = extractContact(user.registrationData);
-                  const privileges = user.privileges ?? [];
+        {/* Users Table */}
+        <div className="overflow-x-auto rounded-lg shadow">
+          <table className="w-full border-collapse">
+            <thead>
+              <tr className="bg-gray-900 text-white text-sm">
+                <th className="p-3">S.NO</th>
+                <th className="p-3">Name</th>
+                <th className="p-3">Email</th>
+                <th className="p-3">Role</th>
+                <th className="p-3">Contact</th>
+                <th className="p-3">Privileges</th>
+                <th className="p-3">Payment Status</th>
+                <th className="p-3">Date</th>
+              </tr>
+            </thead>
+            <tbody>
+              {getFilteredUsers().map((user, index) => {
+                const { name, email } = extractNameAndEmail(user.registrationData);
+                const contact = extractContact(user.registrationData);
+                const privileges = user.privileges ?? [];
 
-                  return (
-                    <tr
-                      key={index}
-                      className="text-center border-b hover:bg-gray-100 transition text-sm"
-                    >
-                      <td className="p-3">{name}</td>
-                      <td className="p-3">{email}</td>
-                      <td className="p-3">{user.registrationData?.role || user.registrationData?.ROLE}</td>
-                      <td className="p-3">{contact}</td>
-                      <td className="p-3">
-                        {privileges.length > 0 ? (
-                          <ul className="text-left space-y-1">
-                            {privileges.map((priv, idx) => (
-                              <li key={idx} className="flex items-center gap-1 text-xs">
-                                <span className="font-semibold">{priv.name?.toUpperCase()}</span> —{" "}
-                                {priv.claim ? (
-                                  <span className="text-green-600">Claimed</span>
-                                ) : (
-                                  <span className="text-red-600">Not Claimed</span>
-                                )}
-                              </li>
-                            ))}
-                          </ul>
-                        ) : (
-                          <span className="text-gray-500 text-xs italic">
-                            No privileges assigned
-                          </span>
-                        )}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+                return (
+                  <tr
+                    key={index}
+                    className="text-center border-b hover:bg-gray-100 transition text-sm"
+                  >
+                    <td className="p-3">{index + 1}</td>
+                    <td className="p-3">{name}</td>
+                    <td className="p-3">{email}</td>
+                    <td className="p-3">{user.registrationData?.role || user.registrationData?.ROLE}</td>
+                    <td className="p-3">{contact}</td>
+                    <td className="p-3">
+                      {privileges.length > 0 ? (
+                        <ul className="text-left space-y-1">
+                          {privileges.map((priv, idx) => (
+                            <li key={idx} className="flex items-center gap-1 text-xs">
+                              <span className="font-semibold">{priv.name?.toUpperCase()}</span> —{" "}
+                              {priv.claim ? (
+                                <span className="text-green-600">Claimed</span>
+                              ) : (
+                                <span className="text-red-600">Not Claimed</span>
+                              )}
+                            </li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <span className="text-gray-500 text-xs italic">
+                          No privileges assigned
+                        </span>
+                      )}
+                    </td>
+                    <td className="p-3">{user.registrationData?.paymentStatus || "Not Paid"}</td>
+                    <td className="p-3">{user.createdAt ? new Date(user.createdAt).toLocaleDateString() : "N/A"}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
 
-            {getFilteredUsers().length === 0 && (
-              <p className="text-center text-gray-500 py-4 text-sm">
-                No matching users found.
-              </p>
-            )}
-          </div>
+          {getFilteredUsers().length === 0 && (
+            <p className="text-center text-gray-500 py-4 text-sm">
+              No matching users found.
+            </p>
+          )}
+        </div>
 
-          {/* Pagination Controls */}
-          <div className="flex justify-center mt-4">
-            <button
-              onClick={() => handlePagination(currentPage - 1)}
-              disabled={currentPage === 1}
-              className="px-4 py-2 bg-gray-400 text-white rounded-md mr-2"
-            >
-              Previous
-            </button>
-            <button
-              onClick={() => handlePagination(currentPage + 1)}
-              disabled={currentPage === totalPages}
-              className="px-4 py-2 bg-gray-400 text-white rounded-md"
-            >
-              Next
-            </button>
-          </div>
+        {/* Pagination Controls */}
+        <div className="flex justify-center mt-4">
+          <button
+            onClick={() => handlePagination(currentPage - 1)}
+            disabled={currentPage === 1}
+            className="px-4 py-2 bg-gray-400 text-white rounded-md mr-2"
+          >
+            Previous
+          </button>
+          <button
+            onClick={() => handlePagination(currentPage + 1)}
+            disabled={currentPage === totalPages}
+            className="px-4 py-2 bg-gray-400 text-white rounded-md"
+          >
+            Next
+          </button>
         </div>
       </div>
-      );
+    </div>
+  );
 }
 
-      export default AdminDashboard;
+export default AdminDashboard;
