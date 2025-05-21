@@ -187,7 +187,7 @@ export default function EventCreation() {
       <nav className="bg-black-600 p-4 shadow-md">
         <div className="container mx-auto flex justify-between items-center text-white">
           {/* Left: Logo */}
-          <h1 className="text-2xl font-bold">EventMVP</h1>
+          <h1 className="text-2xl font-bold">Stagyn.io</h1>
 
           {/* Right: Links + Logout */}
           <div className="flex items-center space-x-8">

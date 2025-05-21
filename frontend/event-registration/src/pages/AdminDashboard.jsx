@@ -4,7 +4,8 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
-import { Menu } from 'lucide-react';
+import { Menu, X } from 'lucide-react';
+import { NavLink } from "react-router-dom";
 
 // Utility to dynamically extract name & email from registrationData
 function extractNameAndEmail(registrationData = {}) {
@@ -67,6 +68,7 @@ function AdminDashboard() {
   const companyName = localStorage.getItem("adminCompanyName");
   const selectedEvent = localStorage.getItem("selectedEvent");
   const [registrationFields, setRegistrationFields] = useState([]);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   console.log(registrationFields);
 
@@ -239,9 +241,62 @@ function AdminDashboard() {
   }, []);
   const comp = companyName.toUpperCase();
   return (
-    <div className="min-h-screen bg-gradient-to-r from-black to-gray-800 p-6 flex flex-col items-center">
-      <div className="bg-white p-6 shadow-xl rounded-2xl w-full max-w-7xl">
-        <h2 className="text-4xl font-extrabold text-gray-800 mb-2 text-center">
+
+<div className="flex flex-row h-screen bg-gradient-to-r from-black to-gray-800 w-full">
+  {/* Sidebar */}
+  <aside
+    className={`fixed z-40 top-0 left-0 h-full w-64 bg-white text-black flex flex-col p-6 space-y-6 shadow-lg transform transition-transform duration-300 lg:static lg:translate-x-0 ${
+      sidebarOpen ? "translate-x-0" : "-translate-x-full"
+    }`}
+  >
+    <div className="text-2xl font-bold tracking-wide flex justify-between items-center">
+      Stagyn.io
+      <button
+        onClick={() => setSidebarOpen(false)}
+        className="lg:hidden p-1"
+      >
+        <X className="w-5 h-5" />
+      </button>
+    </div>
+    <nav className="flex flex-col gap-4 text-sm">
+      <NavLink
+        to="/"
+        className={({ isActive }) =>
+          `w-full px-4 py-2 rounded flex items-center gap-2 transition-colors focus:outline-none ${isActive ? "bg-red-600 text-white" : "hover:bg-red-600"
+          }`
+        }
+      >
+        Home
+      </NavLink>
+      <NavLink
+        to="/create-event"
+        className={({ isActive }) =>
+          `w-full px-4 py-2 rounded flex items-center gap-2 transition-colors focus:outline-none ${isActive ? "bg-red-600 text-white" : "hover:bg-red-600 active:bg-red-600"
+          }`
+        }
+      >
+        Events
+      </NavLink>
+      <button
+        onClick={handleLogout}
+        className="hover:bg-red-600 w-full transition-colors px-4 py-2 rounded flex items-center gap-2 text-left focus:outline-none"
+      >
+        Logout
+      </button>
+    </nav>
+  </aside>
+
+  {/* Main Content Area */}
+  <div className="flex-1 flex-col overflow-y-auto ml-2 mr-2 mb-2 sm:mr-0 sm:mb-5 sm:ml-3 md:ml-12 mt-2 lg:ml-20 sm:mt-8 lg:mr-12">
+    {/* Header */}
+    <header className="bg-transparent px-6 py-4 lg:flex justify-between lg:items-center text-white">
+      <button className="lg:hidden" onClick={() => setSidebarOpen(true)}>
+        <Menu className="w-6 h-6" />
+      </button>
+    </header>
+
+      <div className="bg-white flex-1 flex flex-col p-6 shadow-xl rounded-2xl w-full md:max-w-2xl xl:max-w-full">
+        <h2 className="text-4xl font-extrabold text-black mb-2 text-center">
           Admin Dashboard
         </h2>
         <p className="text-center text-lg mb-6 text-black">
@@ -250,12 +305,12 @@ function AdminDashboard() {
         </p>
 
         {/* Event Summary */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4  gap-4 mb-6">
           <SummaryCard title="Total Registrations" value={totalRegistrations} color="blue" />
         </div>
 
         {/* Privilege Summary */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-6">
           {Object.entries(getPrivilegeSummary()).map(([privName, data], idx) => {
             const color =
               data.claimed === data.total
@@ -265,6 +320,7 @@ function AdminDashboard() {
                   : "red";
 
             return (
+
               <SummaryCard
                 key={idx}
                 title={privName}
@@ -276,8 +332,8 @@ function AdminDashboard() {
         </div>
 
         {/* Actions */}
-        <div className="flex flex-col sm:flex-row sm:justify-between gap-3 mb-4">
-          <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+        <div className="flex flex-col lg:flex-row lg:justify-between gap-3 mb-4">
+          <div className="flex flex-col lg:flex-row gap-2 w-full lg:w-auto">
             <input
               type="text"
               placeholder="Search name or email..."
@@ -288,7 +344,7 @@ function AdminDashboard() {
             <select
               value={roleFilter}
               onChange={(e) => setRoleFilter(e.target.value)}
-              className="border rounded px-3 py-2 w-full sm:w-48 focus:ring-2 focus:ring-gray-400"
+              className="border rounded px-3 py-2 w-full lg:w-48 focus:ring-2 focus:ring-gray-400"
             >
               <option value="All">All Roles</option>
               {uniqueRoles.map((role, idx) => (
@@ -350,70 +406,78 @@ function AdminDashboard() {
         </div>
 
         {/* Users Table */}
-        <div className="overflow-x-auto rounded-lg shadow">
-          <table className="w-full border-collapse">
-            <thead>
-              <tr className="bg-gray-900 text-white text-sm">
-                <th className="p-3">S.NO</th>
-                <th className="p-3">Name</th>
-                <th className="p-3">Email</th>
-                <th className="p-3">Role</th>
-                <th className="p-3">Contact</th>
-                <th className="p-3">Privileges</th>
-                <th className="p-3">Payment Status</th>
-                <th className="p-3">Date</th>
-              </tr>
-            </thead>
-            <tbody>
-              {getFilteredUsers().map((user, index) => {
-                const { name, email } = extractNameAndEmail(user.registrationData);
-                const contact = extractContact(user.registrationData);
-                const privileges = user.privileges ?? [];
+       <div className="overflow-x-auto rounded-lg shadow border border-gray-200">
+  <table className="max-w-full divide-y divide-gray-200 text-sm 2xl:text-lg">
+    {/* Table Head */}
+    <thead className="bg-gray-900 text-white font-semibold">
+      <tr>
+        <th className="px-3 py-2 xl:px-4 2xl:py-3 2xl:px-5 w-12 text-left">S.NO</th>
+        <th className="px-3 py-2 xl:px-4 2xl:py-3 2xl:px-5 w-28 text-left">Name</th>
+        <th className="px-3 py-2 xl:px-4 2xl:py-3 2xl:px-5 w-40 text-left">Email</th>
+        <th className="px-3 py-2 xl:px-4 2xl:py-3 2xl:px-5 w-20 text-left">Role</th>
+        <th className="px-3 py-2 xl:px-4 2xl:py-3 2xl:px-5 w-28  text-left">Contact</th>
+        <th className="px-3 py-2 xl:px-4 2xl:py-3 2xl:px-5 text-left">Privileges</th>
+        <th className="px-3 py-2 xl:px-4 2xl:py-3 2xl:px-5 w-24 text-left">Payment</th>
+        <th className="px-3 py-2 xl:px-4 2xl:py-3 2xl:px-5 w-28 text-left">Date</th>
+        <th className="px-3 py-2 xl:px-4 2xl:py-3 2xl:px-5 w-28 text-left">Time</th>
+      </tr>
+    </thead>
 
-                return (
-                  <tr
-                    key={index}
-                    className="text-center border-b hover:bg-gray-100 transition text-sm"
-                  >
-                    <td className="p-3">{index + 1}</td>
-                    <td className="p-3">{name}</td>
-                    <td className="p-3">{email}</td>
-                    <td className="p-3">{user.registrationData?.role || user.registrationData?.ROLE}</td>
-                    <td className="p-3">{contact}</td>
-                    <td className="p-3">
-                      {privileges.length > 0 ? (
-                        <ul className="text-left space-y-1">
-                          {privileges.map((priv, idx) => (
-                            <li key={idx} className="flex items-center gap-1 text-xs">
-                              <span className="font-semibold">{priv.name?.toUpperCase()}</span> —{" "}
-                              {priv.claim ? (
-                                <span className="text-green-600">Claimed</span>
-                              ) : (
-                                <span className="text-red-600">Not Claimed</span>
-                              )}
-                            </li>
-                          ))}
-                        </ul>
+    {/* Table Body */}
+    <tbody className="divide-y divide-gray-200">
+      {getFilteredUsers().map((user, index) => {
+        const { name, email } = extractNameAndEmail(user.registrationData);
+        const contact = extractContact(user.registrationData);
+        const privileges = user.privileges ?? [];
+
+        return (
+          <tr
+            key={index}
+            className="hover:bg-gray-100 transition-colors"
+          >
+            <td className="px-4 py-3 font-medium">{index + 1}</td>
+            <td className="px-4 py-3">{name}</td>
+            <td className="px-4 py-3 break-words max-w-[150px]">{email}</td>
+            <td className="px-4 py-3">{user.registrationData?.role || user.registrationData?.ROLE}</td>
+            <td className="px-4 py-3">{contact}</td>
+
+            <td className="px-4 py-3 max-w-lg">
+              {privileges.length > 0 ? (
+                <ul className="space-y-1 text-xs">
+                  {privileges.map((priv, idx) => (
+                    <li key={idx} className="flex gap-1 items-center">
+                      <span className="font-semibold">{priv.name?.toUpperCase()}</span> —
+                      {priv.claim ? (
+                        <span className="text-green-600 ml-1">Claimed</span>
                       ) : (
-                        <span className="text-gray-500 text-xs italic">
-                          No privileges assigned
-                        </span>
+                        <span className="text-red-600 ml-1">Not Claimed</span>
                       )}
-                    </td>
-                    <td className="p-3">{user.registrationData?.paymentStatus || "Not Paid"}</td>
-                    <td className="p-3">{user.createdAt ? new Date(user.createdAt).toLocaleDateString() : "N/A"}</td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <span className="text-gray-500 italic text-xs">No privileges assigned</span>
+              )}
+            </td>
 
-          {getFilteredUsers().length === 0 && (
-            <p className="text-center text-gray-500 py-4 text-sm">
-              No matching users found.
-            </p>
-          )}
-        </div>
+            <td className="px-4 py-3">{user.registrationData?.paymentStatus || "Not Paid"}</td>
+            <td className="px-4 py-3">{user.createdAt ? new Date(user.createdAt).toLocaleDateString() : "N/A"}</td>
+          </tr>
+        );
+      })}
+
+      {getFilteredUsers().length === 0 && (
+        <tr>
+          <td colSpan={8} className="text-center text-gray-500 py-4">
+            No matching users found.
+          </td>
+        </tr>
+      )}
+    </tbody>
+  </table>
+</div>
+
+
 
         {/* Pagination Controls */}
         <div className="flex justify-center mt-4">
@@ -434,6 +498,7 @@ function AdminDashboard() {
         </div>
       </div>
     </div>
+  </div>
   );
 }
 

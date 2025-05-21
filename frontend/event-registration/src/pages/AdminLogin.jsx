@@ -22,7 +22,7 @@ function AdminLogin() {
       // Store the admin token and company name in localStorage
       localStorage.setItem("admin_token", response.data.token);
       localStorage.setItem("adminCompanyName", response.data.admin.companyName);
-      localStorage.segtItem("adminEmail",response.data.admin.email);
+      localStorage.setItem("adminEmail",response.data.admin.email);
 
       // Success message
       toast.success("Login Successful!");

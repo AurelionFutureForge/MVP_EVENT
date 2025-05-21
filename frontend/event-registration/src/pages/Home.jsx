@@ -6,8 +6,8 @@ function Home() {
       {/* Navbar */}
       <nav className="bg-transparent backdrop-blur-md p-4 shadow-md">
         <div className="container mx-auto flex justify-between items-center text-black">
-          <h1 className="text-2xl font-bold">EventMVP</h1>
-          <div className="hidden md:flex space-x-6">
+          <h1 className="text-2xl font-bold">Stagyn.io</h1>
+          <div className="md:flex space-x-6">
             <Link to="/" className="hover:text-gray-700">Home</Link>
             <Link to="/admin/login" className="hover:text-gray-700">Admin</Link>
           </div>
@@ -19,7 +19,7 @@ function Home() {
 
       {/* Hero Section */}
       <header className="flex flex-col items-center justify-center text-center p-8 md:p-12 bg-gradient-to-r from-black to-gray-800 text-white">
-        <h2 className="text-3xl md:text-5xl font-bold mb-4">Welcome to EventMVP</h2>
+        <h2 className="text-3xl md:text-5xl font-bold mb-4">Welcome to Stagyn.io</h2>
         <p className="text-md md:text-lg max-w-2xl">
           Seamlessly register and manage attendees for your events with our QR-based system.
         </p>
@@ -27,17 +27,17 @@ function Home() {
           <Link to="/login" className="px-12 py-3 bg-red-700 text-white font-semibold rounded-lg shadow hover:bg-red-800 transition">
            Login 
           </Link>
-          <Link to="/admin/register" className="px-6 py-3 bg-white text-black font-semibold rounded-lg shadow hover:bg-gray-100 transition">
-            Create Event
+          <Link to="/admin/register" className="px-6 py-3 bg-white text-black font-semibold rounded-lg shadow hover:bg-gray-200 transition">
+            Create Your First Event
           </Link>
         </div>
       </header>
 
       {/* Event Info Section */}
       <section className="container mx-auto text-center p-6 md:p-12">
-        <h3 className="text-2xl md:text-3xl font-semibold mb-4">Why Choose EventMVP?</h3>
+        <h3 className="text-2xl md:text-3xl font-semibold mb-4">Why Choose Stagyn.io?</h3>
         <p className="text-sm md:text-lg max-w-3xl mx-auto text-gray-700">
-          EventMVP is a powerful event management system that allows easy attendee registration, QR-based check-ins, 
+          Stagyn.io is a powerful event management system that allows easy attendee registration, QR-based check-ins, 
           and seamless event tracking. Whether you're an organizer or a participant, our system ensures a hassle-free experience.
         </p>
       </section>

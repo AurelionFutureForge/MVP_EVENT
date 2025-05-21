@@ -4,6 +4,7 @@ import { toast } from "react-hot-toast";
 import { AlertTriangle } from 'lucide-react'
 import { useParams, useNavigate } from "react-router-dom";
 import logo from '../assets/aurelion.png'
+import { ShieldCheck } from 'lucide-react'
 
 function RegistrationForm() {
   const [event, setEvent] = useState(null);
@@ -388,7 +389,7 @@ function RegistrationForm() {
                 const totalAmount = rolePrice + platformFee;
 
                 return (
-                  <div className="mb-4 text-black font-medium space-y-1 text-sm">
+                  <div className="mb-4 text-black font-medium space-y-1 text-md">
                     <p className="flex justify-between">
                       <span>Amount:</span>
                       <span>₹{rolePrice.toFixed(2)}</span>
@@ -398,7 +399,7 @@ function RegistrationForm() {
                       <span>₹{platformFee.toFixed(2)}</span>
                     </p>
                     <hr className="my-1 border-blue-300" />
-                    <p className="flex justify-between font-semibold text-base">
+                    <p className="flex justify-between font-semibold text-xl">
                       <span>Total:</span>
                       <span>₹{totalAmount.toFixed(2)}</span>
                     </p>
@@ -410,6 +411,10 @@ function RegistrationForm() {
                     >
                       Pay ₹{totalAmount.toFixed(2)}
                     </button>
+                    <div className="flex items-center justify-center space-x-2 mt-5">
+                      <ShieldCheck className="w-7 h-7 text-green-600" />
+                      <p className="font-semibold">Safe & Secure Payment</p>
+                    </div>
                   </div>
                 );
               })()}
