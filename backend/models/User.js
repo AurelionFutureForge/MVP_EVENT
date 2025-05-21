@@ -14,10 +14,11 @@ const userSchema = new mongoose.Schema({
   privileges: [privilegeSchema],
   registrationData: { type: Object, required: true },
   qrCode: { type: String },
-
-  // ✅ Add these fields for payment tracking
-  transactionId: { type: String }, // PhonePe transaction reference
+  transactionId: { type: String },
   paymentStatus: { type: String, enum: ['PENDING', 'COMPLETED', 'FAILED'], default: 'PENDING' }
+
+}, {
+  timestamps: true 
 });
 
 userSchema.index({ email: 1, eventId: 1 }, { unique: true });
