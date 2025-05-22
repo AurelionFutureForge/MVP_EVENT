@@ -295,7 +295,7 @@ function AdminDashboard() {
       </button>
     </header>
 
-      <div className="bg-white flex-1 flex flex-col p-6 shadow-xl rounded-2xl w-full md:max-w-2xl xl:max-w-full">
+      <div className="bg-white flex-1 flex flex-col p-6 shadow-xl w-full md:max-w-2xl xl:max-w-full">
         <h2 className="text-4xl font-extrabold text-black mb-2 text-center">
           Admin Dashboard
         </h2>
@@ -411,15 +411,15 @@ function AdminDashboard() {
     {/* Table Head */}
     <thead className="bg-gray-900 text-white font-semibold">
       <tr>
-        <th className="px-3 py-2 xl:px-4 2xl:py-3 2xl:px-5 w-12 text-left">S.NO</th>
-        <th className="px-3 py-2 xl:px-4 2xl:py-3 2xl:px-5 w-28 text-left">Name</th>
-        <th className="px-3 py-2 xl:px-4 2xl:py-3 2xl:px-5 w-40 text-left">Email</th>
-        <th className="px-3 py-2 xl:px-4 2xl:py-3 2xl:px-5 w-20 text-left">Role</th>
-        <th className="px-3 py-2 xl:px-4 2xl:py-3 2xl:px-5 w-28  text-left">Contact</th>
-        <th className="px-3 py-2 xl:px-4 2xl:py-3 2xl:px-5 text-left">Privileges</th>
-        <th className="px-3 py-2 xl:px-4 2xl:py-3 2xl:px-5 w-24 text-left">Payment</th>
-        <th className="px-3 py-2 xl:px-4 2xl:py-3 2xl:px-5 w-28 text-left">Date</th>
-        <th className="px-3 py-2 xl:px-4 2xl:py-3 2xl:px-5 w-28 text-left">Time</th>
+        <th className="px-3 py-2 xl:px-4 2xl:py-3 2xl:px-5 w-12 text-center">S.NO</th>
+        <th className="px-3 py-2 xl:px-4 2xl:py-3 2xl:px-5 w-28 text-center">Name</th>
+        <th className="px-3 py-2 xl:px-4 2xl:py-3 2xl:px-5 w-40 text-center">Email</th>
+        <th className="px-3 py-2 xl:px-4 2xl:py-3 2xl:px-5 w-20 text-center">Role</th>
+        <th className="px-3 py-2 xl:px-4 2xl:py-3 2xl:px-5 w-28  text-center">Contact</th>
+        <th className="px-3 py-2 xl:px-4 2xl:py-3 2xl:px-5 text-center">Privileges</th>
+        <th className="px-3 py-2 xl:px-4 2xl:py-3 2xl:px-5 w-24 text-center">Payment</th>
+        <th className="px-3 py-2 xl:px-4 2xl:py-3 2xl:px-5 w-28 text-center">Date</th>
+        <th className="px-3 py-2 xl:px-4 2xl:py-3 2xl:px-5 w-28 text-center">Time</th>
       </tr>
     </thead>
 
@@ -437,13 +437,13 @@ function AdminDashboard() {
           >
             <td className="px-4 py-3 font-medium">{index + 1}</td>
             <td className="px-4 py-3">{name}</td>
-            <td className="px-4 py-3 break-words max-w-[150px]">{email}</td>
+            <td className="px-4 py-3">{email}</td>
             <td className="px-4 py-3">{user.registrationData?.role || user.registrationData?.ROLE}</td>
             <td className="px-4 py-3">{contact}</td>
 
             <td className="px-4 py-3 max-w-lg">
               {privileges.length > 0 ? (
-                <ul className="space-y-1 text-xs">
+                <ul className="space-y-1 text-xs ">
                   {privileges.map((priv, idx) => (
                     <li key={idx} className="flex gap-1 items-center">
                       <span className="font-semibold">{priv.name?.toUpperCase()}</span> —
@@ -462,6 +462,7 @@ function AdminDashboard() {
 
             <td className="px-4 py-3">{user.registrationData?.paymentStatus || "Not Paid"}</td>
             <td className="px-4 py-3">{user.createdAt ? new Date(user.createdAt).toLocaleDateString() : "N/A"}</td>
+            <td className="px-4 py-3">{user.createdAt ? new Date(new Date(user.createdAt).getTime() + 5.5 * 60 * 60 * 1000).toTimeString().split(' ')[0]: "N/A"}</td>
           </tr>
         );
       })}
