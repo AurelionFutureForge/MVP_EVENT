@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { toast } from "react-hot-toast";
-import logo from '../assets/aurelion.png'
+import logo from '../assets/stagyn_white.png'
 
 function ManualReg() {
   const [event, setEvent] = useState(null);
