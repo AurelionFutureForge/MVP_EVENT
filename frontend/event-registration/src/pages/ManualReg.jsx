@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { toast } from "react-hot-toast";
 import logo from '../assets/stagyn_white.png'
+import { ShieldCheck } from 'lucide-react'
 
 function ManualReg() {
   const [event, setEvent] = useState(null);
@@ -379,6 +380,10 @@ function ManualReg() {
                 >
                   Pay ₹{totalAmount.toFixed(2)}
                 </button>
+                <div className="flex items-center justify-center space-x-2 mt-5">
+                  <ShieldCheck className="w-7 h-7 text-green-600" />
+                  <p className="font-semibold">Safe & Secure Payment</p>
+                </div>
               </>
             );
           })()}
