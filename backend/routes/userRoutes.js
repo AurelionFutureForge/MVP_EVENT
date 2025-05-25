@@ -4,5 +4,5 @@ const { registerUser,getRoleRegistrationsCount,checkEmail } = require("../contro
 const router = express.Router();
 router.post("/register", registerUser);
 router.get('/:eventID/role-registrations', getRoleRegistrationsCount);
-router.post('/check-email,checkEmail')
+router.post('/check-email',checkEmail);
 module.exports = router;
