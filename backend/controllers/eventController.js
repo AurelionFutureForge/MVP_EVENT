@@ -328,9 +328,12 @@ const saveRegistrationFields = async (req, res) => {
     });
 
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Error saving registration fields" });
-  }
+  console.error("Error saving fields:", error);
+  res.status(500).json({ 
+    message: "Error saving registration fields",
+    error: error.message  // this will help debug!
+  });
+}
 };
 
 // Get event by ID

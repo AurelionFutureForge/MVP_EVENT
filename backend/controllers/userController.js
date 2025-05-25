@@ -302,8 +302,10 @@ exports.getRoleRegistrationsCount = async (req, res) => {
 
 exports.checkEmail = async (req,res) => {
  const { email, eventId } = req.body;
+ console.log("check email :",req.body)
 
   const existingUser = await User.findOne({ email, eventId });
+
   if (existingUser) {
     return res.json({ exists: true });
   }
