@@ -50,7 +50,7 @@ function PaymentSuccess() {
 
         // Proceed with registration
         await axios.post(`${BASE_URL}/users/register`, {
-          ...storedFormData,
+          formData: storedFormData,
           eventID,
           transactionId: txnId
         });
