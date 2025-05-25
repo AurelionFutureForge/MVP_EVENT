@@ -36,26 +36,32 @@ function PaymentSuccess() {
       });
 
       try {
-        const verifyRes = await axios.post(`${BASE_URL}/api/phonepe/verify-payment`, {
+        // Check for existing registration
+        const checkEmailRes = await axios.post(`${BASE_URL}/users/check-email`, {
+          email: storedFormData.email,
+          eventId: eventID
+        });
+
+        if (checkEmailRes.data.exists) {
+          toast.error("You are already registered for this event.");
+          navigate("/");
+          return;
+        }
+
+        // Proceed with registration
+        await axios.post(`${BASE_URL}/users/register`, {
+          ...storedFormData,
+          eventID,
           transactionId: txnId
         });
 
-        if (verifyRes.data.success) {
-          await axios.post(`${BASE_URL}/users/register`, {
-            ...storedFormData,
-            eventID,
-            transactionId: txnId
-          });
+        toast.success("Registration successful!");
+        localStorage.removeItem("formData");
+        localStorage.removeItem("eventID");
 
-          toast.success("Registration successful!");
-          localStorage.removeItem("formData");
-          localStorage.removeItem("eventID");
-        } else {
-          toast.error("Payment verification failed.");
-          navigate("/");
-        }
       } catch (error) {
         toast.error("Error during registration.");
+        console.error(error);
         navigate("/");
       }
     };
