@@ -2,6 +2,17 @@ const User = require('../models/User');
 const axios = require('axios');
 const crypto = require('crypto');
 
+const { StandardCheckoutClient, Env, MetaInfo, StandardCheckoutPayRequest } =  require('pg-sdk-node');
+const dotenv = require('dotenv');
+
+dotenv.config(); // Load env vars
+const client = StandardCheckoutClient.getInstance(
+  process.env.PHONEPE_MERCHANT_ID?.trim(),
+  process.env.PHONEPE_SALT_KEY?.trim(),
+  Number(process.env.PHONEPE_CLIENT_VERSION || 1),
+  process.env.PHONEPE_ENV === "production" ? Env.PRODUCTION : Env.SANDBOX 
+);
+
 const initiatePayment = async (req, res) => {
   try {
     const { amount, email, eventId } = req.body;
@@ -10,87 +21,32 @@ const initiatePayment = async (req, res) => {
       return res.status(400).json({ error: 'Missing required fields' });
     }
 
-    console.log('Initiate Payment Request Body:', req.body);
+    const merchantOrderId = `TXN_${Date.now()}_${eventId}`;
+    const redirectUrl =`https://events.aurelionfutureforge.com/payment-success?transactionId=${merchantOrderId}`;
+    
+    const metaInfo = MetaInfo.builder()
+      .udf1(email)
+      .udf2(eventId)
+      .build();
 
-    // Load environment variables
-    const merchantId = process.env.PHONEPE_MERCHANT_ID?.trim();
-    const saltKey = process.env.PHONEPE_SALT_KEY?.trim();
-    const saltIndex = process.env.PHONEPE_SALT_INDEX?.trim();
-    const baseUrl = process.env.PHONEPE_BASE_URL?.trim();
+    const request = StandardCheckoutPayRequest.builder()
+      .merchantOrderId(merchantOrderId)
+      .amount(amount * 100) // in paise
+      .redirectUrl(redirectUrl)
+      .metaInfo(metaInfo)
+      .build();
 
-    if (!merchantId || !saltKey || !saltIndex || !baseUrl) {
-      return res.status(500).json({ error: 'Missing necessary environment variables' });
-    }
-
-    const apiPath = "/apis/pg-sandbox/pg/v1/pay";
-    const transactionId = `TXN_${Date.now()}`;
-    const redirectUrl = `https://events.aurelionfutureforge.com/payment-success?transactionId=${transactionId}`;
-    const callbackUrl = 'https://mvp-event.onrender.com/api/phonepe/verify-payment';
-
-    const payload = {
-      merchantId,
-      transactionId,
-      merchantUserId: email,
-      amount: amount * 100, // Convert to paise
-      redirectUrl,
-      callbackUrl,
-      paymentInstrument: {
-        type: "PAY_PAGE"
-      }
-    };
-
-    console.log("payload:", payload);
-
-    console.log("Merchant ID:", merchantId);
-    console.log("Salt Key:", saltKey);
-    console.log("Salt Index:", saltIndex);
-    console.log("Base URL:", baseUrl);
-
-
-    const base64Payload = Buffer.from(JSON.stringify(payload)).toString("base64");
-    const stringToHash = base64Payload + apiPath + saltKey;
-    const xVerify = crypto.createHash('sha256').update(stringToHash).digest("hex") + "###" + saltIndex;
-
-    console.log("base64Payload :", base64Payload)
-    console.log("stringToHash :", stringToHash)
-    console.log("xVerify :", xVerify);
-
-    console.log("path:", `${baseUrl}${apiPath}`);
-
-    const response = await axios.post(
-      `${baseUrl}${apiPath}`,
-      { request: base64Payload },
-      {
-        headers: {
-          'Content-Type': 'application/json',
-          'X-VERIFY': xVerify,
-          'X-MERCHANT-ID': merchantId
-        }
-      }
-    );
-
-    const redirectLink = response?.data?.data?.instrumentResponse?.redirectInfo?.url;
-
-    console.log("redirectLink :", redirectLink);
+    const response = await client.pay(request);
+    const redirectLink = response.redirectUrl;
 
     if (!redirectLink) {
-      throw new Error('Redirect URL not found in the response');
+      throw new Error('Redirect URL not received from PhonePe SDK');
     }
 
-    res.json({ redirectUrl: redirectLink });
-
+    return res.json({ redirectUrl: redirectLink });
   } catch (err) {
-    console.error('Error during payment initiation:', err.message);
-    if (err.response) {
-      console.error('Error Response:', err.response.data);
-      console.error('Status Code:', err.response.status);
-      console.error('Headers:', err.response.headers);
-    } else if (err.request) {
-      console.error('Request made but no response received:', err.request);
-    } else {
-      console.error('Unknown error:', err);
-    }
-    res.status(500).json({ error: 'Payment initiation failed', err });
+    console.error('Error during SDK payment initiation:', err);
+    return res.status(500).json({ error: 'Payment initiation failed', details: err.message });
   }
 };
 
@@ -107,7 +63,7 @@ const verifyPayment = async (req, res) => {
       return res.status(500).json({ error: 'Missing necessary environment variables' });
     }
 
-    const path = `/apis/pg-sandbox/pg/v1/status/${merchantId}/${transactionId}`;
+    const path = `/apis/hermes/pg/v1/status/${merchantId}/${transactionId}`;
     const stringToHash = path + saltKey;
     const xVerify = crypto.createHash('sha256').update(stringToHash).digest('hex') + "###" + saltIndex;
 
