@@ -2,7 +2,7 @@ const User = require('../models/User');
 const axios = require('axios');
 const crypto = require('crypto');
 
-const initiatePayment = async (req, res) => { 
+const initiatePayment = async (req, res) => {
   try {
     const { amount, email, eventId } = req.body;
 
@@ -22,7 +22,7 @@ const initiatePayment = async (req, res) => {
       return res.status(500).json({ error: 'Missing necessary environment variables' });
     }
 
-    const apiPath =  "/apis/pg-sandbox/pg/v1/pay";
+    const apiPath = "/apis/pg-sandbox/pg/v1/pay";
     const transactionId = `TXN_${Date.now()}`;
     const redirectUrl = `https://events.aurelionfutureforge.com/payment-success?transactionId=${transactionId}`;
     const callbackUrl = 'https://mvp-event.onrender.com/api/phonepe/verify-payment';
@@ -39,17 +39,23 @@ const initiatePayment = async (req, res) => {
       }
     };
 
-    console.log("payload:",payload);
+    console.log("payload:", payload);
+
+    console.log("Merchant ID:", merchantId);
+    console.log("Salt Key:", saltKey);
+    console.log("Salt Index:", saltIndex);
+    console.log("Base URL:", baseUrl);
+
 
     const base64Payload = Buffer.from(JSON.stringify(payload)).toString("base64");
     const stringToHash = base64Payload + apiPath + saltKey;
     const xVerify = crypto.createHash('sha256').update(stringToHash).digest("hex") + "###" + saltIndex;
 
-    console.log("base64Payload :",base64Payload)
-    console.log("stringToHash :",stringToHash )
-    console.log("xVerify :",xVerify);
+    console.log("base64Payload :", base64Payload)
+    console.log("stringToHash :", stringToHash)
+    console.log("xVerify :", xVerify);
 
-    console.log("path:",`${baseUrl}${apiPath}`);
+    console.log("path:", `${baseUrl}${apiPath}`);
 
     const response = await axios.post(
       `${baseUrl}${apiPath}`,
@@ -65,7 +71,7 @@ const initiatePayment = async (req, res) => {
 
     const redirectLink = response?.data?.data?.instrumentResponse?.redirectInfo?.url;
 
-    console.log("redirectLink :",redirectLink);
+    console.log("redirectLink :", redirectLink);
 
     if (!redirectLink) {
       throw new Error('Redirect URL not found in the response');
@@ -84,7 +90,7 @@ const initiatePayment = async (req, res) => {
     } else {
       console.error('Unknown error:', err);
     }
-    res.status(500).json({ error: 'Payment initiation failed',err });
+    res.status(500).json({ error: 'Payment initiation failed', err });
   }
 };
 
@@ -129,4 +135,4 @@ const verifyPayment = async (req, res) => {
 
 
 
-module.exports = { initiatePayment, verifyPayment};
+module.exports = { initiatePayment, verifyPayment };
