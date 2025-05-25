@@ -38,12 +38,12 @@ function PaymentSuccess() {
       try {
         // Check for existing registration
         const checkEmailRes = await axios.post(`${BASE_URL}/users/check-email`, {
-          email: storedFormData.email,
+          email: storedFormData.email || storedFormData.EMAIL,
           eventId: eventID
         });
 
-        if (checkEmailRes.data.exists) {
-          toast.error("You are already registered for this event.");
+        if (!checkEmailRes.data.exists) {
+          toast.error("please complete the payment before registration.");
           navigate("/");
           return;
         }

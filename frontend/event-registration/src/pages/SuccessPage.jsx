@@ -40,7 +40,7 @@ function SuccessPage() {
     new Date(event.startDate).toLocaleDateString() ===
     new Date(event.endDate).toLocaleDateString();
 
-    const eventName = event.eventName;
+    const EventName = event.eventName;
     const eventId = event.eventId;
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-blue-100 to-blue-300 p-6">
@@ -75,7 +75,7 @@ function SuccessPage() {
 
         {/* ✅ Navigation Button */}
         <button
-          onClick={() => navigate(`/${eventName}register/${eventId}`)}
+          onClick={() => navigate(`/${EventName}register/${eventId}`)}
           className="mt-8 bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-full flex items-center justify-center transition duration-300"
           aria-label="Go to event registration page"
         >

@@ -119,9 +119,9 @@ function CreateRegistrationForm() {
       );
 
       const eventId = response.data.eventId;
-      const eventName = response.data.eventName;
+      const EventName = response.data.eventName;
       console.log(eventName);
-      const link = `https://events.aurelionfutureforge.com/${eventName}/register/${eventId}`;
+      const link = `https://events.aurelionfutureforge.com/${EventName}/register/${eventId}`;
       setFormLink(link);
       localStorage.setItem("eventId", eventId);
 
@@ -145,6 +145,7 @@ function CreateRegistrationForm() {
 
       toast.success("Registration form fields updated successfully!");
     } catch (error) {
+      console.error("❌ Error saving registration fields:", error.response?.data || error.message);
       toast.error("Failed to update registration form fields.");
     }
   };
