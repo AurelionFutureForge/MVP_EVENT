@@ -1,10 +1,10 @@
 // routes/phonepeRoutes.js
 const express = require('express');
-const { initiatePayment, verifyPayment} = require('../controllers/phonepeController');
+const { initiatePayment, verifyPhonePeCallback} = require('../controllers/phonepeController');
 
 const router = express.Router();
 
 router.post('/initiate-payment', initiatePayment);
-router.post('/verify-payment',verifyPayment);
+router.post('/phonepe-callback', verifyPhonePeCallback);
 
 module.exports = router;

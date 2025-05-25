@@ -2,7 +2,7 @@ const User = require('../models/User');
 const axios = require('axios');
 const crypto = require('crypto');
 
-const { StandardCheckoutClient, Env, MetaInfo, StandardCheckoutPayRequest } =  require('pg-sdk-node');
+const { StandardCheckoutClient, Env, MetaInfo, StandardCheckoutPayRequest } = require('pg-sdk-node');
 const dotenv = require('dotenv');
 
 dotenv.config(); // Load env vars
@@ -10,7 +10,7 @@ const client = StandardCheckoutClient.getInstance(
   process.env.PHONEPE_MERCHANT_ID?.trim(),
   process.env.PHONEPE_SALT_KEY?.trim(),
   Number(process.env.PHONEPE_CLIENT_VERSION || 1),
-  process.env.PHONEPE_ENV === "production" ? Env.PRODUCTION : Env.SANDBOX 
+  process.env.PHONEPE_ENV === "production" ? Env.PRODUCTION : Env.SANDBOX
 );
 
 const initiatePayment = async (req, res) => {
@@ -22,8 +22,8 @@ const initiatePayment = async (req, res) => {
     }
 
     const merchantOrderId = `TXN_${Date.now()}_${eventId}`;
-    const redirectUrl =`https://events.aurelionfutureforge.com/payment-success?transactionId=${merchantOrderId}`;
-    
+    const redirectUrl = `https://events.aurelionfutureforge.com/payment-success?transactionId=${merchantOrderId}`;
+
     const metaInfo = MetaInfo.builder()
       .udf1(email)
       .udf2(eventId)
@@ -50,45 +50,67 @@ const initiatePayment = async (req, res) => {
   }
 };
 
-const verifyPayment = async (req, res) => {
-  const { transactionId } = req.body;
-
+const verifyPhonePeCallback = async (req, res) => {
   try {
-    const merchantId = process.env.PHONEPE_MERCHANT_ID?.trim();
-    const saltKey = process.env.PHONEPE_SALT_KEY?.trim();
-    const saltIndex = process.env.PHONEPE_SALT_INDEX?.trim();
-    const baseUrl = process.env.PHONEPE_BASE_URL?.trim();
+    const authorization = req.headers['authorization'];
+    const responseBody = JSON.stringify(req.body);
 
-    if (!merchantId || !saltKey || !saltIndex || !baseUrl) {
-      return res.status(500).json({ error: 'Missing necessary environment variables' });
+    const username = process.env.PHONEPE_CALLBACK_USERNAME?.trim();
+    const password = process.env.PHONEPE_CALLBACK_PASSWORD?.trim();
+
+    if (!authorization || !username || !password) {
+      return res.status(400).json({ error: 'Missing required credentials or authorization header' });
     }
 
-    const path = `/apis/hermes/pg/v1/status/${merchantId}/${transactionId}`;
-    const stringToHash = path + saltKey;
-    const xVerify = crypto.createHash('sha256').update(stringToHash).digest('hex') + "###" + saltIndex;
+    const callbackResponse = client.validateCallback(
+      username,
+      password,
+      authorization,
+      responseBody
+    );
 
-    const response = await axios.get(`${baseUrl}${path}`, {
-      headers: {
-        'Content-Type': 'application/json',
-        'X-VERIFY': xVerify,
-        'X-MERCHANT-ID': merchantId
-      }
+    const { type, payload } = callbackResponse;
+
+    console.log('PhonePe callback verified:', {
+      eventType: type,
+      merchantOrderId: payload.merchantOrderId,
+      orderId: payload.orderId,
+      state: payload.state
     });
 
-    const paymentStatus = response.data.data?.state;
+    if (payload.state === 'COMPLETED') {
+      const email = payload.metaInfo.udf1;
+      const eventId = payload.metaInfo.udf2;
+      const transactionId = payload.merchantOrderId;
 
-    if (paymentStatus === 'COMPLETED') {
-      return res.status(200).json({ success: true, message: "Payment verified." });
+      // Check if user with email already exists
+      const existingUser = await User.findOne({ email });
+
+      if (existingUser) {
+        console.log(`Registration canceled: User with email ${email} already exists.`);
+        return res.status(409).json({ 
+          success: false, 
+          message: `User with email ${email} already registered. Registration canceled.` 
+        });
+      }
+
+      // If no existing user with email, register new user
+      await User.create({ email, eventId, transactionId, paymentStatus: 'COMPLETED' });
+      console.log(`User registered for transaction ${transactionId}`);
+
+      return res.status(200).json({ success: true, message: "User registered after payment success" });
     } else {
-      return res.status(200).json({ success: false, message: "Payment not completed." });
+      console.log(`Payment state is ${payload.state}, no user registration performed.`);
+      return res.status(200).json({ success: true, message: `Payment state is ${payload.state}` });
     }
-
   } catch (err) {
-    console.error("Error verifying payment:", err);
-    res.status(500).json({ success: false, error: "Internal server error during payment verification" });
+    console.error('Callback verification failed:', err);
+    return res.status(403).json({
+      success: false,
+      message: 'Invalid or tampered callback data',
+      error: err.message
+    });
   }
 };
 
-
-
-module.exports = { initiatePayment, verifyPayment };
+module.exports = { initiatePayment, verifyPhonePeCallback };

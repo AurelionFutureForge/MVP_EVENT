@@ -181,7 +181,7 @@ const sendSuccessEmail = async (name, email, eventName, companyName, place, time
 };
 
 exports.registerUser = async (req, res) => {
-  const { formData, eventID, transactionId} = req.body;
+  const { formData, eventID} = req.body;
   console.log("eventID:", eventID);
   try {
     const event = await Event.findById(eventID);
@@ -237,7 +237,6 @@ exports.registerUser = async (req, res) => {
       email,
       privileges,
       registrationData: formData,
-      transactionId,
       paymentStatus : 'COMPLETED'
     });
 
@@ -301,4 +300,12 @@ exports.getRoleRegistrationsCount = async (req, res) => {
   }
 };
 
+exports.checkEmail = async (req,res) => {
+ const { email, eventId } = req.body;
 
+  const existingUser = await User.findOne({ email, eventId });
+  if (existingUser) {
+    return res.json({ exists: true });
+  }
+  return res.json({ exists: false });
+};
