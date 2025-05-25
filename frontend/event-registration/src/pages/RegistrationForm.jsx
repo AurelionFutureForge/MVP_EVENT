@@ -3,7 +3,7 @@ import axios from "axios";
 import { toast } from "react-hot-toast";
 import { AlertTriangle } from 'lucide-react'
 import { useParams, useNavigate } from "react-router-dom";
-import logo from '../assets/stagyn_white.png'
+import logo from '../assets/aurelion.png'
 import { ShieldCheck } from 'lucide-react'
 
 function RegistrationForm() {
