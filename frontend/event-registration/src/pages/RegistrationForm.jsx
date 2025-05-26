@@ -71,31 +71,6 @@ function RegistrationForm() {
     }
   };
 
-  const handleSubmit = async (e = null) => {
-    if (e) e.preventDefault();
-    try {
-      await axios.post(`${BASE_URL}/users/register`, {
-        formData,
-        eventID,
-      });
-      toast.success("Registration successful!");
-      setFormData({});
-      setPaymentSuccess(false);
-      navigate("/success", {
-        state: {
-          eventName: event?.eventName,
-          place: event?.place,
-          time: event?.time,
-          startDate: event?.startDate,
-          endDate: event?.endDate,
-          eventID,
-        },
-      });
-    } catch (error) {
-      toast.error("Registration failed. Please try again.");
-    }
-  };
-
   if (loading)
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-800 text-white">
@@ -220,7 +195,7 @@ function RegistrationForm() {
         toast.error("Failed to get PhonePe payment URL.");
       }
     } catch (err) {
-      toast.error("Payment initiation failed or Fill all the required fields");
+      toast.error("Fill all the required fields or Payment initiation failed");
       console.error(err);
     }
   };

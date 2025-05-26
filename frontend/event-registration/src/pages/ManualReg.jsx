@@ -95,7 +95,7 @@ function ManualReg() {
         toast.error("Failed to get PhonePe payment URL.");
       }
     } catch (err) {
-      toast.error("Payment initiation failed or Fill all the required fields");
+      toast.error("Fill all the required fields or Payment initiation failed");
       console.error(err);
     }
   };
