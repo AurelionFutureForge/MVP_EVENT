@@ -94,8 +94,8 @@ const sendSuccessEmail = async (name, email, eventName, companyName, place, time
     const transporter = nodemailer.createTransport({
       service: "gmail",
       auth: {
-        user: "amthemithun@gmail.com",
-        pass: "ptfk ykpn uygd yodb",
+        user: "stagynio@gmail.com",
+        pass: "tebj avtf jhrv mjec",
       },
     });
 
