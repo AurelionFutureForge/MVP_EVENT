@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { toast } from "react-hot-toast";
-import logo from '../assets/aurelion.png'
+import logo from '../assets/stagyn_black.png'
 import { ShieldCheck } from 'lucide-react'
+import { Link } from "react-router-dom";
 
 function ManualReg() {
   const [event, setEvent] = useState(null);
@@ -389,10 +390,17 @@ function ManualReg() {
 
           <div className="mt-8 flex items-center justify-center gap-2">
             <span className="text-gray-600 text-sm mb-2">Powered by</span>
-            <img src={logo} alt="Powered by logo" className="h-20 object-contain" />
+            <Link to="/">
+              <img src={logo} alt="Powered by logo" className="h-12 object-contain" />
+            </Link>
           </div>
 
         </form>
+        <div className="mt-4 text-center">
+          <Link to="https://www.aurelionfutureforge.com/" target="_blank" rel="noopener noreferrer">
+            <p className="text-gray-500 text-sm">@An Aurelion Product</p>
+          </Link>
+        </div>
       </div>
     </div>
   );

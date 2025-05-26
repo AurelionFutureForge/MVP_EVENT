@@ -334,8 +334,8 @@ function CreateRegistrationForm() {
               </span>
               <button
                 onClick={handleCloseForm}
-                title={formVisible ? "Close Registration Form" : "Open Registration Form"}
-                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${formVisible ? "bg-green-600" : "bg-gray-400"
+                title={formVisible ? "Open Registration Form" : "Close Registration Form"}
+                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${formVisible ? "bg-red-600" : "bg-gray-400"
                   }`}
               >
                 <span

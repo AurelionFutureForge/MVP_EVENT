@@ -6,6 +6,8 @@ import { QRCodeCanvas } from "qrcode.react";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 import InvoiceTemplate from "./InvoiceTemplate";
+import logo from '../assets/stagyn_black.png';
+import { Link } from 'react-router-dom';
 
 function extractContact(registrationData = {}) {
   const contactField = Object.keys(registrationData).find((key) => {
@@ -153,7 +155,7 @@ function SuccessPage() {
 
         {/* QR Code */}
         {registeredUser?.qrCode && (
-          <div className="my-6 text-center">
+          <div className="my-6 flex flex-col items-center justify-center text-center">
             <p className="font-semibold mb-2">QR Code</p>
             <QRCodeCanvas
               value={registeredUser.qrCode}
@@ -199,6 +201,17 @@ function SuccessPage() {
           <FaHome className="mr-2" />
           Register Again
         </button>
+        <div className="mt-14 flex items-center justify-center gap-2">
+          <span className="text-gray-600 text-sm mb-2">Powered by</span>
+          <Link to="/">
+            <img src={logo} alt="Powered by logo" className="h-12 object-contain" />
+          </Link>
+        </div>
+        <div className="mt-4 text-center">
+          <Link to="https://www.aurelionfutureforge.com/" target="_blank" rel="noopener noreferrer">
+            <p className="text-gray-500 text-sm">@An Aurelion Product</p>
+          </Link>
+        </div>
       </div>
     </div>
   );
