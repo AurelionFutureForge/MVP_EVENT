@@ -88,7 +88,6 @@ const generateTicketPDF = async (name, email, eventName, companyName, place, tim
   });
 };
 
-
 //  Updated Email Function with Date, Time, and Location
 const sendSuccessEmail = async (name, email, eventName, companyName, place, time, date, qrCodeImage, role, ticketID, pdfPath) => {
   try {
@@ -313,3 +312,18 @@ exports.checkEmail = async (req, res) => {
   }
   return res.json({ exists: false });
 };
+
+exports.getUsersByTransactionID = async (req, res) => {
+  const { transactionID } = req.params;
+  try {
+    const user = await User.findOne({ transactionId: transactionID });
+    if (!user) {
+      return res.status(404).json({ error: "user not found for this transactionID !" });
+    }
+    res.json({ user });
+  } catch (err) {
+    console.error("Error fetching user by transactionID:", err);
+    res.status(500).json({ error: "Server error" });
+  }
+
+}
