@@ -26,7 +26,7 @@ function SuccessPage() {
   const BASE_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
   const [event, setEvent] = useState(null);
   const [showConfetti, setShowConfetti] = useState(false);
-  const transactionID = "TXN_1748242608234_682179d5b9daa64aadf1bad1"
+  const transactionID = localStorage.getItem("transactionID")
   const [registeredUser, setRegisteredUser] = useState(null);
 
 
