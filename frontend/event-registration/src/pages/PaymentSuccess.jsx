@@ -25,7 +25,7 @@ function PaymentSuccess() {
       setTransactionId(txnId);
       setFormData(storedFormData);
 
-      console.log("formData :",storedFormData);
+      console.log("formData :", storedFormData);
 
       const amount = Number(storedFormData.amount) || 0;
       const platformFee = amount * 0.025 || 0;
@@ -80,7 +80,6 @@ function PaymentSuccess() {
 
   return (
     <div className="p-6 max-w-xl mx-auto text-center text-lg">
-      <h2 className="mb-4 text-2xl font-semibold">Verifying Payment...</h2>
 
       {breakdown && (
         <div className="text-left border rounded-md p-4 shadow-sm mb-6">
@@ -103,10 +102,10 @@ function PaymentSuccess() {
       {formData && (
         <div id="invoice" className="text-left border p-4 rounded shadow-md">
           <h3 className="text-xl font-bold mb-3">Invoice</h3>
-          <p><strong>Name:</strong> {formData.name} || {formData.NAME}</p>
-          <p><strong>Email:</strong> {formData.email} || {formData.EMAIL}</p>
-          <p><strong>Contact:</strong> {formData.contact} {formData.CONTACT}</p>
-          <p><strong>Role:</strong> {formData.role}  || {formData.ROLE}</p>
+          <p><strong>Name:</strong> {formData.name || formData.NAME}</p>
+          <p><strong>Email:</strong> {formData.email || formData.EMAIL}</p>
+          <p><strong>Contact:</strong> {formData.contact || formData.CONTACT}</p>
+          <p><strong>Role:</strong> {formData.role || formData.ROLE}</p>
           <p><strong>Transaction ID:</strong> {transactionId}</p>
           <p><strong>Total Paid:</strong> ₹{formData.amount}</p>
           <p><strong>Date:</strong> {new Date().toLocaleDateString()}</p>

@@ -195,9 +195,16 @@ function RegistrationForm() {
 
       if (checkRes.data.exists) {
         toast.error("You have already registered for this event with this email.");
-        return; 
+        return;
       }
-      localStorage.setItem("formData", JSON.stringify(formData));
+
+      const calculatedAmount = parseFloat((rolePrice * 1.025).toFixed(2));
+
+      const updatedFormData = {
+        ...formData,
+        amount: calculatedAmount,
+      };
+      localStorage.setItem("formData", JSON.stringify(updatedFormData));
       localStorage.setItem("eventID", eventID);
 
       const res = await axios.post(`${BASE_URL}/api/phonepe/initiate-payment`, {
