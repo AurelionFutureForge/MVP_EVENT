@@ -58,24 +58,6 @@ const InvoiceTemplate = ({ user }) => {
           </p>
           <p style={{ margin: 0, fontSize: "14px", color: "#666" }}>{EMAIL}</p>
         </div>
-
-        <div>
-          <strong
-            style={{ fontSize: "14px", color: "#555", letterSpacing: "0.5px" }}
-          >
-            PAY TO:
-          </strong>
-          <p
-            style={{
-              margin: "5px 0",
-              fontWeight: "600",
-              fontSize: "15px",
-              color: "#2c3e50",
-            }}
-          >
-            Account Name: AurelionFutureForge
-          </p>
-        </div>
       </div>
 
       <div
@@ -103,6 +85,9 @@ const InvoiceTemplate = ({ user }) => {
           </p>
         </div>
         <div style={{ textAlign: "right" }}>
+          <p style={{ margin: "2px 0", fontWeight: "600", color: "black" }}>
+            PhonePe Private Limited
+          </p>
           <p style={{ margin: "2px 0" }}>
             <strong style={{ fontWeight: "600", color: "#333" }}>GST No:</strong>{" "}
             {GST_NO}
@@ -215,12 +200,6 @@ const InvoiceTemplate = ({ user }) => {
         </p>
         <p style={{ margin: "6px 0" }}>
           <strong>Payment Status:</strong> {paymentStatus}
-        </p>
-      </div>
-
-      <div style={{ textAlign: "right" }}>
-        <p style={{ fontFamily: "cursive", fontSize: "18px", color: "#888" }}>
-          Stagyn.io
         </p>
       </div>
     </div>
