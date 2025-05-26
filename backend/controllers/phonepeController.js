@@ -23,7 +23,6 @@ const initiatePayment = async (req, res) => {
 
     const merchantOrderId = `TXN_${Date.now()}_${eventId}`;
     const redirectUrl = `https://events.aurelionfutureforge.com/payment-success?transactionId=${merchantOrderId}`;
-    const callbackUrl = 'https://mvp-event.onrender.com/api/phonepe/phonepe-callback';
     
 
     const metaInfo = MetaInfo.builder()
@@ -35,7 +34,6 @@ const initiatePayment = async (req, res) => {
       .merchantOrderId(merchantOrderId)
       .amount(amount * 100) // in paise
       .redirectUrl(redirectUrl)
-      .callbackUrl(callbackUrl)
       .metaInfo(metaInfo)
       .build();
 
