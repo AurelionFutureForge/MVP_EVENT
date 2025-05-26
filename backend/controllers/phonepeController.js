@@ -23,6 +23,8 @@ const initiatePayment = async (req, res) => {
 
     const merchantOrderId = `TXN_${Date.now()}_${eventId}`;
     const redirectUrl = `https://events.aurelionfutureforge.com/payment-success?transactionId=${merchantOrderId}`;
+    const callbackUrl = 'https://mvp-event.onrender.com/api/phonepe-callback';
+    
 
     const metaInfo = MetaInfo.builder()
       .udf1(email)
@@ -33,6 +35,7 @@ const initiatePayment = async (req, res) => {
       .merchantOrderId(merchantOrderId)
       .amount(amount * 100) // in paise
       .redirectUrl(redirectUrl)
+      .callbackUrl(callbackUrl)
       .metaInfo(metaInfo)
       .build();
 
@@ -55,6 +58,9 @@ const verifyPhonePeCallback = async (req, res) => {
     const authorization = req.headers['authorization'];
     const responseBody = JSON.stringify(req.body);
 
+    console.log("authorisation :",authorization);
+    console.log("responseBody :",responseBody);
+
     const username = process.env.PHONEPE_CALLBACK_USERNAME?.trim();
     const password = process.env.PHONEPE_CALLBACK_PASSWORD?.trim();
 
@@ -69,13 +75,16 @@ const verifyPhonePeCallback = async (req, res) => {
       responseBody
     );
 
+    console.log("callbackResponse :",callbackResponse);
+
     const { type, payload } = callbackResponse;
 
     console.log('PhonePe callback verified:', {
       eventType: type,
       merchantOrderId: payload.merchantOrderId,
       orderId: payload.orderId,
-      state: payload.state
+      state: payload.state,
+      metaInfo: payload.metaInfo
     });
 
     if (payload.state === 'COMPLETED') {
@@ -83,20 +92,27 @@ const verifyPhonePeCallback = async (req, res) => {
       const eventId = payload.metaInfo.udf2;
       const transactionId = payload.merchantOrderId;
 
-      // Check if user with email already exists
-      const existingUser = await User.findOne({ email });
-
-      if (existingUser) {
-        console.log(`Registration canceled: User with email ${email} already exists.`);
-        return res.status(409).json({ 
-          success: false, 
-          message: `User with email ${email} already registered. Registration canceled.` 
-        });
+      if (!email || !eventId) {
+        console.error("Missing email or eventId in metaInfo");
+        return res.status(400).json({ success: false, message: "Invalid webhook payload, missing email or eventId" });
       }
 
-      // If no existing user with email, register new user
-      await User.create({ email, eventId, transactionId, paymentStatus: 'COMPLETED' });
-      console.log(`User registered for transaction ${transactionId}`);
+      const existingUser = await User.findOne({ email, eventId });
+
+      if (existingUser) {
+        console.log(`Registration canceled: User with email ${email} already exists for event ${eventId}.`);
+        return res.status(409).json({ 
+          success: false, 
+          message: `User with email ${email} already registered for this event.` 
+        });
+      }
+      try {
+        await User.create({ email, eventId, transactionId, paymentStatus: 'COMPLETED' });
+        console.log(`User registered for transaction ${transactionId}`);
+      } catch (createError) {
+        console.error("Failed to create user:", createError);
+        return res.status(500).json({ success: false, message: "User creation failed", error: createError.message });
+      }
 
       return res.status(200).json({ success: true, message: "User registered after payment success" });
     } else {
@@ -112,5 +128,6 @@ const verifyPhonePeCallback = async (req, res) => {
     });
   }
 };
+
 
 module.exports = { initiatePayment, verifyPhonePeCallback };
