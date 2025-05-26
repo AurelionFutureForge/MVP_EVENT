@@ -44,6 +44,10 @@ app.use(
   })
 );
 
+app.get("/",(req,res)=>{
+  res.send("stagyn.io APIs Working")
+})
+
 // Routes
 app.use("/admin", authRoutes);
 app.use("/users", userRoutes);
