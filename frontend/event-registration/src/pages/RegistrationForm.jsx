@@ -187,6 +187,16 @@ function RegistrationForm() {
     }
 
     try {
+
+      const checkRes = await axios.post(`${BASE_URL}/users/check-email`, {
+        email: formData.EMAIL || formData.email,
+        eventId: eventID,
+      });
+
+      if (checkRes.data.exists) {
+        toast.error("You have already registered for this event with this email.");
+        return; 
+      }
       localStorage.setItem("formData", JSON.stringify(formData));
       localStorage.setItem("eventID", eventID);
 

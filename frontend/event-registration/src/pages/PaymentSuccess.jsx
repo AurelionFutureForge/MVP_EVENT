@@ -25,9 +25,9 @@ function PaymentSuccess() {
       setTransactionId(txnId);
       setFormData(storedFormData);
 
-      const amount = storedFormData.amount;
-      const platformFee = amount * 0.025;
-      const userAmount = amount - platformFee;
+      const amount = Number(storedFormData.amount) || 0;
+      const platformFee = amount * 0.025 || 0;
+      const userAmount = amount - platformFee || 0;
 
       setBreakdown({
         amount: userAmount,
