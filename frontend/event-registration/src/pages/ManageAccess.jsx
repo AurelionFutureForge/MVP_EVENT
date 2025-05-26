@@ -13,6 +13,7 @@ function ManageAccess() {
   const BASE_URL = import.meta.env.VITE_BACKEND_URL;
   const companyName = localStorage.getItem("adminCompanyName");
   const eventId = localStorage.getItem("selectedEvent");
+  const eventName = localStorage.getItem("eventName");
 
   // Fetch available privileges from EventDB on load
   useEffect(() => {
@@ -74,7 +75,7 @@ function ManageAccess() {
       });
 
       toast.success("Privileges assigned successfully!");
-      navigate("/admin/dashboard/:eventId");
+      navigate("/admin/dashboard/:eventId/:eventName");
     } catch (error) {
       toast.error("Failed to assign privileges");
     } finally {
