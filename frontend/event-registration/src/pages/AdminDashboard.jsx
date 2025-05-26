@@ -256,13 +256,13 @@ function AdminDashboard() {
         </div>
         <nav className="flex flex-col gap-4 text-sm">
           <NavLink
-            to="/"
+            to="/event-list"
             className={({ isActive }) =>
               `w-full px-4 py-2 rounded flex items-center gap-2 transition-colors focus:outline-none ${isActive ? "bg-red-600 text-white" : "hover:bg-red-600"
               }`
             }
           >
-            Home
+            Events
           </NavLink>
           <NavLink
             to="/create-event"
@@ -271,7 +271,7 @@ function AdminDashboard() {
               }`
             }
           >
-            Events
+            Create Event
           </NavLink>
           <button
             onClick={handleLogout}

@@ -56,12 +56,11 @@ function EventList() {
     <div className="flex h-screen bg-gradient-to-r from-black to-gray-800 relative">
       {/* Sidebar */}
       <aside
-        className={`fixed z-40 top-0 left-0 h-full w-64 bg-white text-black flex flex-col p-6 space-y-6 shadow-lg transform transition-transform duration-300 sm:static sm:translate-x-0 ${
-          sidebarOpen ? "translate-x-0" : "-translate-x-full"
-        }`}
+        className={`fixed z-40 top-0 left-0 h-full w-64 bg-white text-black flex flex-col p-6 space-y-6 shadow-lg transform transition-transform duration-300 sm:static sm:translate-x-0 ${sidebarOpen ? "translate-x-0" : "-translate-x-full"
+          }`}
       >
         <div className="text-2xl font-bold tracking-wide flex justify-between items-center">
-          Stagyn.io
+         <NavLink to='/'><p>Stagyn.io</p></NavLink> 
           <button
             onClick={() => setSidebarOpen(false)}
             className="sm:hidden p-1"
@@ -69,34 +68,32 @@ function EventList() {
             <X className="w-5 h-5" />
           </button>
         </div>
-<nav className="flex flex-col gap-4 text-sm">
-  <NavLink
-    to="/"
-    className={({ isActive }) =>
-      `w-full px-4 py-2 rounded flex items-center gap-2 transition-colors focus:outline-none ${
-        isActive ? "bg-red-600 text-white" : "hover:bg-red-600"
-      }`
-    }
-  >
-    Home
-  </NavLink>
-  <NavLink
-    to="/create-event"
-    className={({ isActive }) =>
-      `w-full px-4 py-2 rounded flex items-center gap-2 transition-colors focus:outline-none ${
-        isActive ? "bg-red-600 text-white" : "hover:bg-red-600 active:bg-red-600"
-      }`
-    }
-  >
-    Events
-  </NavLink>
-  <button
-    onClick={handleLogout}
-    className="hover:bg-red-600 w-full transition-colors px-4 py-2 rounded flex items-center gap-2 text-left focus:outline-none"
-  >
-    Logout
-  </button>
-</nav>
+        <nav className="flex flex-col gap-4 text-sm">
+          <NavLink
+            to="/event-list"
+            className={({ isActive }) =>
+              `w-full px-4 py-2 rounded flex items-center gap-2 transition-colors focus:outline-none ${isActive ? "hover:bg-red-600 text-black" : "hover:bg-red-600"
+              }`
+            }
+          >
+            Admin
+          </NavLink>
+          <NavLink
+            to="/create-event"
+            className={({ isActive }) =>
+              `w-full px-4 py-2 rounded flex items-center gap-2 transition-colors focus:outline-none ${isActive ? "bg-red-600 text-white" : "hover:bg-red-600 active:bg-red-600"
+              }`
+            }
+          >
+            Events
+          </NavLink>
+          <button
+            onClick={handleLogout}
+            className="hover:bg-red-600 w-full transition-colors px-4 py-2 rounded flex items-center gap-2 text-left focus:outline-none"
+          >
+            Logout
+          </button>
+        </nav>
 
 
       </aside>
@@ -149,13 +146,13 @@ function EventList() {
                         📅{" "}
                         <span className="font-medium">
                           {event.endDate &&
-                          new Date(event.startDate).toLocaleDateString() !==
+                            new Date(event.startDate).toLocaleDateString() !==
                             new Date(event.endDate).toLocaleDateString()
                             ? `${new Date(
-                                event.startDate
-                              ).toLocaleDateString()} - ${new Date(
-                                event.endDate
-                              ).toLocaleDateString()}`
+                              event.startDate
+                            ).toLocaleDateString()} - ${new Date(
+                              event.endDate
+                            ).toLocaleDateString()}`
                             : new Date(event.startDate).toLocaleDateString()}
                         </span>
                       </p>

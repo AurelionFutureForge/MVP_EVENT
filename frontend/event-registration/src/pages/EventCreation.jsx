@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { toast } from "react-hot-toast";
 import { CalendarDays, MapPin, Clock3, Building2, PencilLine } from 'lucide-react'
+import { Link } from 'react-router-dom';
 
 export default function EventCreation() {
   const [events, setEvents] = useState([]);
@@ -187,11 +188,10 @@ export default function EventCreation() {
       <nav className="bg-black-600 p-4 shadow-md">
         <div className="container mx-auto flex justify-between items-center text-white">
           {/* Left: Logo */}
-          <h1 className="text-2xl font-bold">Stagyn.io</h1>
+         <Link to="/"><h1 className="text-2xl font-bold">Stagyn.io</h1></Link> 
 
           {/* Right: Links + Logout */}
           <div className="flex items-center space-x-8">
-            <a href="/" className="hover:text-gray-200">Home</a>
             <a href="/event-list" className="hover:text-gray-200">Admin</a>
             <button
               onClick={handleLogout}

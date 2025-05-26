@@ -52,7 +52,9 @@ function Home() {
 
           {/* Logo + Desktop Nav */}
           <div className="flex items-center space-x-8 ml-4">
+            <Link to="/">
             <h1 className="text-2xl font-bold whitespace-nowrap text-black">Stagyn.io</h1>
+            </Link>
 
             {/* Desktop Menu */}
             <div className="hidden md:flex items-center space-x-6">
