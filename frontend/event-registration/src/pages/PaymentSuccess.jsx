@@ -25,6 +25,8 @@ function PaymentSuccess() {
       setTransactionId(txnId);
       setFormData(storedFormData);
 
+      console.log("formData :",storedFormData);
+
       const amount = Number(storedFormData.amount) || 0;
       const platformFee = amount * 0.025 || 0;
       const userAmount = amount - platformFee || 0;
@@ -101,10 +103,10 @@ function PaymentSuccess() {
       {formData && (
         <div id="invoice" className="text-left border p-4 rounded shadow-md">
           <h3 className="text-xl font-bold mb-3">Invoice</h3>
-          <p><strong>Name:</strong> {formData.name}</p>
-          <p><strong>Email:</strong> {formData.email}</p>
-          <p><strong>Contact:</strong> {formData.contact}</p>
-          <p><strong>Role:</strong> {formData.role}</p>
+          <p><strong>Name:</strong> {formData.name} || {formData.NAME}</p>
+          <p><strong>Email:</strong> {formData.email} || {formData.EMAIL}</p>
+          <p><strong>Contact:</strong> {formData.contact} {formData.CONTACT}</p>
+          <p><strong>Role:</strong> {formData.role}  || {formData.ROLE}</p>
           <p><strong>Transaction ID:</strong> {transactionId}</p>
           <p><strong>Total Paid:</strong> ₹{formData.amount}</p>
           <p><strong>Date:</strong> {new Date().toLocaleDateString()}</p>
