@@ -4,19 +4,6 @@ import { toast } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import InvoiceTemplate from "./InvoiceTemplate"; // Adjust path if needed
 
-function extractContact(registrationData = {}) {
-  const contactField = Object.keys(registrationData).find((key) => {
-    const lowerKey = key.toLowerCase();
-    return (
-      lowerKey.includes("contact") ||
-      lowerKey.includes("mobile") ||
-      lowerKey.includes("phone") ||
-      lowerKey.includes("number")
-    );
-  });
-
-  return contactField ? registrationData[contactField] : "N/A";
-}
 
 function PaymentSuccess() {
   const BASE_URL = import.meta.env.VITE_BACKEND_URL;
