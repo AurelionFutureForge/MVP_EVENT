@@ -101,7 +101,7 @@ const sendSuccessEmail = async (name, email, eventName, companyName, place, time
     });
 
     let ticketClass = role;
-    let paymentStatus = "will be added soon";
+    let paymentStatus = "COMPLETED";
 
 
     // Convert Base64 QR image to buffer
