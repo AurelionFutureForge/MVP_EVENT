@@ -18,7 +18,7 @@ const generateTicketPDF = async (name, email, eventName, companyName, place, tim
     doc.pipe(stream);
 
     //  Header Section (Event Branding)
-    doc.rect(0, 0, doc.page.width, 140).fill("#4CAF50");
+    doc.rect(0, 0, doc.page.width, 140).fill("#FF0000");
     doc.fillColor("#fff")
       .font("Helvetica-Bold")
       .fontSize(28)
@@ -70,7 +70,7 @@ const generateTicketPDF = async (name, email, eventName, companyName, place, tim
     // Footer Branding (Centered)
     const footerHeight = 50;
 
-    doc.fillColor("#4CAF50")
+    doc.fillColor("#FF0000")
       .rect(0, doc.page.height - footerHeight, doc.page.width, footerHeight)
       .fill();
 
@@ -118,7 +118,7 @@ const sendSuccessEmail = async (name, email, eventName, companyName, place, time
       <div style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: 0 auto; border: 1px solid #ddd; border-radius: 10px; box-shadow: 0 8px 16px rgba(0,0,0,0.1); overflow: hidden;">
         
         <!-- Header -->
-        <div style="background: #4CAF50; color: white; text-align: center; padding: 20px;">
+        <div style="background:  #FF0000; color: white; text-align: center; padding: 20px;">
           <h1 style="margin: 0;">🎫 Your E-Ticket</h1>
           <p> ${companyName} </p>
           <p>You're officially registered for <strong>${eventName}</strong></p>
@@ -145,7 +145,7 @@ const sendSuccessEmail = async (name, email, eventName, companyName, place, time
         </div>
 
         <div style="text-align: center; padding: 20px;">
-            <a href="https://mvp-event.vercel.app/register/${companyName}/${eventName}" style="padding: 10px 20px; background-color: #4CAF50; color: white; text-decoration: none; border-radius: 5px;">Click here to register</a>
+            <a href="https://events.aurelionfutureforge.com" style="padding: 10px 20px; background-color:  #FF0000; color: white; text-decoration: none; border-radius: 5px;">Click here to register</a>
         </div>
 
         <!-- QR Code Section -->
@@ -154,7 +154,7 @@ const sendSuccessEmail = async (name, email, eventName, companyName, place, time
           <img src="cid:qrcode123" alt="QR Code" style="width: 250px; height: 250px;"/>
         </div>
 
-        <div style="background: #4CAF50; color: white; text-align: center; padding: 15px;">
+        <div style="background:  #FF0000; color: white; text-align: center; padding: 15px;">
           <p>Thank you for joining us. We look forward to seeing you at the event! 🎊</p>
         </div>
       </div>
