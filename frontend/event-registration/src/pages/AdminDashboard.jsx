@@ -22,7 +22,7 @@ function extractNameAndEmail(registrationData = {}) {
   return { name, email };
 }
 
-// Utility to dynamically extract contact from registrationData
+
 function extractContact(registrationData = {}) {
   const contactField = Object.keys(registrationData).find((key) => {
     const lowerKey = key.toLowerCase();
