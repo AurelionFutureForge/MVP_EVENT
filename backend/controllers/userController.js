@@ -181,7 +181,7 @@ const sendSuccessEmail = async (name, email, eventName, companyName, place, time
 };
 
 exports.registerUser = async (req, res) => {
-  const { formData, eventID} = req.body;
+  const { formData, eventID } = req.body;
   console.log("eventID:", eventID);
   try {
     const event = await Event.findById(eventID);
@@ -228,32 +228,34 @@ exports.registerUser = async (req, res) => {
       claim: false
     }));
 
-    // 4. Save user to DB
-    const newUser = new User({
-      eventId: event._id,
-      companyName: event.companyName,
-      eventName: event.eventName,
-      role: selectedRole.roleName,
-      email,
-      privileges,
-      registrationData: formData,
-      paymentStatus : 'COMPLETED'
-    });
+    let user = await User.findOne({ email, eventId: event._id });
 
-    await newUser.save();
+    if (!user) {
+      return res.status(400).json({
+        message: 'No user found with this email and event ID. Please complete the payment first.'
+      });
+    }
+
+    user.companyName = event.companyName;
+    user.eventName = event.eventName;
+    user.role = selectedRole.roleName;
+    user.privileges = privileges;
+    user.registrationData = formData;
+
+    await user.save();
 
     // Generate QR Code and Ticket
     const role = selectedRole.roleName;
     const { eventName, companyName, place, time, startDate } = event;
 
-    const qrCodeData = `${email}-${newUser._id}`;
+    const qrCodeData = `${email}-${user._id}`;
     const qrCodeImage = await QRCode.toDataURL(qrCodeData);
     const date = startDate;
 
-    newUser.qrCode = qrCodeData;
-    await newUser.save();
+    user.qrCode = qrCodeData;
+    await user.save();
 
-    const ticketID = newUser._id.toString();
+    const ticketID = user._id.toString();
     const pdfPath = path.join(__dirname, "../public/pdfs", `${ticketID}.pdf`);
 
     await generateTicketPDF(name, email, eventName, companyName, place, time, date, role, ticketID, qrCodeImage, pdfPath);
@@ -292,17 +294,17 @@ exports.getRoleRegistrationsCount = async (req, res) => {
         }
       });
     }
-    console.log("regMap",registrationMap);
+    console.log("regMap", registrationMap);
     res.json(registrationMap);
   } catch (err) {
     console.error('Error fetching role registration counts:', err);
-    res.status(500).json({ message: 'Failed to fetch registration counts.',err });
+    res.status(500).json({ message: 'Failed to fetch registration counts.', err });
   }
 };
 
-exports.checkEmail = async (req,res) => {
- const { email, eventId } = req.body;
- console.log("check email :",req.body)
+exports.checkEmail = async (req, res) => {
+  const { email, eventId } = req.body;
+  console.log("check email :", req.body)
 
   const existingUser = await User.findOne({ email, eventId });
 
