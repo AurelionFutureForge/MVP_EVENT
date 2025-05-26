@@ -311,28 +311,30 @@ function CreateRegistrationForm() {
         ))}
 
 
-        <div className="mt-4 flex flex-wrap gap-14">
+        <div className="mt-4 flex flex-col sm:flex-row sm:flex-wrap gap-4 sm:gap-6 md:gap-8">
           <button
             type="button"
             onClick={addField}
-            className="bg-red-600 text-white px-6 py-2 rounded-4xl hover:bg-red-700 transition"
+            className="bg-red-600 text-white px-4 py-2 rounded-xl hover:bg-red-700 transition w-full sm:w-auto"
           >
             Add Another Field
           </button>
 
           <button
             onClick={handleSubmit}
-            className="bg-red-600 border border-gray-300 text-white px-6 py-2 rounded-4xl hover:bg-red-700 transition"
+            className="bg-red-600 border border-gray-300 text-white px-4 py-2 rounded-xl hover:bg-red-700 transition w-full sm:w-auto"
           >
             Save Registration Form
           </button>
+
           {formLink && (
-            <div className="flex items-center gap-2">
+            <div className="flex items-center justify-between sm:justify-start gap-3 w-full sm:w-auto">
               <span className="text-sm text-white">
                 {formVisible ? "Form Visible" : "Form Hidden"}
               </span>
               <button
                 onClick={handleCloseForm}
+                title={formVisible ? "Close Registration Form" : "Open Registration Form"}
                 className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${formVisible ? "bg-green-600" : "bg-gray-400"
                   }`}
               >
@@ -344,7 +346,6 @@ function CreateRegistrationForm() {
             </div>
           )}
         </div>
-
 
         {formLink && (
           <div className="mt-4">
