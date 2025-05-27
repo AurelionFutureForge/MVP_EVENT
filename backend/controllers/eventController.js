@@ -324,7 +324,8 @@ const saveRegistrationFields = async (req, res) => {
 
     res.status(200).json({ 
       message: "Registration fields saved successfully!",
-      eventId: event._id
+      eventId: event._id,
+      eventName: event.eventName
     });
 
   } catch (error) {
