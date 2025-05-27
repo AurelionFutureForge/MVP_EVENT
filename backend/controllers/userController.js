@@ -25,7 +25,7 @@ const generateTicketPDF = async (name, email, eventName, companyName, place, tim
       .text(`${eventName}`, { align: "center", baseline: "middle" });
 
     doc.moveDown(0.3);
-    doc.fontSize(18).text(`${date}, ${time}(IST)`, { align: "center" });
+    doc.fontSize(18).text(`${date.toISOString().split('T')[0]}, ${time}(IST)`, { align: "center" });
 
     //  Attendee Info Section
     doc.moveDown(1.5);
@@ -130,7 +130,7 @@ const sendSuccessEmail = async (name, email, eventName, companyName, place, time
           <p>Thank you for registering for <strong>${eventName}</strong>. Here are your event details:</p>
 
           <div style="border: 1px solid #eee; padding: 20px; border-radius: 8px; margin: 20px 0;">
-            <p><strong>📅 Date:</strong> ${date} </p>
+            <p><strong>📅 Date:</strong> ${date.toISOString().split('T')[0]} </p>
             <p><strong>⏰ Time:</strong> ${time} (IST)</p>
             <p><strong>📍 Location:</strong> ${place} </p>
           </div>
