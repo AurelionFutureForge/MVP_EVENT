@@ -10,8 +10,8 @@ const mongoose = require('mongoose');
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
-    user: "amthemithun@gmail.com",
-    pass: "ptfk ykpn uygd yodb",
+    user: "stagynio@gmail.com",
+    pass: "tebj avtf jhrv mjec",
   }
 });
 
