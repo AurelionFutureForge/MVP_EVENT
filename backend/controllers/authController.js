@@ -6,6 +6,7 @@ const Privilege = require('../models/privilegeModel');
 const Event = require("../models/Event");
 const nodemailer = require('nodemailer');
 const mongoose = require('mongoose');
+const crypto = require('crypto');
 
 const transporter = nodemailer.createTransport({
   service: 'gmail',
@@ -311,6 +312,78 @@ const deletePrivileges = async (req, res) => {
   }
 };
 
+const resetPassword = async (req, res) => {
+  const { email } = req.body;
+  console.log("Finding admin:", email);
+  try {
+    const admin = await Admin.findOne({ email });
+    if (!admin) return res.status(404).json({ message: 'User not found' });
+
+    // Generate token
+    const token = crypto.randomBytes(32).toString('hex');
+    admin.resetToken = token;
+    admin.resetTokenExpiry = Date.now() + 1000 * 60 * 30; // 30 mins
+    await admin.save();
+
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: "stagynio@gmail.com",
+        pass: "tebj avtf jhrv mjec",
+      },
+    });
+
+    const resetLink = `https://events.aurelionfutureforge.com/reset-password/${token}`;
+    console.log("Sending reset link to:", admin.email);
+
+    await transporter.sendMail({
+      from: 'no-reply@yourapp.com',
+      to: admin.email,
+      subject: 'Password Reset',
+      html: `<p>Click below to reset your password:</p><a href="${resetLink}">${resetLink}</a>`,
+    });
+
+    res.status(200).json({ message: 'Reset link sent to your email.' });
+  } catch (error) {
+    console.error('Reset password request error:', error);
+    res.status(500).json({ message: 'Something went wrong' });
+  }
+
+}
+
+const reset = async (req, res) => {
+  const { token } = req.params;
+  const { password } = req.body;
+
+  try {
+    // 1. Find user by token and check expiry
+    const admin = await Admin.findOne({
+      resetToken: token,
+      resetTokenExpiry: { $gt: Date.now() } // not expired
+    });
+
+    if (!admin) {
+      return res.status(400).json({ message: 'Invalid or expired reset token' });
+    }
+
+    // 2. Hash new password
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    // 3. Update password and clear reset fields
+    admin.password = hashedPassword;
+    admin.resetToken = undefined;
+    admin.resetTokenExpiry = undefined;
+
+    await admin.save();
+
+    res.status(200).json({ message: 'Password reset successfully' });
+  } catch (error) {
+    console.error('Reset password error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+}
 
 
-module.exports = { adminLogin, getAllUsers, registerAdmin, getEventPrivileges, assignPrivileges, getAllEvents, getRegField, getAvailableRoles, deletePrivileges };
+
+module.exports = { adminLogin, getAllUsers, reset, resetPassword, registerAdmin, getEventPrivileges, assignPrivileges, getAllEvents, getRegField, getAvailableRoles, deletePrivileges };
