@@ -100,7 +100,12 @@ const sendSuccessEmail = async (name, email, eventName, companyName, place, time
     });
 
     let ticketClass = role;
-    let paymentStatus = "COMPLETED";
+    const user = await User.findOne({ email, eventName });
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    const paymentStatus = user.paymentStatus;
 
 
     // Convert Base64 QR image to buffer
@@ -176,6 +181,93 @@ const sendSuccessEmail = async (name, email, eventName, companyName, place, time
     console.log("Success email sent with PDF, QR code, and available privileges to:", email);
   } catch (error) {
     console.error("Error sending email:", error);
+  }
+};
+
+exports.freeRegisterUser = async (req, res) => {
+  const { formData, eventID } = req.body;
+  console.log("eventID:", eventID);
+  try {
+    const event = await Event.findById(eventID);
+    if (!event) {
+      return res.status(404).json({ message: 'Event not found' });
+    }
+
+    // Extract email and name from formData
+    const email = formData.EMAIL?.trim().toLowerCase();
+    const name = formData.name || formData.fullname || formData.NAME || formData.FULLNAME;
+
+    if (!email || !name) {
+      return res.status(400).json({ message: 'Name and Email are required fields' });
+    }
+
+    //  Check if user has already registered for the same event under this company
+    const existingUser = await User.findOne({ email, companyName: event.companyName });
+    if (existingUser) {
+      // Check if the user has already registered for the same event
+      const isAlreadyRegisteredForThisEvent = existingUser.eventId.toString() === eventID;
+      if (isAlreadyRegisteredForThisEvent) {
+        return res.status(400).json({ message: 'You have already registered for this event.' });
+      }
+    }
+    console.log(formData);
+    const selectedRoleName = formData.ROLE || formData.role;
+    let selectedRole = event.eventRoles.find(role => role.roleName === selectedRoleName);
+    if (!selectedRole) {
+      const roleField = event.registrationFields.find(field => field.fieldName === "ROLE");
+      if (roleField && roleField.options.includes(selectedRoleName)) {
+        // If found in the registration fields, create a mock role object to avoid breaking the logic
+        selectedRole = { roleName: selectedRoleName };
+      }
+    }
+
+    // Now, if selectedRole is still not found, return the error
+    if (!selectedRole) {
+      return res.status(400).json({ message: 'Invalid role selected' });
+    }
+
+    // 2. Prepare privileges with 'claim: false'
+    const privileges = selectedRole.privileges.map(privilege => ({
+      name: privilege,
+      claim: false
+    }));
+
+
+    const user = new User({
+      companyName: event.companyName,
+      eventName: event.eventName,
+      eventId: event._id,
+      email: email,
+      role: selectedRole.roleName,
+      privileges: privileges,
+      paymentStatus: "FREE REGISTRATION",
+      registrationData: formData,
+    })
+
+    await user.save();
+
+    // Generate QR Code and Ticket
+    const role = selectedRole.roleName;
+    const { eventName, companyName, place, time, startDate } = event;
+
+    const qrCodeData = `${email}-${user._id}`;
+    const qrCodeImage = await QRCode.toDataURL(qrCodeData);
+    const date = startDate;
+
+    user.qrCode = qrCodeData;
+    await user.save();
+
+    const ticketID = user._id.toString();
+    const pdfPath = path.join(__dirname, "../public/pdfs", `${ticketID}.pdf`);
+
+    await generateTicketPDF(name, email, eventName, companyName, place, time, date, role, ticketID, qrCodeImage, pdfPath);
+    await sendSuccessEmail(name, email, eventName, companyName, place, time, date, qrCodeImage, role, ticketID, pdfPath);
+
+    res.status(201).json({ message: 'User registered successfully' });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Error registering user', error: err.message || err });
   }
 };
 
@@ -326,4 +418,19 @@ exports.getUsersByTransactionID = async (req, res) => {
     res.status(500).json({ error: "Server error" });
   }
 
+}
+
+exports.getUsersById = async (req,res) => {
+    const { eventID, decodedEmail } = req.params;
+    console.log("testing:",eventID)
+  try {
+    const user = await User.findOne({ eventId : eventID, email : decodedEmail});
+    if (!user) {
+      return res.status(404).json({ error: "user not found for this eventID !" });
+    }
+    res.json({ user });
+  } catch (err) {
+    console.error("Error fetching user by transactionID:", err);
+    res.status(500).json({ error: "Server error" });
+  }
 }

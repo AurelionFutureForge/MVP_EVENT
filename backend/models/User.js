@@ -15,7 +15,7 @@ const userSchema = new mongoose.Schema({
   registrationData: { type: Object, required: false },
   qrCode: { type: String },
   transactionId: { type: String },
-  paymentStatus: { type: String, enum: ['PENDING', 'COMPLETED', 'FAILED'], default: 'PENDING' }
+  paymentStatus: { type: String, enum: ['PENDING', 'COMPLETED', 'FAILED', 'FREE REGISTRATION'], default: 'PENDING' }
 
 }, {
   timestamps: true 
