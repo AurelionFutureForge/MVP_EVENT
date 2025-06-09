@@ -11,7 +11,7 @@ cloudinary.config({
 
 const createEvent = async (req, res) => {
   try {
-    let { companyName, eventName, eventRoles, place, time, startDate, endDate } = req.body;
+    let { companyName, eventName, eventRoles, place, time, startDate, endDate, eventDescription } = req.body;
 
     console.log('Incoming Request:', req.body);
     console.log('File Upload:', req.file);
@@ -115,7 +115,8 @@ const createEvent = async (req, res) => {
       time,
       startDate: formattedStartDate.toISOString(),
       ...(formattedEndDate && { endDate: formattedEndDate.toISOString() }),
-      companyPoster, // Cloudinary URL
+      companyPoster, 
+      eventDescription,
     });
 
     await newEvent.save();
@@ -181,7 +182,7 @@ const EditEvents = async (req, res) => {
 // Update event
 const UpdateEvents = async (req, res) => {
   try {
-    const { companyName, eventName, eventRoles, place, time, startDate, endDate } = req.body;
+    const { companyName, eventName, eventRoles, place, time, startDate, endDate, eventDescription } = req.body;
 
     // Upload to Cloudinary if a new file is present
     let companyPoster = undefined;
@@ -276,6 +277,7 @@ const UpdateEvents = async (req, res) => {
       place,
       time,
       startDate: formattedStartDate.toISOString(),
+      eventDescription
     };
 
     if (formattedEndDate) {
@@ -345,6 +347,7 @@ const getEventById = async (req, res) => {
     if (!event) {
       return res.status(404).json({ message: "Event not found" });
     }
+    console.log(event);
     res.json(event);
   } catch (error) {
     res.status(500).json({ message: "Server error" });
