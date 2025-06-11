@@ -8,7 +8,14 @@ const adminSchema = new mongoose.Schema({
     required: true,
   },
 
-  // 🔐 Add these for password reset
+  location: {
+    type: String,
+    required: true,
+  },
+  category: {
+    type: String,
+    required: true,
+  },
   resetToken: String,
   resetTokenExpiry: Date,
 });

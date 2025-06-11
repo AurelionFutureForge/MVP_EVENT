@@ -96,10 +96,10 @@ const getAllEvents = async (req, res) => {
 
 const registerAdmin = async (req, res) => {
   try {
-    const { email, password, companyName } = req.body;
+    const { email, password, companyName, location, category } = req.body;
 
-    if (!email || !password || !companyName) {
-      return res.status(400).json({ message: "Email, password, and company name are required" });
+    if (!email || !password || !companyName || !location || !category) {
+      return res.status(400).json({ message: "Email, password, company name, location and category are required" });
     }
 
     // Check if the admin already exists
@@ -115,6 +115,8 @@ const registerAdmin = async (req, res) => {
       email,
       password: hashedPassword,
       companyName,
+      location,
+      category,
     });
 
     await newAdmin.save();
@@ -384,6 +386,23 @@ const reset = async (req, res) => {
   }
 }
 
+const getAdmin = async (req, res) => {
+  const { companyName } = req.params;
+
+  try {
+    const admin = await Admin.findOne({ companyName });
+
+    if (!admin) {
+      return res.status(404).json({ message: "No admin registered with this company name" });
+    }
+
+    res.json({ category: admin.category });
+  } catch (error) {
+    console.error("Error fetching admin:", error);
+    res.status(500).json({ message: "Server error while fetching admin" });
+  }
+};
 
 
-module.exports = { adminLogin, getAllUsers, reset, resetPassword, registerAdmin, getEventPrivileges, assignPrivileges, getAllEvents, getRegField, getAvailableRoles, deletePrivileges };
+
+module.exports = { adminLogin, getAdmin, getAllUsers, reset, resetPassword, registerAdmin, getEventPrivileges, assignPrivileges, getAllEvents, getRegField, getAvailableRoles, deletePrivileges };
