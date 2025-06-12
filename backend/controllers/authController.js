@@ -78,10 +78,15 @@ const getAllUsers = async (req, res) => {
 // Controller function to get all events for the admin's company
 const getAllEvents = async (req, res) => {
   try {
-    const { companyName } = req.query;  // Get companyName from the query parameters
+    const raw = req.query.companyName || "";
+    const cleanedName = decodeURIComponent(raw.replace(/\+/g, " ")).trim();
 
-    // Fetch events for the given company name
-    const events = await Event.find({ companyName });
+    const escaped = cleanedName.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+    const flexibleRegex = escaped.replace(/\s+/g, "\\s+");
+
+    const events = await Event.find({
+      companyName: { $regex: new RegExp(`^${flexibleRegex}$`, "i") }
+    });
 
     if (events.length === 0) {
       return res.status(404).json({ message: "No events found for this company" });
@@ -96,11 +101,15 @@ const getAllEvents = async (req, res) => {
 
 const registerAdmin = async (req, res) => {
   try {
-    const { email, password, companyName, location, category } = req.body;
+    let { email, password, companyName, location, category } = req.body;
 
     if (!email || !password || !companyName || !location || !category) {
       return res.status(400).json({ message: "Email, password, company name, location and category are required" });
     }
+
+    // Normalize companyName: remove extra spaces
+    const normalize = (str) => str.replace(/\s+/g, " ").trim();
+    const normalizedCompanyName = normalize(companyName)
 
     // Check if the admin already exists
     const existingAdmin = await Admin.findOne({ email });
@@ -108,7 +117,7 @@ const registerAdmin = async (req, res) => {
       return res.status(400).json({ message: "Admin already exists" });
     }
 
-    const existingCompany = await Admin.findOne({ companyName });
+    const existingCompany = await Admin.findOne({ companyName: normalizedCompanyName });
     if (existingCompany) {
       return res.status(400).json({ message: "Company name already registered" });
     }
@@ -119,27 +128,32 @@ const registerAdmin = async (req, res) => {
     const newAdmin = new Admin({
       email,
       password: hashedPassword,
-      companyName,
+      companyName: normalizedCompanyName,
       location,
       category,
     });
 
     await newAdmin.save();
 
-    // Generate JWT token after successful registration
+    // Generate JWT token
     const token = jwt.sign(
-      { adminId: newAdmin._id }, // Payload
-      process.env.JWT_SECRET, // Secret key
-      { expiresIn: '1d' } // Set token expiration time (1 day)
+      { adminId: newAdmin._id },
+      process.env.JWT_SECRET,
+      { expiresIn: '1d' }
     );
 
-    // Send back the token and success message
-    res.status(201).json({ message: "Admin registered successfully", token, companyName: newAdmin.companyName, adminEmail: newAdmin.email });
+    res.status(201).json({
+      message: "Admin registered successfully",
+      token,
+      companyName: newAdmin.companyName,
+      adminEmail: newAdmin.email
+    });
 
   } catch (error) {
     res.status(500).json({ message: "Error registering admin", error });
   }
 };
+
 
 //  GET privileges (updated to take eventId)
 const getEventPrivileges = async (req, res) => {
@@ -392,21 +406,39 @@ const reset = async (req, res) => {
 }
 
 const getAdmin = async (req, res) => {
-  const { companyName } = req.params;
-
   try {
-    const admin = await Admin.findOne({ companyName });
+    // Step 1: Extract and decode company name from query
+    const raw = req.query.companyName || "";
+    const decoded = decodeURIComponent(raw.replace(/\+/g, ' ')).trim(); // Convert "+" to space and trim
+
+    // Step 2: Escape regex special characters
+    const escaped = decoded.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+
+    // Step 3: Replace multiple spaces with \s+ to match any space count
+    const flexiblePattern = escaped.replace(/\s+/g, '\\s+');
+    const regex = new RegExp(`^${flexiblePattern}$`, 'i');
+
+    console.log("Searching with regex:", regex);
+
+    // Step 4: Perform regex-based search
+    const admin = await Admin.findOne({
+      companyName: { $regex: regex }
+    });
 
     if (!admin) {
       return res.status(404).json({ message: "No admin registered with this company name" });
     }
 
+    // Step 5: Return category
     res.json({ category: admin.category.trim() });
+
   } catch (error) {
     console.error("Error fetching admin:", error);
     res.status(500).json({ message: "Server error while fetching admin" });
   }
 };
+
+
 
 
 

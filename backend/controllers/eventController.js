@@ -16,8 +16,11 @@ const createEvent = async (req, res) => {
     console.log('Incoming Request:', req.body);
     console.log('File Upload:', req.file);
 
-    const trimmedCompanyName = companyName.trim();
-    const trimmedEventName = eventName.trim();
+    // 🧼 Normalize spacing
+    const normalize = (str) => str.replace(/\s+/g, " ").trim();
+
+    const trimmedCompanyName = normalize(companyName);
+    const trimmedEventName = normalize(eventName);
 
     // Parse eventRoles if it's a JSON string (multipart/form-data)
     if (typeof eventRoles === 'string') {
@@ -79,8 +82,8 @@ const createEvent = async (req, res) => {
       }
 
       return {
-        roleName: role.roleName.trim(),
-        roleDescription: role.roleDescription.trim(),
+        roleName: normalize(role.roleName),
+        roleDescription: normalize(role.roleDescription),
         privileges: privilegesArray,
         rolePrice: Number(rolePrice),
         maxRegistrations: Number(role.maxRegistrations)
@@ -104,7 +107,7 @@ const createEvent = async (req, res) => {
       };
 
       const uploadResult = await streamUpload();
-      companyPoster = uploadResult.secure_url; // Use this Cloudinary image URL
+      companyPoster = uploadResult.secure_url;
     }
 
     const newEvent = new Event({
@@ -115,7 +118,7 @@ const createEvent = async (req, res) => {
       time,
       startDate: formattedStartDate.toISOString(),
       ...(formattedEndDate && { endDate: formattedEndDate.toISOString() }),
-      companyPoster, 
+      companyPoster,
       eventDescription,
     });
 

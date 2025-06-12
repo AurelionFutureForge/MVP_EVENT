@@ -29,7 +29,7 @@ router.post('/reset-password-request',resetPassword)
 
 router.post('/reset-password/:token',reset)
 
-router.get('/get-admin/:companyName',getAdmin);
+router.get('/get-admin',getAdmin);
 
 
 
