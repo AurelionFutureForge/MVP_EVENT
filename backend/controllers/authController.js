@@ -108,6 +108,11 @@ const registerAdmin = async (req, res) => {
       return res.status(400).json({ message: "Admin already exists" });
     }
 
+    const existingCompany = await Admin.findOne({ companyName });
+    if (existingCompany) {
+      return res.status(400).json({ message: "Company name already registered" });
+    }
+
     // Hash the password before saving
     const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -396,7 +401,7 @@ const getAdmin = async (req, res) => {
       return res.status(404).json({ message: "No admin registered with this company name" });
     }
 
-    res.json({ category: admin.category });
+    res.json({ category: admin.category.trim() });
   } catch (error) {
     console.error("Error fetching admin:", error);
     res.status(500).json({ message: "Server error while fetching admin" });
