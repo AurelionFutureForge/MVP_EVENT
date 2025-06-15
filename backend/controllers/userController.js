@@ -197,8 +197,8 @@ exports.freeRegisterUser = async (req, res) => {
     const email = formData.EMAIL?.trim().toLowerCase();
     const name = formData.name || formData.fullname || formData.NAME || formData.FULLNAME;
 
-    if (!email || !name) {
-      return res.status(400).json({ message: 'Name and Email are required fields' });
+    if (!email) {
+      return res.status(400).json({ message: 'Email is required fields' });
     }
 
     //  Check if user has already registered for the same event under this company
@@ -281,12 +281,10 @@ exports.registerUser = async (req, res) => {
     }
 
     // Extract email and name from formData
-    const email = formData.EMAIL?.trim().toLowerCase();
-    const name = formData.name || formData.fullname || formData.NAME || formData.FULLNAME;
+    const email = formData.EMAIL ? formData.EMAIL.trim().toLowerCase() : undefined;
 
-    if (!email || !name) {
-      return res.status(400).json({ message: 'Name and Email are required fields' });
-    }
+    const nameField = formData.name || formData.fullname || formData.NAME || formData.FULLNAME;
+    const name = nameField ? nameField.trim() : undefined;
 
     //  Check if user has already registered for the same event under this company
     const existingUser = await User.findOne({ email, companyName: event.companyName });
@@ -420,11 +418,11 @@ exports.getUsersByTransactionID = async (req, res) => {
 
 }
 
-exports.getUsersById = async (req,res) => {
-    const { eventID, decodedEmail } = req.params;
-    console.log("testing:",eventID)
+exports.getUsersById = async (req, res) => {
+  const { eventID, decodedEmail } = req.params;
+  console.log("testing:", eventID)
   try {
-    const user = await User.findOne({ eventId : eventID, email : decodedEmail});
+    const user = await User.findOne({ eventId: eventID, email: decodedEmail });
     if (!user) {
       return res.status(404).json({ error: "user not found for this eventID !" });
     }
