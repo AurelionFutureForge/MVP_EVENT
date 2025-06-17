@@ -22,7 +22,7 @@ const initiatePayment = async (req, res) => {
     }
 
     const merchantOrderId = `TXN_${Date.now()}_${eventId}`;
-    const redirectUrl = `https://events.aurelionfutureforge.com/payment-success?transactionId=${merchantOrderId}`;
+    const redirectUrl = `https://www.aurelionfutureforge.com/stagyn/payment-success?transactionId=${merchantOrderId}`;
     
 
     const metaInfo = MetaInfo.builder()

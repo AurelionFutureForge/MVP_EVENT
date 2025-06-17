@@ -20,9 +20,8 @@ app.use(express.json());
 // CORS options
 const corsOptions = {
   origin: [
-    "https://aurelionfutureforge-events.vercel.app",
-    "http://localhost:5173",
-    "https://events.aurelionfutureforge.com",
+    "http://localhost:5173/stagyn",
+    "https://www.aurelionfutureforge.com/stagyn/",
   ],
   methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
   allowedHeaders: ["Content-Type", "Authorization"],
