@@ -20,7 +20,7 @@ app.use(express.json());
 // CORS options
 const corsOptions = {
   origin: [
-    "http://localhost:5173/stagyn",
+    "http://localhost:5173",
     "https://www.aurelionfutureforge.com",
   ],
   methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
