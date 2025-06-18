@@ -32,9 +32,11 @@ const generateTicketPDF = async (name, email, eventName, companyName, place, tim
     doc.fillColor("#333").fontSize(20).text("Attendee Information", { align: "center", underline: true });
 
     doc.moveDown(0.7);
-    doc.fontSize(16).text(`Name: ${name}`, { align: "center" });
+    if (name) {
+      doc.fontSize(16).text(`Name: ${name}`, { align: "center" });
+    }
     doc.text(`Email: ${email}`, { align: "center" });
-    doc.text(`Role: ${role}`, { align: "center" });
+    doc.text(`Ticket Type: ${role}`, { align: "center" });
 
     //  Order ID and Ticket ID Section
     doc.moveDown(1.5);
@@ -131,7 +133,7 @@ const sendSuccessEmail = async (name, email, eventName, companyName, place, time
 
         <!-- Event Details -->
         <div style="padding: 30px;">
-          <p style="font-size: 18px;">Hello <strong>${name}</strong>,</p>
+          ${name ? `<p style="font-size: 18px;">Hello <strong>${name}</strong>,</p>` : ''}
           <p>Thank you for registering for <strong>${eventName}</strong>. Here are your event details:</p>
 
           <div style="border: 1px solid #eee; padding: 20px; border-radius: 8px; margin: 20px 0;">
@@ -150,7 +152,7 @@ const sendSuccessEmail = async (name, email, eventName, companyName, place, time
         </div>
 
         <div style="text-align: center; padding: 20px;">
-            <a href="https://events.aurelionfutureforge.com" style="padding: 10px 20px; background-color:  #FF0000; color: white; text-decoration: none; border-radius: 5px;">Click here to register</a>
+            <a href="https://aurelionfutureforge.com/stagyn" style="padding: 10px 20px; background-color:  #FF0000; color: white; text-decoration: none; border-radius: 5px;">Click here to register</a>
         </div>
 
         <!-- QR Code Section -->
@@ -232,9 +234,9 @@ exports.freeRegisterUser = async (req, res) => {
       claim: false
     }));
 
-
+    const normalize = (str) => str.replace(/\s+/g, ' ').trim();
     const user = new User({
-      companyName: event.companyName,
+      companyName: normalize(event.companyName),
       eventName: event.eventName,
       eventId: event._id,
       email: email,
@@ -324,8 +326,8 @@ exports.registerUser = async (req, res) => {
         message: 'No user found with this email and event ID. Please complete the payment first.'
       });
     }
-
-    user.companyName = event.companyName;
+    const normalize = (str) => str.replace(/\s+/g, ' ').trim();
+    user.companyName = normalize(event.companyName);
     user.eventName = event.eventName;
     user.role = selectedRole.roleName;
     user.privileges = privileges;

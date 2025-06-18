@@ -48,7 +48,7 @@ const adminLogin = async (req, res) => {
   }
 };
 
-// Get all registered users (for admin)
+
 const getAllUsers = async (req, res) => {
   try {
     const admin = await Admin.findById(req.adminId);
@@ -57,22 +57,30 @@ const getAllUsers = async (req, res) => {
       return res.status(401).json({ message: "Unauthorized" });
     }
 
-    const companyName = admin.companyName;
-    const { eventId } = req.query; // Fetch eventId from query params
+    // Normalize company name
+    const normalize = (str) => str.replace(/\s+/g, ' ').trim();
+    const companyName = normalize(admin.companyName);
+    console.log(companyName)
 
+    const { eventId } = req.query;
+
+    // Build query object
     const query = { companyName };
-
     if (eventId) {
-      query.eventId = eventId; // Match users by eventId now
+      query.eventId = eventId;
     }
+    console.log(query)
 
     const users = await User.find(query, "-password");
 
-    res.status(200).json({ users }); // wrap in { users } to match frontend usage
+    res.status(200).json({ users });
   } catch (error) {
+    console.error("Error fetching users:", error);
     res.status(500).json({ message: "Failed to retrieve users", error });
   }
 };
+
+
 
 
 // Controller function to get all events for the admin's company

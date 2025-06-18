@@ -133,20 +133,26 @@ const createEvent = async (req, res) => {
 
 // Get all events of a company
 const getEvents = async (req, res) => {
-  const companyName = req.query.companyName?.trim();
+  const normalize = (str) => str.replace(/\s+/g, ' ').trim();
+  const companyName = normalize(req.query.companyName || '');
 
   if (!companyName) {
     return res.status(400).json({ msg: 'Company name is required' });
   }
 
+  // Create flexible regex: convert spaces to `\s+` to match variable spaces
+  const regex = new RegExp('^' + companyName.replace(/\s/g, '\\s+') + '$', 'i');
+
   try {
-    const events = await Event.find({ companyName });
+    const events = await Event.find({ companyName: { $regex: regex } });
     res.json(events);
   } catch (error) {
     console.error(error);
     res.status(500).json({ msg: 'Server error' });
   }
 };
+
+
 
 // Get event by company name and event name
 const getEventByDetails = async (req, res) => {
