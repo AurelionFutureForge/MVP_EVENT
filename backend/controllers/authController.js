@@ -350,9 +350,15 @@ const resetPassword = async (req, res) => {
 
     // Generate token
     const token = crypto.randomBytes(32).toString('hex');
-    admin.resetToken = token;
-    admin.resetTokenExpiry = Date.now() + 1000 * 60 * 30; // 30 mins
-    await admin.save();
+    await Admin.updateOne(
+      { _id: admin._id },
+      {
+        $set: {
+          resetToken: token,
+          resetTokenExpiry: Date.now() + 1000 * 60 * 30,
+        },
+      }
+    );
 
     const transporter = nodemailer.createTransport({
       service: 'gmail',
@@ -404,7 +410,7 @@ const reset = async (req, res) => {
     admin.resetToken = undefined;
     admin.resetTokenExpiry = undefined;
 
-    await admin.save();
+    await admin.save({ validateBeforeSave: false });
 
     res.status(200).json({ message: 'Password reset successfully' });
   } catch (error) {
