@@ -16,6 +16,9 @@ const adminSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  referalCode:{
+    type: String,
+  },
   resetToken: String,
   resetTokenExpiry: Date,
 });

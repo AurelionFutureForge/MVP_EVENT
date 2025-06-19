@@ -452,8 +452,28 @@ const getAdmin = async (req, res) => {
   }
 };
 
+const saveReferal = async (req, res) => {
+  const { email, referal } = req.body;
+
+  try {
+    const admin = await Admin.findOne({ email });
+
+    if (!admin) {
+      return res.status(404).json({ message: "Admin not found" });
+    }
+
+    admin.referalCode = referal;
+    await admin.save();
+
+    return res.status(200).json({ message: "Referral code saved successfully" });
+  } catch (error) {
+    console.error("Error saving referral code:", error);
+    return res.status(500).json({ message: "Server error" });
+  }
+};
 
 
 
 
-module.exports = { adminLogin, getAdmin, getAllUsers, reset, resetPassword, registerAdmin, getEventPrivileges, assignPrivileges, getAllEvents, getRegField, getAvailableRoles, deletePrivileges };
+
+module.exports = { adminLogin, saveReferal, getAdmin, getAllUsers, reset, resetPassword, registerAdmin, getEventPrivileges, assignPrivileges, getAllEvents, getRegField, getAvailableRoles, deletePrivileges };

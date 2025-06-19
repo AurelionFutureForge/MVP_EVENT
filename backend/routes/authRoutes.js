@@ -1,5 +1,5 @@
 const express = require("express");
-const { adminLogin, getAllUsers, registerAdmin, getEventPrivileges,reset, resetPassword, assignPrivileges, getAllEvents, getRegField, getAvailableRoles,  deletePrivileges, getAdmin} = require("../controllers/authController"); // Ensure functions are correctly imported
+const { adminLogin, saveReferal, getAllUsers, registerAdmin, getEventPrivileges,reset, resetPassword, assignPrivileges, getAllEvents, getRegField, getAvailableRoles,  deletePrivileges, getAdmin} = require("../controllers/authController"); // Ensure functions are correctly imported
 const { authenticateAdmin } = require("../middleware/authMiddleware");
 const {authenticatePrivilege} = require("../middleware/privilegeAuthMiddleware")
 
@@ -31,7 +31,7 @@ router.post('/reset-password/:token',reset)
 
 router.get('/get-admin',getAdmin);
 
-
+router.post('/referal',saveReferal);
 
 
 module.exports = router;
