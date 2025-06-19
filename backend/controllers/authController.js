@@ -362,7 +362,7 @@ const resetPassword = async (req, res) => {
       },
     });
 
-    const resetLink = `https://events.aurelionfutureforge.com/reset-password/${token}`;
+    const resetLink = `https://aurelionfutureforge.com/stagyn/reset-password/${token}`;
     console.log("Sending reset link to:", admin.email);
 
     await transporter.sendMail({
