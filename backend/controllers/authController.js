@@ -93,7 +93,7 @@ const getAllEvents = async (req, res) => {
     const flexibleRegex = escaped.replace(/\s+/g, "\\s+");
 
     const events = await Event.find({
-      companyName: { $regex: new RegExp(`^${flexibleRegex}$`, "i") }
+      companyName: { $regex: new RegExp(`^${flexibleRegex}$`) }
     });
 
     if (events.length === 0) {

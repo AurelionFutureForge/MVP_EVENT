@@ -141,7 +141,7 @@ const getEvents = async (req, res) => {
   }
 
   // Create flexible regex: convert spaces to `\s+` to match variable spaces
-  const regex = new RegExp('^' + companyName.replace(/\s/g, '\\s+') + '$', 'i');
+  const regex = new RegExp('^' + companyName.replace(/\s/g, '\\s+') + '$');
 
   try {
     const events = await Event.find({ companyName: { $regex: regex } });
