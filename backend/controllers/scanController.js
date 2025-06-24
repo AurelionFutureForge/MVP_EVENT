@@ -6,13 +6,16 @@ exports.verifyQRCode = async (req, res) => {
 
   try {
     // Find the user with the scanned QR code
+    console.log(req.body);
     const user = await User.findOne({ qrCode });
+    console.log(user);
 
     if (!user) {
       return res.status(404).json({ status: "error", message: "User not found!" });
     }
 
     // Ensure the user is associated with the correct event
+    console.log(user.eventName);
     if (user.eventName !== eventName) {
       return res.status(400).json({ status: "error", message: `QR Code is not associated with the event: ${eventName}` });
     }

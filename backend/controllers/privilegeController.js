@@ -1,7 +1,7 @@
 const Privilege = require("../models/privilegeModel"); // Your privilege collection
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
-const Event = require("../models/Event"); 
+const Event = require("../models/Event");
 
 exports.privilegeLogin = async (req, res) => {
   const { email, password } = req.body;
@@ -58,8 +58,6 @@ exports.privilegeLogin = async (req, res) => {
 };
 
 
-
-
 exports.getPrivilegeUsers = async (req, res) => {
   const { email, privilegeName } = req.user;
   const { eventId } = req.query;
@@ -93,4 +91,28 @@ exports.getPrivilegeUsers = async (req, res) => {
     res.status(500).json({ message: "Server error while fetching privilege users." });
   }
 };
+
+exports.Privilege = async (req, res) => {
+  const { eventId } = req.params;
+  try {
+    if (!eventId) {
+      return res.status(400).json("Event ID is required !");
+    }
+    const privilege = await Privilege.findOne({ eventId });
+    if (!privilege) {
+      return res.status(404).json("No Privileges assigned for the eventID");
+    }
+    const cleanedPrivilege = privilege.privileges.map(p => ({
+      privilegeName: p.privilegeName,
+      email: p.email,
+      endDate: p.endDate
+    }));
+    return res.status(200).json(cleanedPrivilege);
+  } catch (err) {
+    res.status(500).json(err.message || "Server Error");
+  }
+
+}
+
+
 
