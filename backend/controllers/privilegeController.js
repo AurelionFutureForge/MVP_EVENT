@@ -114,5 +114,44 @@ exports.Privilege = async (req, res) => {
 
 }
 
+exports.deletePrivilege = async (req, res) => {
+  const { eventId, priv } = req.body;
+  try {
+    const { email, privilegeName } = priv;
+
+    if (!eventId || !email || !privilegeName) {
+      return res.status(400).json({ message: "eventId, email, and privilegeName are required" });
+    }
+
+    const result = await Privilege.findOneAndUpdate(
+      { eventId },
+      {
+        $pull: {
+          privileges: {
+            email: email,
+            privilegeName: privilegeName
+          }
+        }
+      },
+      { new: true }
+    );
+
+    if (!result) {
+      return res.status(404).json({ message: "Privilege not found or already removed" });
+    }
+
+    res.status(200).json({
+      message: "Privilege removed successfully",
+      updatedPrivileges: result.privileges
+    });
+
+  } catch (error) {
+    console.error("Error deleting privilege:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+
+
 
 
